@@ -5,6 +5,7 @@ public class EventManager
 {
     public static event Action OnGameOver;
     public static event Action OnGameStart;
+    public static event Action OnInteractionClick;
 
     public void RequestGameOver()
     {
@@ -13,5 +14,9 @@ public class EventManager
     public void RequestGameStart()
     {
         OnGameStart?.Invoke();
+    }
+    public void RequestInteraction()
+    {
+        OnInteractionClick?.Invoke();
     }
 }

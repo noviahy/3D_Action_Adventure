@@ -22,11 +22,17 @@ public class Attack
 
     public void BowAttack()
     {
-        if (controller.Input.BowPressed) { }
-        if (controller.Input.BowReleased) 
+        if (controller.Input.StartBowCharging)
         {
-            controller.Player.ChangeAttackType(Player.AttackType.Bow);
         }
+        if (controller.Input.BowCharging)
+        {
+        }
+        if (controller.Input.BowShoot)
+        {
+        }
+        controller.Player.ChangeAttackType(Player.AttackType.Bow);
+
     }
     public void BombAttack()
     {

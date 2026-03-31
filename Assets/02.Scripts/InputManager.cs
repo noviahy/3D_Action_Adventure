@@ -10,12 +10,13 @@ public class InputManager : MonoBehaviour
     public bool RunPressed { get; private set; }
     public bool ParryingPressed { get; private set; }
     public bool RollPressed { get; private set; }
-    public bool BowPressed { get; private set; }
-    public bool BowReleased { get; private set; }
+    public bool StartBowCharging { get; private set; }
+    public bool BowCharging { get; private set; }
+    public bool BowShoot { get; private set; }
     public bool isLockOn { get; private set; }
     public bool InteractionPressed {  get; private set; }
-    public bool ChangeItem {  get; private set; }
-
+    public bool ChangeItemNext {  get; private set; }
+    public bool ChangeItemPrev { get; private set; }
     public float mouseX { get; private set; }
     public float mouseY { get; private set; }
     public InputMode CurrentInput { get; private set; }
@@ -35,30 +36,30 @@ public class InputManager : MonoBehaviour
 
     void Update() // 동시에 누를때 생기는 문제 처리해야함
     {
-        BowReleased = false;
-
         mouseX = Input.GetAxis("Mouse X");
         mouseY = Input.GetAxis("Mouse Y");
-
 
         float forward = Input.GetAxisRaw("Vertical");
         float side = Input.GetAxisRaw("Horizontal");
         MoveInput = cam.camForward * forward + cam.camRight * side;
 
-        AttackPressed = Input.GetKeyDown("Attack");
-        LightAttack = Input.GetKeyDown("Light");
-        HeavyAttack = Input.GetKeyDown("Heavy");
+        AttackPressed = Input.GetButtonDown("Attack");
+        LightAttack = Input.GetButtonDown("Light");
+        HeavyAttack = Input.GetButtonDown("Heavy");
 
-        ChangeItem = Input.GetKeyDown("ChangeItem");
-        InteractionPressed = Input.GetKeyDown("Interaction");
+        ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
+        ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
 
-        RunPressed = Input.GetButtonDown("Run");
+        InteractionPressed = Input.GetButtonDown("Interaction");
 
-        ParryingPressed = Input.GetButtonDown("Parrying");
+        RunPressed = Input.GetButton("Run");
 
-        RollPressed = Input.GetKeyDown("Roll");
+        ParryingPressed = Input.GetButton("Parrying");
 
-        BowPressed = Input.GetButtonDown("Bow");
-        BowReleased = Input.GetButtonUp("Bow");
+        RollPressed = Input.GetButtonDown("Roll");
+
+        StartBowCharging = Input.GetButtonDown("Bow");
+        BowCharging = Input.GetButton("Bow");
+        BowShoot = Input.GetButtonUp("Bow");
     }
 }

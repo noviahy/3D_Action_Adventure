@@ -2,11 +2,22 @@ using UnityEngine;
 
 public class ItemShortcut
 {
-    public ItemList CurrentItem {  get; private set; }
-    public enum ItemList
+    [SerializeField] Inventory inventory;
+
+    private Inventory.ItemList[] items;
+    private int currentIndex = 0;
+
+    public void NextItem()
     {
-        HPPostion,
-        Bomb
+        currentIndex++;
+        if(currentIndex >= items.Length)
+            currentIndex = 0;
     }
-    
+
+    public void PrevItem()
+    {
+        currentIndex--;
+        if(currentIndex < 0)
+            currentIndex = items.Length - 1;
+    }
 }

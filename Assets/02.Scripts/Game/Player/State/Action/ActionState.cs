@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ActionState : MonoBehaviour, IPlayerState
+public class ActionState : IPlayerState
 {
     public ActionType currentType;
     public enum ActionType
