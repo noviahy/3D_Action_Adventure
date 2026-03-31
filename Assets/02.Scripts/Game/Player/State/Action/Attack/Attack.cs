@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public class Attack : MonoBehaviour
+public class Attack
 {
+    [SerializeField] PlayerController controller;
     [SerializeField] AttackState attackState;
     public void SwordAttack(AttackState.AttackStyle attackStyle)
     {
@@ -10,28 +11,26 @@ public class Attack : MonoBehaviour
             case AttackState.AttackStyle.Light:
                 {
                     break;
-
                 }
             case AttackState.AttackStyle.Heavy:
                 {
-
                     break;
-
                 }
         }
-    }
-    private void Update()
-    {
-        
+        controller.Player.ChangeAttackType(Player.AttackType.Sword);
     }
 
     public void BowAttack()
     {
-
+        if (controller.Input.BowPressed) { }
+        if (controller.Input.BowReleased) 
+        {
+            controller.Player.ChangeAttackType(Player.AttackType.Bow);
+        }
     }
     public void BombAttack()
     {
-
+        controller.Player.ChangeAttackType(Player.AttackType.Bomb);
     }
 
 }
