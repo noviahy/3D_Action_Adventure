@@ -34,17 +34,17 @@ public class PlayerStateMachine : MonoBehaviour
     {
         // 무기를 들고있는 상태이기 때문에 여기 넣어도 될 것 같음 
         // 딱히 액션이 아님
+        if (currentState == PlayerState.DeadState)
+            deadState.Dead();
 
-        if (input.AttackPressed || input.ParryingPressed || input.RollPressed || input.BowCharging || input.InteractionPressed) // 일단 보류
+        if (input.LocomotionPressed)
         {
             if (input.InteractionPressed) // 아이템 종류 생각! 수정 필요
                 controller.Player.ChangeAttackType(Player.AttackType.Bomb);
+
             controller.StateMachine.TryChangeState(PlayerState.ActionState);
             return;
         }
         controller.StateMachine.TryChangeState(PlayerState.LocomotionState);
-
-        if (currentState == PlayerState.DeadState)
-            deadState.Dead();
     }
 }

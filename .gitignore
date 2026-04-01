@@ -8,3 +8,7 @@ UserSettings/
 *.sln
 *.csproj
 .vsconfig
+
+# Paid Assets
+Assets/06.Res/
+Assets/06.Res.meta

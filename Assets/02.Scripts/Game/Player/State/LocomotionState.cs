@@ -18,7 +18,6 @@ public class LocomotionState : MonoBehaviour, IPlayerState
     }
     private void Update()
     {
-
         if (!controller.GroundCheck.IsGrounded)
             return;
 

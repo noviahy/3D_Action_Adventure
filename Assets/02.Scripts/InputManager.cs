@@ -17,8 +17,11 @@ public class InputManager : MonoBehaviour
     public bool InteractionPressed {  get; private set; }
     public bool ChangeItemNext {  get; private set; }
     public bool ChangeItemPrev { get; private set; }
-    public float mouseX { get; private set; }
-    public float mouseY { get; private set; }
+    public float MouseX { get; private set; }
+    public float MouseY { get; private set; }
+    public bool IsLockOn { get; private set; } = false;
+    public bool LocomotionPressed { get; private set; }
+    public bool ActionPressed { get; private set; }
     public InputMode CurrentInput { get; private set; }
 
     public enum InputMode
@@ -36,8 +39,8 @@ public class InputManager : MonoBehaviour
 
     void Update() // 동시에 누를때 생기는 문제 처리해야함
     {
-        mouseX = Input.GetAxis("Mouse X");
-        mouseY = Input.GetAxis("Mouse Y");
+        MouseX = Input.GetAxis("Mouse X");
+        MouseY = Input.GetAxis("Mouse Y");
 
         float forward = Input.GetAxisRaw("Vertical");
         float side = Input.GetAxisRaw("Horizontal");
@@ -61,5 +64,17 @@ public class InputManager : MonoBehaviour
         StartBowCharging = Input.GetButtonDown("Bow");
         BowCharging = Input.GetButton("Bow");
         BowShoot = Input.GetButtonUp("Bow");
+
+        if(AttackPressed || ParryingPressed || RollPressed || BowCharging || InteractionPressed)
+        {
+            ActionPressed = true;
+        }
+
+        if (Input.GetButtonDown("LockOn"))
+            IsLockOn = !IsLockOn;
+    }
+    public void RequestLockOn(bool value)
+    {
+        IsLockOn = value;
     }
 }

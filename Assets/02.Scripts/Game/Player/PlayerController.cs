@@ -10,4 +10,5 @@ public class PlayerController
     public KnockbackState KnockbackState { get; }
     public ActionState Action { get; }
     public GroundCheck GroundCheck { get; }
+    public CameraFollow3D Cam {  get; }
 }
