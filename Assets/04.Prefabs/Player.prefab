@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 747049203029960053}
   - component: {fileID: 2372999699684031680}
   - component: {fileID: 939030415044917942}
-  - component: {fileID: 3300782854808152681}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -33,7 +32,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1835233767342232059}
+  m_Father: {fileID: 1955972052365068516}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &747049203029960053
 Camera:
@@ -138,30 +137,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!114 &3300782854808152681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 166399936304290647}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70ebfd6e8e510b6408e339fe134c9f78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraFollow3D
-  cameraPivot: {fileID: 0}
-  input: {fileID: 0}
-  sensitivity: 0
-  player: {fileID: 9127978430954455101}
-  defaultDistance: 0
-  hideDistance: 0
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  playerRenderer: {fileID: 0}
-  switchThreshold: 0.5
-  switchCooldown: 0.3
 --- !u!1 &685801919761376662
 GameObject:
   m_ObjectHideFlags: 0
@@ -193,6 +168,38 @@ Transform:
   m_Children:
   - {fileID: 678405130036422526}
   m_Father: {fileID: 9127978430954455101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1338512557726789408
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1955972052365068516}
+  m_Layer: 0
+  m_Name: CameraPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1955972052365068516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338512557726789408}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8467799064169470331}
+  m_Father: {fileID: 1835233767342232059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2549477292972544916
 GameObject:
@@ -336,6 +343,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1835233767342232059}
+  - component: {fileID: 3679401313393717445}
   m_Layer: 0
   m_Name: CameraRoot
   m_TagString: Untagged
@@ -356,9 +364,33 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8467799064169470331}
+  - {fileID: 1955972052365068516}
   m_Father: {fileID: 9127978430954455101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3679401313393717445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7418275584957531274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70ebfd6e8e510b6408e339fe134c9f78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFollow3D
+  cameraPivot: {fileID: 1955972052365068516}
+  input: {fileID: 0}
+  sensitivity: 0
+  player: {fileID: 9127978430954455101}
+  defaultDistance: 3
+  hideDistance: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  playerRenderer: {fileID: 2910806708258793918}
+  switchThreshold: 0.5
+  switchCooldown: 0.3
 --- !u!1 &8125920071323429513
 GameObject:
   m_ObjectHideFlags: 0
@@ -455,5 +487,10 @@ PrefabInstance:
 --- !u!4 &678405130036422526 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
+  m_PrefabInstance: {fileID: 1072020136617230485}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &2910806708258793918 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2775862123970177323, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
   m_PrefabInstance: {fileID: 1072020136617230485}
   m_PrefabAsset: {fileID: 0}
