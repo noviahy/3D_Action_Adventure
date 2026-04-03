@@ -11,4 +11,6 @@ public class PlayerController
     public ActionState Action { get; }
     public GroundCheck GroundCheck { get; }
     public CameraFollow3D Cam {  get; }
+
+    public AnimationController Animation { get; }
 }

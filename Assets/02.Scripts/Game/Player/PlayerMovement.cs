@@ -4,6 +4,7 @@ public class PlayerMovement
 {
     [SerializeField] private CharacterController cc;
     [SerializeField] private LocomotionState state;
+    [SerializeField] private PlayerController controller;
     [SerializeField] private float walkSpeed;
     [SerializeField] private float runSpeed;
     [SerializeField] private float jumpForwardPower;
@@ -31,6 +32,7 @@ public class PlayerMovement
         {
             float speed = isRun ? runSpeed : walkSpeed;
             horizontal = inputDir.normalized * speed;
+            controller.Animation.SetMove(speed);
         }
 
         // ม฿ทย
