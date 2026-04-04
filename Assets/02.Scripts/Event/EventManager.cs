@@ -3,10 +3,15 @@ using System;
 
 public class EventManager
 {
-    public static event Action OnGameOver;
-    public static event Action OnGameStart;
-    public static event Action OnInteractionClick;
+    public event Action OnGameOver;
+    public event Action OnGameStart;
+    public event Action OnInteractionClick;
 
+    private PlayerController con;
+    public EventManager(PlayerController playerController)
+    {
+        con = playerController;
+    }
     public void RequestGameOver()
     {
         OnGameOver?.Invoke();

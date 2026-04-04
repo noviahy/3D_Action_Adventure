@@ -1,41 +1,60 @@
 using UnityEngine;
 
-public class AnimationController : MonoBehaviour
+public class AnimationController
 {
-    private Animator animator;
+    private PlayerController con;
 
-    public AnimationController(Animator animator)
+    public AnimationController(PlayerController con)
     {
-        this.animator = animator;
+        this.con = con;
     }
 
-    public void SetMove(float speed)
+    public void SetMove(float speed) //
     {
-        animator.SetFloat("Speed", speed);
+        con.Animator.SetFloat("Speed", speed);
     }
-
-    public void SetGrounded(bool isGrounded)
+    public void SetGrounded(bool isGrounded) // 
     {
-        animator.SetBool("isGrounded", isGrounded);
+        con.Animator.SetBool("isGrounded", isGrounded);
     }
-
-    public void PlayAttack()
+    public void SetLockOn(bool lockOn) //
     {
-        animator.SetTrigger("Attack");
+        con.Animator.SetBool("LockOn", lockOn);
     }
-
-    public void PlayRoll()
+    public void SetParry(bool parry) // 
     {
-        animator.SetTrigger("Roll");
+        con.Animator.SetBool("Parry", parry);
     }
-
-    public void PlayHit()
+    public void SetDead(bool isDead) //
     {
-        animator.SetTrigger("Hit");
+        con.Animator.SetBool("Dead", isDead);
     }
-
-    public void SetDead(bool isDead)
+    public void SetBowAim(bool bowAim)
     {
-        animator.SetBool("Dead", isDead);
+        con.Animator.SetBool("BowAim", true);
+    }
+    public void PlayJump() //
+    {
+        con.Animator.SetTrigger("Jump");
+    }
+    public void PlayAttack() 
+    {
+        con.Animator.SetTrigger("Attack");
+    }
+    public void PlayDodge() //
+    {
+        con.Animator.SetTrigger("Dodge");
+    }
+    public void SetWeaponType(int type) //
+    {
+        con.Animator.SetInteger("WeaponType", type);
+    }
+    public void SetAttackType(int type) //
+    {
+        con.Animator.SetInteger("AttackType", type);
+    }
+    public void PlayHit() //
+    {
+        con.Animator.SetTrigger("Hit");
     }
 }

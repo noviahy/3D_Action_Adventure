@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    [SerializeField] PlayerController controller;
-    [SerializeField] InputManager input;
-    [SerializeField] DeadState deadState;
+    [SerializeField] PlayerController con;
     public PlayerState currentState { get; private set; }
 
     public enum PlayerState
@@ -25,7 +23,7 @@ public class PlayerStateMachine : MonoBehaviour
             return;
         if (currentState == PlayerState.KnockbackState)
             return;
-        if (!controller.GroundCheck.IsGrounded)
+        if (!con.GroundCheck.IsGrounded)
             return;
 
         ChangePlayerState(state);
@@ -35,16 +33,16 @@ public class PlayerStateMachine : MonoBehaviour
         // 무기를 들고있는 상태이기 때문에 여기 넣어도 될 것 같음 
         // 딱히 액션이 아님
         if (currentState == PlayerState.DeadState)
-            deadState.Dead();
+            con.Dead.Dead();
 
-        if (input.LocomotionPressed)
+        if (con.Input.LocomotionPressed)
         {
-            if (input.InteractionPressed) // 아이템 종류 생각! 수정 필요
-                controller.Player.ChangeAttackType(Player.AttackType.Bomb);
+            if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요
+                con.Player.ChangeAttackType(Player.AttackType.Bomb);
 
-            controller.StateMachine.TryChangeState(PlayerState.ActionState);
+            con.StateMachine.TryChangeState(PlayerState.ActionState);
             return;
         }
-        controller.StateMachine.TryChangeState(PlayerState.LocomotionState);
+        con.StateMachine.TryChangeState(PlayerState.LocomotionState);
     }
 }

@@ -2,9 +2,15 @@ using UnityEngine;
 
 public class DeadState : IPlayerState
 {
-    [SerializeField] private EventManager eventManager;
+    private PlayerController con;
+
+    public DeadState(PlayerController controller)
+    {
+        this.con = controller;
+    }
     public void Dead()
     {
-        eventManager.RequestGameOver();
+        con.Event.RequestGameOver();
+        con.Animation.SetDead(true);
     }
 }

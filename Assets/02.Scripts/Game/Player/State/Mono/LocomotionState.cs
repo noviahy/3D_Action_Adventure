@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class LocomotionState : MonoBehaviour, IPlayerState
 {
-    [SerializeField] PlayerController controller;
-    [SerializeField] InputManager input;
-    [SerializeField] PlayerMovement move;
+    [SerializeField] PlayerController con;
+
     public LocomotionSubState currentSubState { get; private set; }
     public enum LocomotionSubState
     {
@@ -18,12 +17,12 @@ public class LocomotionState : MonoBehaviour, IPlayerState
     }
     private void Update()
     {
-        if (!controller.GroundCheck.IsGrounded)
+        if (!con.GroundCheck.IsGrounded)
             return;
 
-        if (input.MoveInput != Vector3.zero)
+        if (con.Input.MoveInput != Vector3.zero)
         {
-            if (input.RunPressed)
+            if (con.Input.RunPressed)
                 ChangeState(LocomotionSubState.Run);
             else
                 ChangeState(LocomotionSubState.Walk);
@@ -38,16 +37,16 @@ public class LocomotionState : MonoBehaviour, IPlayerState
             case LocomotionSubState.Idle:
                 break;
             case LocomotionSubState.Walk:
-                controller.Movement.Move(input.MoveInput, false);
+                con.Movement.Move(con.Input.MoveInput, false);
                 break;
             case LocomotionSubState.Run:
-                controller.Movement.Move(input.MoveInput, true);
+                con.Movement.Move(con.Input.MoveInput, true);
                 break;
         }
-        if (move.JustLanded)
+        if (con.Movement.JustLanded)
         {
             ChangeState(LocomotionSubState.Idle);
-            move.ChangeJustLanded();
+            con.Movement.ChangeJustLanded();
         }
     }
 }

@@ -2,19 +2,23 @@ using UnityEngine;
 
 public class PlayerMovement
 {
-    [SerializeField] private CharacterController cc;
-    [SerializeField] private LocomotionState state;
-    [SerializeField] private PlayerController controller;
-    [SerializeField] private float walkSpeed;
-    [SerializeField] private float runSpeed;
-    [SerializeField] private float jumpForwardPower;
-    [SerializeField] private float jumpUpPower;
+    private PlayerController con;
+
+    private float walkSpeed = 1f;
+    private float runSpeed = 2f;
+    private float jumpForwardPower = 2f;
+    private float jumpUpPower = 2f;
 
     private Vector3 jumpDir;
     private float yVelocity;
     private bool isJumping;
 
     public bool JustLanded { get; private set; } = false;
+
+    public PlayerMovement(PlayerController controller)
+    {
+        con = controller;
+    }
     public void ChangeJustLanded()
     {
         JustLanded = false;
@@ -32,11 +36,11 @@ public class PlayerMovement
         {
             float speed = isRun ? runSpeed : walkSpeed;
             horizontal = inputDir.normalized * speed;
-            controller.Animation.SetMove(speed);
+            con.Animation.SetMove(speed);
         }
 
         // ม฿ทย
-        if (cc.isGrounded && yVelocity < 0)
+        if (con.cc.isGrounded && yVelocity < 0)
         {
             yVelocity = -2f;
             isJumping = false;
@@ -46,16 +50,17 @@ public class PlayerMovement
         yVelocity += Physics.gravity.y * Time.deltaTime;
 
         Vector3 move = new Vector3(horizontal.x, yVelocity, horizontal.z);
-        cc.Move(move * Time.deltaTime);
+        con.cc.Move(move * Time.deltaTime);
     }
     public void Jump(Vector3 dir)
     {
-        if (cc.isGrounded)
+        if (con.cc.isGrounded)
         {
             isJumping = true;
+            con.Animation.PlayJump();
 
             if (dir == Vector3.zero)
-                jumpDir = state.transform.forward;
+                jumpDir = con.Locomotion.transform.forward;
             else
                 jumpDir = dir.normalized;
 

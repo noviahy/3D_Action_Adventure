@@ -46,18 +46,18 @@ public class CameraFollow3D : MonoBehaviour
     void LateUpdate()
     {
         // 락온 꺼지면 타겟 삭제
-        if (!input.isLockOn)
+        if (!input.IsLockOn)
             target = null;
 
         // 켜져 있으면 유효성 체크
-        if (input.isLockOn)
+        if (input.IsLockOn)
             ValidateTarget();
 
         // LockOn할 타겟 찾기
-        if (input.isLockOn && target == null)
+        if (input.IsLockOn && target == null)
             FindTarget();
 
-        if (input.isLockOn && target != null)
+        if (input.IsLockOn && target != null)
         {
             switchTimer -= Time.deltaTime;
 
@@ -83,7 +83,7 @@ public class CameraFollow3D : MonoBehaviour
         // Player 따라가기
         cameraRoot.position = Vector3.Lerp(cameraRoot.position, player.position, 10f * Time.deltaTime);
 
-        if (input.isLockOn && target != null)
+        if (input.IsLockOn && target != null)
         {
             // Player -> 타겟 방향으로 회전
             Vector3 dir = target.position - player.position;

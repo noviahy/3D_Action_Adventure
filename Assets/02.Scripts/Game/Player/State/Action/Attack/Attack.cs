@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class Attack
 {
-    [SerializeField] PlayerController controller;
-    [SerializeField] AttackState attackState;
+    // Bow 사용 시 Upper Body가 안 움직일 것 같은데 수정해야겠음
+    [SerializeField] PlayerController con;
+
+    public Attack(PlayerController controller)
+    {
+        con = controller;
+    }
     public void SwordAttack(AttackState.AttackStyle attackStyle)
     {
         switch (attackStyle)
@@ -17,26 +22,29 @@ public class Attack
                     break;
                 }
         }
-        controller.Player.ChangeAttackType(Player.AttackType.Sword);
+        con.Player.ChangeAttackType(Player.AttackType.Sword);
     }
 
     public void BowAttack()
     {
-        if (controller.Input.StartBowCharging)
+        if (con.Input.StartBowCharging)
+        {
+            con.Animation.SetBowAim(true);
+        }
+        if (con.Input.BowCharging)
         {
         }
-        if (controller.Input.BowCharging)
+        if (con.Input.BowShoot)
         {
+            con.Animation.SetBowAim(false);
+            con.Animation.PlayAttack();
         }
-        if (controller.Input.BowShoot)
-        {
-        }
-        controller.Player.ChangeAttackType(Player.AttackType.Bow);
+        con.Player.ChangeAttackType(Player.AttackType.Bow);
 
     }
     public void BombAttack()
     {
-        controller.Player.ChangeAttackType(Player.AttackType.Bomb);
+        con.Player.ChangeAttackType(Player.AttackType.Bomb);
     }
 
 }

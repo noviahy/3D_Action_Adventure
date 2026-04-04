@@ -2,10 +2,7 @@ using UnityEngine;
 
 public class AttackState : MonoBehaviour
 {
-    [SerializeField] private PlayerController controller;
-    [SerializeField] private ActionState action;
-    [SerializeField] private Attack attack;
-    [SerializeField] private Parrying parrying;
+    [SerializeField] private PlayerController con;
     public AttackStyle currentAttackStyle { get; private set; }
     public enum AttackStyle 
     {
@@ -19,29 +16,38 @@ public class AttackState : MonoBehaviour
     }
     private void Update()
     {
-        if (action.currentType != ActionState.ActionType.Attack)
+        if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
-        if(controller.Input.LightAttack)
+        if (con.Input.LightAttack)
+        {
             ChangeAttackStyle(AttackStyle.Light);
-        if(controller.Input.HeavyAttack)
+            con.Animation.SetAttackType(0);
+        }
+
+        if (con.Input.HeavyAttack)
+        {
             ChangeAttackStyle(AttackStyle.Heavy);
+            con.Animation.SetAttackType(1);
+        }
     }
     private void FixedUpdate()
     {
-        if (action.currentType != ActionState.ActionType.Attack)
+        if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
 
-        switch (controller.Player.currentAttackType)
+        switch (con.Player.currentAttackType)
         {
             case Player.AttackType.Sword:
-                
-                attack.SwordAttack(currentAttackStyle);
+                con.Animation.SetWeaponType(2);
+                con.Animation.PlayAttack();
+                con.Attack.SwordAttack(currentAttackStyle);
                 break;
             case Player.AttackType.Bow:
-                attack.BowAttack();
+                con.Animation.SetWeaponType(1);
+                con.Attack.BowAttack();
                 break;
             case Player.AttackType.Bomb:
-                attack.BombAttack();
+                con.Attack.BombAttack();
                 break;
         }
     }

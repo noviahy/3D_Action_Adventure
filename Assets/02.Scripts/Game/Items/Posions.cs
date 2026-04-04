@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Posions : MonoBehaviour
+public class Posions
 {
     [SerializeField] Health health;
 

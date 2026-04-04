@@ -2,27 +2,35 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    [SerializeField] private CameraFollow3D cam;
+    [SerializeField] private PlayerController con;
     public Vector3 MoveInput { get; private set; }
     public bool AttackPressed { get; private set; }
-    public bool LightAttack {  get; private set; }
-    public bool HeavyAttack {  get; private set; }
+    public bool LightAttack { get; private set; }
+    public bool HeavyAttack { get; private set; }
+
     public bool RunPressed { get; private set; }
     public bool ParryingPressed { get; private set; }
-    public bool RollPressed { get; private set; }
+    public bool DodgePressed { get; private set; }
+
     public bool StartBowCharging { get; private set; }
     public bool BowCharging { get; private set; }
     public bool BowShoot { get; private set; }
-    public bool isLockOn { get; private set; }
-    public bool InteractionPressed {  get; private set; }
-    public bool ChangeItemNext {  get; private set; }
+
+    public bool IsLockOn { get; private set; } = false;
+
+    public bool InteractionPressed { get; private set; }
+    public bool ChangeItemNext { get; private set; }
     public bool ChangeItemPrev { get; private set; }
+
     public float MouseX { get; private set; }
     public float MouseY { get; private set; }
-    public bool IsLockOn { get; private set; } = false;
+
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
+
+    private float prevRT;
     public InputMode CurrentInput { get; private set; }
+
 
     public enum InputMode
     {
@@ -39,16 +47,23 @@ public class InputManager : MonoBehaviour
 
     void Update() // 동시에 누를때 생기는 문제 처리해야함
     {
-        MouseX = Input.GetAxis("Mouse X");
-        MouseY = Input.GetAxis("Mouse Y");
+        MouseX = Input.GetAxis("LookX");
+        MouseY = Input.GetAxis("LookY");
 
         float forward = Input.GetAxisRaw("Vertical");
         float side = Input.GetAxisRaw("Horizontal");
-        MoveInput = cam.camForward * forward + cam.camRight * side;
+        MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
 
         AttackPressed = Input.GetButtonDown("Attack");
         LightAttack = Input.GetButtonDown("Light");
-        HeavyAttack = Input.GetButtonDown("Heavy");
+        float rt = Input.GetAxis("Heavy");
+
+        bool isPressed = rt > 0.5f;
+        bool wasPressed = prevRT > 0.5f;
+
+        HeavyAttack = isPressed && !wasPressed;
+
+        prevRT = rt;
 
         ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
         ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
@@ -59,19 +74,21 @@ public class InputManager : MonoBehaviour
 
         ParryingPressed = Input.GetButton("Parrying");
 
-        RollPressed = Input.GetButtonDown("Roll");
+        DodgePressed = Input.GetButtonDown("Dodge");
 
-        StartBowCharging = Input.GetButtonDown("Bow");
-        BowCharging = Input.GetButton("Bow");
-        BowShoot = Input.GetButtonUp("Bow");
+        float bow = Input.GetAxis("Bow");
 
-        if(AttackPressed || ParryingPressed || RollPressed || BowCharging || InteractionPressed)
-        {
-            ActionPressed = true;
-        }
+        bool wasBowCharging = BowCharging;
+
+        BowCharging = bow > 0.5f;
+        StartBowCharging = BowCharging && !wasBowCharging;
+        BowShoot = !BowCharging && wasBowCharging;
+
+        ActionPressed = AttackPressed || ParryingPressed || DodgePressed || BowCharging || InteractionPressed;
 
         if (Input.GetButtonDown("LockOn"))
             IsLockOn = !IsLockOn;
+        con.Animation.SetLockOn(IsLockOn);
     }
     public void RequestLockOn(bool value)
     {

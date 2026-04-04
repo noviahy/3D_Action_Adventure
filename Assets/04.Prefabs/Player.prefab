@@ -210,6 +210,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1072393104079595427}
+  - component: {fileID: 8856412104932000664}
   m_Layer: 0
   m_Name: PlayerController
   m_TagString: Untagged
@@ -232,6 +233,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9127978430954455101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8856412104932000664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2549477292972544916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e443bf1750ebb5458f0d31572b9da59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player
+  input: {fileID: 0}
+  stateMachine: {fileID: 0}
+  attack: {fileID: 7491683734706545696}
+  interaction: {fileID: 866694456664364188}
+  groundCheck: {fileID: 1203165965842752932}
+  cam: {fileID: 3679401313393717445}
+  characterController: {fileID: 839982891926498736}
 --- !u!1 &4250581368515266012
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,6 +309,50 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &5021079849672530196
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4898797592886188194}
+  - component: {fileID: 1203165965842752932}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4898797592886188194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5021079849672530196}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9127978430954455101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1203165965842752932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5021079849672530196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9044d05859fd3e94bbd09e687e44219d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundCheck
 --- !u!1 &7356631373245446715
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,6 +363,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5353299035326556547}
   - component: {fileID: 4196373986859839318}
+  - component: {fileID: 7491683734706545696}
+  - component: {fileID: 866694456664364188}
   m_Layer: 0
   m_Name: PlayerMovement
   m_TagString: Untagged
@@ -333,7 +399,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 036dea4d5df771546b5b6b85a59d40c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LocomotionState
-  input: {fileID: 0}
+--- !u!114 &7491683734706545696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356631373245446715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03538264c48680d4baec1465a9e10c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackState
+--- !u!114 &866694456664364188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356631373245446715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8054517a20d9dad4cb877471e4f81bb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionState
 --- !u!1 &7418275584957531274
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,17 +469,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow3D
   cameraPivot: {fileID: 1955972052365068516}
+  player: {fileID: 9127978430954455101}
   input: {fileID: 0}
   sensitivity: 0
-  player: {fileID: 9127978430954455101}
   defaultDistance: 3
   hideDistance: 1
+  switchThreshold: 0.5
+  switchCooldown: 0.3
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
   playerRenderer: {fileID: 2910806708258793918}
-  switchThreshold: 0.5
-  switchCooldown: 0.3
 --- !u!1 &8125920071323429513
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,6 +513,7 @@ Transform:
   - {fileID: 1072393104079595427}
   - {fileID: 5353299035326556547}
   - {fileID: 1835233767342232059}
+  - {fileID: 4898797592886188194}
   - {fileID: 4366242621637294733}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
