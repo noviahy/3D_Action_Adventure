@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InteractionState : MonoBehaviour
+public class InteractionState : PlayerBehaviour
 {
     [SerializeField] private PlayerController controller;
     [SerializeField] private ActionState action;

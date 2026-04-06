@@ -1,16 +1,10 @@
 using UnityEngine;
 
-public class Parrying : MonoBehaviour
+public class Parrying : PlayerBehaviour
 {
     [SerializeField] private float InvincibleTime = 0.3f;
-    private PlayerController con;
     
     private float timer;
-    public Parrying(PlayerController controller)
-    {
-        con = controller;
-    }    
-    
     public void Enter()
     {
         con.Animation.SetParry(true);

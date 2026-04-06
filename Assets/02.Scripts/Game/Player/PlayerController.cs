@@ -15,6 +15,7 @@ public class PlayerController
     public LocomotionState Locomotion { get; }
     public Parrying Parrying { get; }
     public Dodge Dodge { get; }
+    public Animator Animator { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -25,7 +26,6 @@ public class PlayerController
     public ActionState ActionState { get; }
     public EventManager Event { get; }
     public AnimationController Animation { get; }
-    public Animator Animator { get; }
 
 
     // 엄
@@ -37,9 +37,7 @@ public class PlayerController
         GroundCheck groundCheck, 
         CameraFollow3D cam, 
         CharacterController characterController,
-        Animator animator,
-        Parrying parrying,
-        Dodge dodge)
+        Animator animator)
     {
         Input = input;
         Player = player;
@@ -50,8 +48,6 @@ public class PlayerController
         Cam = cam;
         cc = characterController;
         Animator = animator;
-        Parrying = parrying;
-        Dodge = dodge;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);
@@ -59,7 +55,6 @@ public class PlayerController
         Movement = new PlayerMovement(this);
         Health = new Health(this);
         Attack = new Attack(this);
-        Parrying = new Parrying(this);
         ActionState = new ActionState(this);
         Event = new EventManager(this);
         Animation = new AnimationController(this);

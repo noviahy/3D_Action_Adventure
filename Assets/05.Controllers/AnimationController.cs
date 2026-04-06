@@ -8,10 +8,17 @@ public class AnimationController
     {
         this.con = con;
     }
-
     public void SetMove(float speed) //
     {
         con.Animator.SetFloat("Speed", speed);
+    }
+    public void SetMoveX(float x)
+    {
+        con.Animator.SetFloat("MoveX", x);
+    }
+    public void SetMoveY(float y)
+    {
+        con.Animator.SetFloat("MoveY", y);
     }
     public void SetGrounded(bool isGrounded) // 
     {

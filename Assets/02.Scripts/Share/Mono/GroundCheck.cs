@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class GroundCheck : MonoBehaviour
+public class GroundCheck : PlayerBehaviour
 {
-    [SerializeField] PlayerController con;
     [SerializeField] private float distance = 0.3f;
     [SerializeField] private LayerMask groundLayer;
     public bool IsGrounded { get; private set; }

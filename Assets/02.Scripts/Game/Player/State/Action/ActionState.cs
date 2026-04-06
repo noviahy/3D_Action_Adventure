@@ -16,6 +16,7 @@ public class ActionState : IPlayerState
     public ActionState(PlayerController controller)
     {
         con = controller;
+        currentType = ActionType.Idle;
     }
     public void ChangeInvincible(bool value)
     {

@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class PlayerTrigger : MonoBehaviour
+public class PlayerTrigger : PlayerBehaviour
 {
-    [SerializeField] PlayerController con;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Sword"))

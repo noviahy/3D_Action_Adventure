@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+
+public class InputManager : PlayerBehaviour
 {
-    [SerializeField] private PlayerController con;
     public Vector3 MoveInput { get; private set; }
     public bool AttackPressed { get; private set; }
     public bool LightAttack { get; private set; }
@@ -27,10 +27,11 @@ public class InputManager : MonoBehaviour
 
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
+    public float forward {  get; private set; }
+    public float side { get; private set; }
 
     private float prevRT;
     public InputMode CurrentInput { get; private set; }
-
 
     public enum InputMode
     {
@@ -50,8 +51,8 @@ public class InputManager : MonoBehaviour
         MouseX = Input.GetAxis("LookX");
         MouseY = Input.GetAxis("LookY");
 
-        float forward = Input.GetAxisRaw("Vertical");
-        float side = Input.GetAxisRaw("Horizontal");
+        forward = Input.GetAxisRaw("Vertical");
+        side = Input.GetAxisRaw("Horizontal");
         MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
 
         AttackPressed = Input.GetButtonDown("Attack");

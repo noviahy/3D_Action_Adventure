@@ -1,15 +1,17 @@
 using UnityEngine;
 
-public class LocomotionState : MonoBehaviour, IPlayerState
+public class LocomotionState : PlayerBehaviour, IPlayerState
 {
-    [SerializeField] PlayerController con;
-
     public LocomotionSubState currentSubState { get; private set; }
     public enum LocomotionSubState
     {
         Idle,
         Walk,
         Run,
+    }
+    public void Init()
+    {
+
     }
     public void ChangeState(LocomotionSubState state)
     {
@@ -19,6 +21,9 @@ public class LocomotionState : MonoBehaviour, IPlayerState
     {
         if (!con.GroundCheck.IsGrounded)
             return;
+
+        con.Animation.SetMoveX(con.Input.forward);
+        con.Animation.SetMoveY(con.Input.side);
 
         if (con.Input.MoveInput != Vector3.zero)
         {

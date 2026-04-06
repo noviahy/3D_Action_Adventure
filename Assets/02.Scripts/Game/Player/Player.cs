@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Windows;
 
 public class Player : MonoBehaviour
 {
@@ -10,12 +9,11 @@ public class Player : MonoBehaviour
     [SerializeField] InteractionState interaction;
     [SerializeField] GroundCheck groundCheck;
     [SerializeField] CameraFollow3D cam;
-    [SerializeField] PlayerController playerController;
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
     [SerializeField] Parrying parrying;
-    [SerializeField] Dodge dodge;
-    public PlayerController Controller {  get; private set; }
+
+    private PlayerController Controller;
 
     // 매 Attack마다 ChangeAttackType를 해줘야
     // 무기 바꿀 때 바꾼지 확인 가능
@@ -40,10 +38,18 @@ public class Player : MonoBehaviour
             groundCheck, 
             cam,  
             characterController,
-            animator,
-            parrying,
-            dodge
+            animator
         );
+
+        var behaviours = GetComponentsInChildren<PlayerBehaviour>();
+
+        Debug.Log("count: " + behaviours.Length);
+
+        foreach (var b in behaviours)
+        {
+
+            b.Init(Controller);
+        }
     }
 
     public void ChangeAttackType(AttackType type)

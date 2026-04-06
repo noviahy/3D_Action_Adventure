@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class PlayerStateMachine : MonoBehaviour
+public class PlayerStateMachine : PlayerBehaviour
 {
-    [SerializeField] PlayerController con;
     public PlayerState currentState { get; private set; }
 
     public enum PlayerState

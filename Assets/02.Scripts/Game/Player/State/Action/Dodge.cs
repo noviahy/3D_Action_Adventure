@@ -1,9 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
-public class Dodge : MonoBehaviour
+public class Dodge : PlayerBehaviour
 {
-    [SerializeField] PlayerController con;
     private Coroutine coroutine;
     public void Enter()
     {

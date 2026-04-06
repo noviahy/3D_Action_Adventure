@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class AttackState : MonoBehaviour
+public class AttackState : PlayerBehaviour
 {
-    [SerializeField] private PlayerController con;
     public AttackStyle currentAttackStyle { get; private set; }
     public enum AttackStyle 
     {
