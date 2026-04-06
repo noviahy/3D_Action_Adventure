@@ -41,13 +41,13 @@ public class Player : MonoBehaviour
             animator
         );
 
+    }
+    private void Start()
+    {
         var behaviours = GetComponentsInChildren<PlayerBehaviour>();
-
-        Debug.Log("count: " + behaviours.Length);
 
         foreach (var b in behaviours)
         {
-
             b.Init(Controller);
         }
     }

@@ -40,7 +40,7 @@ public class CameraFollow3D : MonoBehaviour
     {
         cameraRoot = transform; // 코드 가독성? 카메라의 중심 역할
         cameraRoot.position = player.position;
-        currentDistance = defaultDistance;
+        currentDistance = defaultDistance; 
     }
     void LateUpdate()
     {

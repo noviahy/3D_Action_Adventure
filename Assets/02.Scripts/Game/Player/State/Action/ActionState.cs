@@ -4,7 +4,7 @@ public class ActionState : IPlayerState
 {
     private PlayerController con;
     public bool IsInvincible { get; private set; }
-    public ActionType currentType;
+    public ActionType currentType {  get; private set; }
     public enum ActionType
     {
         Idle,

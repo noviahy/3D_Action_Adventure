@@ -58,5 +58,8 @@ public class PlayerController
         ActionState = new ActionState(this);
         Event = new EventManager(this);
         Animation = new AnimationController(this);
+
+        // Input에 직접 넣어줌
+        input.Init(this);
     }
 }

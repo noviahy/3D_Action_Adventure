@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class InputManager : PlayerBehaviour
+public class InputManager : MonoBehaviour
 {
     public Vector3 MoveInput { get; private set; }
     public bool AttackPressed { get; private set; }
@@ -27,9 +27,10 @@ public class InputManager : PlayerBehaviour
 
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
-    public float forward {  get; private set; }
+    public float forward { get; private set; }
     public float side { get; private set; }
 
+    private PlayerController con;
     private float prevRT;
     public InputMode CurrentInput { get; private set; }
 
@@ -38,6 +39,10 @@ public class InputManager : PlayerBehaviour
         PlayerInput,
         UIInput,
         InputLock
+    }
+    public void Init(PlayerController controller)
+    {
+        con = controller;
     }
     public void ChangeInputMode(InputMode mode)
     {
@@ -53,11 +58,12 @@ public class InputManager : PlayerBehaviour
 
         forward = Input.GetAxisRaw("Vertical");
         side = Input.GetAxisRaw("Horizontal");
+
         MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
 
-        AttackPressed = Input.GetButtonDown("Attack");
         LightAttack = Input.GetButtonDown("Light");
         float rt = Input.GetAxis("Heavy");
+
 
         bool isPressed = rt > 0.5f;
         bool wasPressed = prevRT > 0.5f;
@@ -65,8 +71,11 @@ public class InputManager : PlayerBehaviour
         HeavyAttack = isPressed && !wasPressed;
 
         prevRT = rt;
+        if (LightAttack || HeavyAttack)
+            AttackPressed = true;
 
-        ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
+
+            ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
         ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
 
         InteractionPressed = Input.GetButtonDown("Interaction");

@@ -20,13 +20,13 @@ public class AnimationController
     {
         con.Animator.SetFloat("MoveY", y);
     }
-    public void SetGrounded(bool isGrounded) // 
+    public void SetGrounded(bool isGrounded) // 왜 안되는지 찾아야함
     {
-        con.Animator.SetBool("isGrounded", isGrounded);
+        // con.Animator.SetBool("isGrounded", isGrounded);
     }
     public void SetLockOn(bool lockOn) //
     {
-        con.Animator.SetBool("LockOn", lockOn);
+        // con.Animator.SetBool("LockOn", lockOn);
     }
     public void SetParry(bool parry) // 
     {

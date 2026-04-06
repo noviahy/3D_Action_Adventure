@@ -2,10 +2,6 @@ using UnityEngine;
 
 public class InteractionState : PlayerBehaviour
 {
-    [SerializeField] private PlayerController controller;
-    [SerializeField] private ActionState action;
-    [SerializeField] private EventManager eventManager;
-
     /*
     public InteractionType interactionType {  get; private set; }
     public enum InteractionType
@@ -23,12 +19,12 @@ public class InteractionState : PlayerBehaviour
 
     private void Update()
     {
-        if (action.currentType != ActionState.ActionType.Interaction)
+        if (con.ActionState.currentType != ActionState.ActionType.Interaction)
             return;
 
-        if (controller.Input.InteractionPressed)
+        if (con.Input.InteractionPressed)
         {
-            eventManager.RequestInteraction();
+            con.Event.RequestInteraction();
         }
     }
 }
