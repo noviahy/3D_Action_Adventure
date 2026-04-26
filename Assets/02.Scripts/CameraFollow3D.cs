@@ -3,6 +3,7 @@ using UnityEngine;
 public class CameraFollow3D : MonoBehaviour
 
 {
+    [SerializeField] private Transform cameraRoot;
     [SerializeField] Transform cameraPivot; // 카메라의 중심
     [SerializeField] private Transform player; // 위아래 회전, 거리 조절
 
@@ -30,99 +31,94 @@ public class CameraFollow3D : MonoBehaviour
     public Vector3 camForward { get; private set; }
     public Vector3 camRight { get; private set; }
 
-    private Transform cameraRoot;
     private float yaw;
     private float pitch;
 
     public Transform Target => target;
-
-    private void Start()
+    private void LateUpdate()
     {
-        cameraRoot = transform; // 코드 가독성? 카메라의 중심 역할
-        cameraRoot.position = player.position;
-        currentDistance = defaultDistance; 
+        HandleLockOn();
     }
-    void LateUpdate()
+
+    private void HandleLockOn()
     {
         // 락온 꺼지면 타겟 삭제
         if (!input.IsLockOn)
+        {
             target = null;
+            return;
+        }
 
-        // 켜져 있으면 유효성 체크
-        if (input.IsLockOn)
-            ValidateTarget();
+        // 유효성 체크
+        ValidateTarget();
 
         // LockOn할 타겟 찾기
-        if (input.IsLockOn && target == null)
+        if (target == null)
             FindTarget();
 
-        if (input.IsLockOn && target != null)
+        if (target == null)
+            return;
+
+
+        switchTimer -= Time.deltaTime;
+
+        // 마우스 좌우로 움직이면
+        // 생각해보니까 조이콘이랑 키보드랑 나눠야할듯
+        // 키보드 사용시 코드 사용 안 해야겠음
+        if (switchTimer <= 0f)
         {
-            switchTimer -= Time.deltaTime;
-
-            // 마우스 좌우로 움직이면
-            // 생각해보니까 조이콘이랑 키보드랑 나눠야할듯
-            // 키보드 사용시 코드 사용 안 해야겠음
-            if (switchTimer <= 0f)
+            if (input.MouseX > switchThreshold)
             {
-                if (input.MouseX > switchThreshold)
-                {
-                    SwitchTarget(true); // 오른쪽
-                    switchTimer = switchCooldown;
-                }
+                SwitchTarget(true); // 오른쪽
+                switchTimer = switchCooldown;
+            }
 
-                if (input.MouseX < -switchThreshold)
-                {
-                    SwitchTarget(false); // 왼쪽
-                    switchTimer = switchCooldown;
-                }
+            if (input.MouseX < -switchThreshold)
+            {
+                SwitchTarget(false); // 왼쪽
+                switchTimer = switchCooldown;
             }
         }
 
-        // Player 따라가기
-        cameraRoot.position = Vector3.Lerp(cameraRoot.position, player.position, 10f * Time.deltaTime);
+        // Player -> 타겟 방향으로 회전
+        Vector3 dir = target.position - player.position;
+        dir.y = 0;
 
-        if (input.IsLockOn && target != null)
+        if (dir.sqrMagnitude > 0.001f)
         {
-            // Player -> 타겟 방향으로 회전
-            Vector3 dir = target.position - player.position;
-            dir.y = 0;
+            Quaternion targetRot = Quaternion.LookRotation(dir);
 
-            if (dir.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(dir);
+            cameraRoot.rotation = Quaternion.Lerp(
+                cameraRoot.rotation,
+                targetRot,
+                10f * Time.deltaTime
+            );
 
-                cameraRoot.rotation = Quaternion.Lerp(
-                    cameraRoot.rotation,
-                    targetRot,
-                    10f * Time.deltaTime
-                );
-
-                yaw = cameraRoot.eulerAngles.y;
-            }
-            else
-            {
-                // 수동 회전으로 fallback
-                yaw += input.MouseX * sensitivity * Time.deltaTime;
-                cameraRoot.rotation = Quaternion.Euler(0, yaw, 0);
-            }
-
-            // 상하 회전(위아래 회전 제한 포함)
-            pitch -= input.MouseY * sensitivity * Time.deltaTime;
-            pitch = Mathf.Clamp(pitch, -40f, 70f);
-
-            cameraPivot.localRotation = Quaternion.Euler(pitch, 0, 0);
-
-            // 카메라 방향 계산(Player 플레이어 이동 방향 기준)
-            camForward = new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z).normalized;
-            camRight = new Vector3(cameraRoot.right.x, 0, cameraRoot.right.z).normalized;
-
-            // 벽 충돌 처리
-            HandleCollision();
-
-            // Player 숨김
-            playerRenderer.enabled = currentDistance > hideDistance;
+            yaw = cameraRoot.eulerAngles.y;
         }
+        else
+        {
+            // 수동 회전으로 fallback
+            yaw += input.MouseX * sensitivity * Time.deltaTime;
+            cameraRoot.rotation = Quaternion.Euler(0, yaw, 0);
+        }
+
+        // 상하 회전(위아래 회전 제한 포함)
+        pitch -= input.MouseY * sensitivity * Time.deltaTime;
+        pitch = Mathf.Clamp(pitch, -40f, 70f);
+
+        cameraPivot.localRotation = Quaternion.Euler(pitch, 0, 0);
+
+        // 벽 충돌 처리
+        HandleCollision();
+
+        // Player 숨김
+        playerRenderer.enabled = currentDistance > hideDistance;
+
+
+        // 카메라 방향 계산(Player 플레이어 이동 방향 기준)
+        camForward = new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z).normalized;
+        camRight = new Vector3(cameraRoot.right.x, 0, cameraRoot.right.z).normalized;
     }
     // 카메라 벽 충돌
     private void HandleCollision()

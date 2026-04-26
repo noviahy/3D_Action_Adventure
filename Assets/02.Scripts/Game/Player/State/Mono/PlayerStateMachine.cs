@@ -11,8 +11,13 @@ public class PlayerStateMachine : PlayerBehaviour
         KnockbackState,
         DeadState,
     }
+    private void Start()
+    {
+        currentState = PlayerState.LocomotionState;
+    }
     public void ChangePlayerState(PlayerState state)
     {
+        if (currentState == state) return;
         currentState = state;
     }
 
@@ -34,7 +39,7 @@ public class PlayerStateMachine : PlayerBehaviour
         if (currentState == PlayerState.DeadState)
             con.Dead.Dead();
 
-        if (con.Input.LocomotionPressed)
+        if (con.Input.ActionPressed)
         {
             if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요
                 con.Player.ChangeAttackType(Player.AttackType.Bomb);
@@ -42,6 +47,5 @@ public class PlayerStateMachine : PlayerBehaviour
             con.StateMachine.TryChangeState(PlayerState.ActionState);
             return;
         }
-        con.StateMachine.TryChangeState(PlayerState.LocomotionState);
     }
 }

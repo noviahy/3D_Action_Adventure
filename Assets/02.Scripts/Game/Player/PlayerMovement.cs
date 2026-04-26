@@ -4,10 +4,11 @@ public class PlayerMovement
 {
     private PlayerController con;
 
-    private float walkSpeed = 1f;
-    private float runSpeed = 2f;
+    private float walkSpeed = 2f;
+    private float runSpeed = 4f;
     private float jumpForwardPower = 2f;
     private float jumpUpPower = 2f;
+    private float rotSpeed = 10f;
 
     private Vector3 jumpDir;
     private float yVelocity;
@@ -37,6 +38,13 @@ public class PlayerMovement
             float speed = isRun ? runSpeed : walkSpeed;
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
+            Debug.Log(speed);
+            if (!con.Input.IsLockOn)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(inputDir);
+
+                con.Player.transform.rotation = Quaternion.Lerp(con.Player.transform.rotation, targetRot, rotSpeed * Time.deltaTime);
+            }
         }
 
         // ม฿ทย

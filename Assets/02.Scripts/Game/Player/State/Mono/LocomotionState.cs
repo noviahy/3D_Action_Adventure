@@ -9,18 +9,21 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         Walk,
         Run,
     }
-    public void Init()
-    {
-
-    }
     public void ChangeState(LocomotionSubState state)
     {
+        if (currentSubState == state) return;
         currentSubState = state;
+    }
+    private void Start()
+    {
+        currentSubState = LocomotionSubState.Idle;
     }
     private void Update()
     {
         if (!con.GroundCheck.IsGrounded)
             return;
+
+        Debug.Log(currentSubState);
 
         con.Animation.SetMoveX(con.Input.forward);
         con.Animation.SetMoveY(con.Input.side);
@@ -28,18 +31,32 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         if (con.Input.MoveInput != Vector3.zero)
         {
             if (con.Input.RunPressed)
+            {
                 ChangeState(LocomotionSubState.Run);
-            else
+                return;
+            }
+            if (currentSubState != LocomotionSubState.Walk)
+            {
                 ChangeState(LocomotionSubState.Walk);
+                return;
+            }
         }
-        else
+
+        if (con.Input.MoveInput == Vector3.zero)
             ChangeState(LocomotionSubState.Idle);
     }
     private void FixedUpdate()
     {
+        if (con.Movement.JustLanded)
+        {
+            ChangeState(LocomotionSubState.Idle);
+            con.Movement.ChangeJustLanded();
+        }
+
         switch (currentSubState)
         {
             case LocomotionSubState.Idle:
+                con.Animation.SetMove(0);
                 break;
             case LocomotionSubState.Walk:
                 con.Movement.Move(con.Input.MoveInput, false);
@@ -47,11 +64,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Run:
                 con.Movement.Move(con.Input.MoveInput, true);
                 break;
-        }
-        if (con.Movement.JustLanded)
-        {
-            ChangeState(LocomotionSubState.Idle);
-            con.Movement.ChangeJustLanded();
         }
     }
 }

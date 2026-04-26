@@ -32,6 +32,7 @@ public class InputManager : MonoBehaviour
 
     private PlayerController con;
     private float prevRT;
+    private float deadZone = 0.2f;
     public InputMode CurrentInput { get; private set; }
 
     public enum InputMode
@@ -59,28 +60,36 @@ public class InputManager : MonoBehaviour
         forward = Input.GetAxisRaw("Vertical");
         side = Input.GetAxisRaw("Horizontal");
 
+        if (Mathf.Abs(forward) < deadZone)
+            forward = 0;
+        if (Mathf.Abs(side) < deadZone)
+            side = 0;
+
         MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
+        if(MoveInput.sqrMagnitude < deadZone * deadZone)
+            MoveInput = Vector3.zero;
 
         LightAttack = Input.GetButtonDown("Light");
         float rt = Input.GetAxis("Heavy");
-
 
         bool isPressed = rt > 0.5f;
         bool wasPressed = prevRT > 0.5f;
 
         HeavyAttack = isPressed && !wasPressed;
 
+
         prevRT = rt;
         if (LightAttack || HeavyAttack)
             AttackPressed = true;
 
 
-            ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
+        ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
         ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
 
         InteractionPressed = Input.GetButtonDown("Interaction");
 
         RunPressed = Input.GetButton("Run");
+        Debug.Log(RunPressed);
 
         ParryingPressed = Input.GetButton("Parrying");
 
