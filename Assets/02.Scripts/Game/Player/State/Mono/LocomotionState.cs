@@ -23,8 +23,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         if (!con.GroundCheck.IsGrounded)
             return;
 
-        Debug.Log(currentSubState);
-
         con.Animation.SetMoveX(con.Input.forward);
         con.Animation.SetMoveY(con.Input.side);
 
@@ -51,12 +49,14 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         {
             ChangeState(LocomotionSubState.Idle);
             con.Movement.ChangeJustLanded();
+            Debug.Log("!");
         }
 
         switch (currentSubState)
         {
             case LocomotionSubState.Idle:
                 con.Animation.SetMove(0);
+
                 break;
             case LocomotionSubState.Walk:
                 con.Movement.Move(con.Input.MoveInput, false);

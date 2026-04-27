@@ -4,8 +4,8 @@ public class PlayerMovement
 {
     private PlayerController con;
 
-    private float walkSpeed = 2f;
-    private float runSpeed = 4f;
+    private float walkSpeed = 3f;
+    private float runSpeed = 7f;
     private float jumpForwardPower = 2f;
     private float jumpUpPower = 2f;
     private float rotSpeed = 10f;
@@ -38,7 +38,7 @@ public class PlayerMovement
             float speed = isRun ? runSpeed : walkSpeed;
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
-            Debug.Log(speed);
+            
             if (!con.Input.IsLockOn)
             {
                 Quaternion targetRot = Quaternion.LookRotation(inputDir);
@@ -48,7 +48,7 @@ public class PlayerMovement
         }
 
         // ม฿ทย
-        if (con.cc.isGrounded && yVelocity < 0)
+        if (con.cc.isGrounded && yVelocity < 0 && isJumping)
         {
             yVelocity = -2f;
             isJumping = false;

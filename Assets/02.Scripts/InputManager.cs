@@ -33,6 +33,7 @@ public class InputManager : MonoBehaviour
     private PlayerController con;
     private float prevRT;
     private float deadZone = 0.2f;
+
     public InputMode CurrentInput { get; private set; }
 
     public enum InputMode
@@ -89,7 +90,6 @@ public class InputManager : MonoBehaviour
         InteractionPressed = Input.GetButtonDown("Interaction");
 
         RunPressed = Input.GetButton("Run");
-        Debug.Log(RunPressed);
 
         ParryingPressed = Input.GetButton("Parrying");
 
