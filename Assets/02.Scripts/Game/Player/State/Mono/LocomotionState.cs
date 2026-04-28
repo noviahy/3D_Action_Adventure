@@ -20,6 +20,25 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
+        if (con.Movement.JustLanded)
+        {
+            ChangeState(LocomotionSubState.Idle);
+            con.Movement.ChangeJustLanded();
+        }
+
+        switch (currentSubState)
+        {
+            case LocomotionSubState.Idle:
+                con.Animation.SetMove(0);
+                break;
+            case LocomotionSubState.Walk:
+                con.Movement.Move(con.Input.MoveInput, false);
+                break;
+            case LocomotionSubState.Run:
+                con.Movement.Move(con.Input.MoveInput, true);
+                break;
+        }
+
         if (!con.GroundCheck.IsGrounded)
             return;
 
@@ -42,28 +61,5 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (con.Input.MoveInput == Vector3.zero)
             ChangeState(LocomotionSubState.Idle);
-    }
-    private void FixedUpdate()
-    {
-        if (con.Movement.JustLanded)
-        {
-            ChangeState(LocomotionSubState.Idle);
-            con.Movement.ChangeJustLanded();
-            Debug.Log("!");
-        }
-
-        switch (currentSubState)
-        {
-            case LocomotionSubState.Idle:
-                con.Animation.SetMove(0);
-
-                break;
-            case LocomotionSubState.Walk:
-                con.Movement.Move(con.Input.MoveInput, false);
-                break;
-            case LocomotionSubState.Run:
-                con.Movement.Move(con.Input.MoveInput, true);
-                break;
-        }
     }
 }

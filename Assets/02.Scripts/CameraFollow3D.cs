@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class CameraFollow3D : MonoBehaviour
 
@@ -12,14 +11,23 @@ public class CameraFollow3D : MonoBehaviour
     [SerializeField] private CinemachineCamera vcam;
     [SerializeField] private Transform pivot;
     [SerializeField] private Transform shoulder;
+    [SerializeField] private Transform lockOnTarget;
+
+    [Header("Camera")]
+    [SerializeField] float rotationSpeed = 120f;
+    [SerializeField] float minPitch = -40f;
+    [SerializeField] float maxPitch = 30f;
 
     [Header("LockOn")]
     [SerializeField] float switchThreshold = 0.2f; // 마우스 얼마나 움직이면 타겟 전환할지
     [SerializeField] float switchCooldown = 0.3f; // 연속 전환 방지
+    
     private Transform target;
     private float switchTimer;
-    private float rotSpeed = 720f;
     private float scanTimer = 0.2f;
+    private float yaw;
+    private float pitch;
+
     private Camera mainCam;
     private List<Transform> enemies = new List<Transform>();
     public Transform Target => target;
@@ -30,16 +38,55 @@ public class CameraFollow3D : MonoBehaviour
     private void Start()
     {
         mainCam = Camera.main;
+        target = null;
     }
-    private void LateUpdate()
+    private void Update()
     {
         camForward = Vector3.ProjectOnPlane(cam.forward, Vector3.up).normalized;
         camRight = Vector3.ProjectOnPlane(cam.right, Vector3.up).normalized;
 
+        /*
+         * 카메라의 중심을 Player의 Shoulder로 옮겨줌
+         * Player에있는걸 직접 사용하면 Player 회전 시 카메라도 같이 회전하기 때문에
+         * 외부에 있는 피봇에 위치만 넣어주는걸로 변경
+         */
         pivot.position = shoulder.position;
 
+        // 카메라 수동 회전 코드
+        if (target == null)
+        {
+            yaw += input.MouseX * rotationSpeed * Time.deltaTime;
+            pitch += input.MouseY * rotationSpeed * Time.deltaTime;
+
+            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+            pivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        }
+        if(target != null)
+        {
+            Vector3 dir = (target.position - pivot.position).normalized;
+
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+
+            // 부드럽게 회전
+            pivot.rotation = Quaternion.Slerp(
+                pivot.rotation,
+                targetRot,
+                10f * Time.deltaTime
+            );
+
+            // pitch 값도 같이 동기화 (중요)
+            Vector3 angles = pivot.rotation.eulerAngles;
+            pitch = angles.x;
+            yaw = angles.y;
+        }
+    }
+
+    private void LateUpdate()
+    {
         // 타켓 변경 딜레이 
         switchTimer -= Time.deltaTime;
+        // 타켓 스켄 딜레이
         scanTimer -= Time.deltaTime;
 
         if (scanTimer <= 0f)
@@ -47,14 +94,18 @@ public class CameraFollow3D : MonoBehaviour
             ScanEnemies();
             scanTimer = 0.2f;
         }
+        
+        if (target != null)
+            lockOnTarget.position = (player.position + target.position) * 0.5f + Vector3.up * 0.5f;
 
+        // 록온 코드
         HandleLockOn();
     }
-    private void ScanEnemies()
+    private void ScanEnemies() // HandlLockOn과 FindTarget에서의 중복 코드
     {
-        enemies.Clear();
+        enemies.Clear();// 전 프레임에 찾았던 List 삭제
 
-        Collider[] hits = Physics.OverlapSphere(player.position, 10f);
+        Collider[] hits = Physics.OverlapSphere(player.position, 8f);
 
         foreach (var hit in hits)
         {
@@ -65,9 +116,6 @@ public class CameraFollow3D : MonoBehaviour
 
     private void HandleLockOn()
     {
-        // 유효성 체크
-        ValidateTarget();
-
         // 락온 꺼지면 타겟 삭제
         if (!input.IsLockOn)
         {
@@ -77,15 +125,28 @@ public class CameraFollow3D : MonoBehaviour
 
         // LockOn할 타겟 찾기
         if (target == null)
+        {
             FindTarget();
 
+            if (target == null)
+            {
+                input.RequestLockOn(false);
+                return;
+            }
+        }
+
+        // 유효성 체크
+        ValidateTarget();
+
+        // 타겟 검색 후에도 없다면 return
+        // 그러면 계속 IsLockOn인 상태가 아닌가? 풀어줘야할 것 같은데 실패하면...
         if (target == null)
             return;
 
         // 타겟 변경 코드
         if (switchTimer <= 0f)
         {
-            if (input.MouseX > switchThreshold)
+            if (input.MouseX > switchThreshold) // 방향 검색
             {
                 SwitchTarget(true); // 오른쪽
                 switchTimer = switchCooldown;
@@ -97,51 +158,55 @@ public class CameraFollow3D : MonoBehaviour
                 switchTimer = switchCooldown;
             }
         }
-        if (vcam != null && vcam.LookAt != target)
-        {
-            vcam.LookAt = target;
-        }
+        vcam.LookAt = lockOnTarget;
 
-        Vector3 dir = target.position - player.position;
+
+        // 플레이어의 Object의 회전 코드 (여기 있으면 안되는거 아닌가?) Update에 있어야할 것 같은데 
+        Vector3 dir = camForward; // 카메라 기준
+
         dir.y = 0;
 
-        Quaternion lookRot = Quaternion.LookRotation(dir);
+        if (dir.sqrMagnitude > 0.001f)
+        {
+            Quaternion lookRot = Quaternion.LookRotation(dir);
 
-        /*
-        player.rotation = Quaternion.RotateTowards(
-            player.rotation,
-            lookRot,
-            rotSpeed * Time.deltaTime
-        );
-        */
+            player.rotation = Quaternion.Slerp(
+                player.rotation,
+                lookRot,
+                8f * Time.deltaTime
+            );
+        }
     }
 
     // 타겟 찾기
     private void FindTarget()
     {
-        Transform bestTarget = null;
-        float bestScore = Mathf.Infinity;
+        // 전 코드는 거리만 계산했기 떄문에 점수로 변경
+        Transform bestTarget = null; // 타겟 위치
+        float bestScore = Mathf.Infinity; // BestScore
 
         // 적만 필터링
         foreach (Transform enemy in enemies)
         {
-
-            Vector3 dirToEnemy = (enemy.position - player.position).normalized;
+            Vector3 dirToEnemy = (enemy.position - player.position).normalized; // 적 방향, 위에 같은 코드가 있음
 
             // 카메라 앞쪽만
-            float forwardDot = Vector3.Dot(camForward, dirToEnemy);
+            float forwardDot = Vector3.Dot(camForward, dirToEnemy); // 두 방향이 얼마나 같은지
             if (forwardDot < 0.3f) continue;
 
-            Vector3 screenPos = mainCam.WorldToViewportPoint(enemy.position);
+            // 적이 화면 중앙에서 얼마나 떨어져 있는지 계산
+            Vector3 screenPos = mainCam.WorldToViewportPoint(enemy.position); // 3D 위치를 화면 좌표로 변경
 
-            float screenX = Mathf.Abs(screenPos.x - 0.5f);
+            float screenX = Mathf.Abs(screenPos.x - 0.5f); // 중앙이 0이어야하기 때문에 -0.5
             float screenY = Mathf.Abs(screenPos.y - 0.5f);
 
+            // 거리
             float dist = Vector3.Distance(player.position, enemy.position);
 
+            // 점수 계산
             float score = dist * 0.5f + screenX * 2f + screenY * 1.5f;
 
-            // 가장 가까운 적 선택
+            // 가장 찾은 점수 찾기
             if (score < bestScore)
             {
                 bestScore = score;
@@ -152,6 +217,7 @@ public class CameraFollow3D : MonoBehaviour
     }
 
     // 타겟 변경
+    // FindTarget과 비슷함
     private void SwitchTarget(bool toRight)
     {
         Transform bestTarget = null;
@@ -172,7 +238,7 @@ public class CameraFollow3D : MonoBehaviour
 
             // 방향 필터링
             if (toRight && sideDot < 0) continue;
-            if(!toRight && sideDot > 0) continue;
+            if (!toRight && sideDot > 0) continue;
 
             Vector3 screenPos = mainCam.WorldToViewportPoint(enemy.position);
 
@@ -203,17 +269,22 @@ public class CameraFollow3D : MonoBehaviour
     private void ValidateTarget()
     {
         // 타겟 없음 or 비활성화
-        if (target == null || !target.gameObject.activeInHierarchy)
+        if (target != null)
         {
-            input.RequestLockOn(false);
-            return;
+            if (!target.gameObject.activeInHierarchy)
+            {
+                input.RequestLockOn(false);
+                target = null;
+                return;
+            }
+
+            float dist = Vector3.Distance(player.position, target.position);
+            if (dist > 15f)
+            {
+                input.RequestLockOn(false);
+                target = null;
+                return;
+            }
         }
-
-        // 거리 체크
-        float dist = Vector3.Distance(player.position, target.position);
-
-        // 너무 멀어지면제
-        if (dist > 15f)
-            input.RequestLockOn(false);
     }
 }

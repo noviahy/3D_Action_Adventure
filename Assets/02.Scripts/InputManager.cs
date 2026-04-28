@@ -78,11 +78,9 @@ public class InputManager : MonoBehaviour
 
         HeavyAttack = isPressed && !wasPressed;
 
-
         prevRT = rt;
         if (LightAttack || HeavyAttack)
             AttackPressed = true;
-
 
         ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
         ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
@@ -105,8 +103,11 @@ public class InputManager : MonoBehaviour
 
         ActionPressed = AttackPressed || ParryingPressed || DodgePressed || BowCharging || InteractionPressed;
 
+
         if (Input.GetButtonDown("LockOn"))
+        {
             IsLockOn = !IsLockOn;
+        }
         con.Animation.SetLockOn(IsLockOn);
     }
     public void RequestLockOn(bool value)
