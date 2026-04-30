@@ -24,7 +24,8 @@ public class InputManager : MonoBehaviour
 
     public float MouseX { get; private set; }
     public float MouseY { get; private set; }
-
+    public float Direction {  get; private set; }
+    public float PreDirection { get; private set; }
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
     public float forward { get; private set; }

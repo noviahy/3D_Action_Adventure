@@ -14,11 +14,13 @@ public class AnimationController
     }
     public void SetMoveX(float x)
     {
-        con.Animator.SetFloat("MoveX", x);
+        float damp = (x < 0.1f) ? 0.15f : 0.05f;
+        con.Animator.SetFloat("MoveX", x, damp, Time.deltaTime);
     }
     public void SetMoveY(float y)
     {
-        con.Animator.SetFloat("MoveY", y);
+        float damp = (y < 0.1f) ? 0.08f : 0.05f;
+        con.Animator.SetFloat("MoveY", y, damp, Time.deltaTime);
     }
     public void SetGrounded(bool isGrounded) // 왜 안되는지 찾아야함
     {
@@ -26,7 +28,7 @@ public class AnimationController
     }
     public void SetLockOn(bool lockOn) //
     {
-        // con.Animator.SetBool("LockOn", lockOn);
+        con.Animator.SetBool("LockOn", lockOn);
     }
     public void SetParry(bool parry) // 
     {
@@ -63,5 +65,9 @@ public class AnimationController
     public void PlayHit() //
     {
         con.Animator.SetTrigger("Hit");
+    }
+    public void SetLayerWeight(int index, float weight)
+    {
+        con.Animator.SetLayerWeight(index, weight);
     }
 }

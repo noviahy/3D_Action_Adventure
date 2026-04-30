@@ -9,28 +9,30 @@ public class CameraFollow3D : MonoBehaviour
     [SerializeField] private InputManager input;
     [SerializeField] private Transform cam;
     [SerializeField] private CinemachineCamera vcam;
-    [SerializeField] private Transform pivot;
-    [SerializeField] private Transform shoulder;
     [SerializeField] private Transform lockOnTarget;
 
     [Header("Camera")]
     [SerializeField] float rotationSpeed = 120f;
     [SerializeField] float minPitch = -40f;
     [SerializeField] float maxPitch = 30f;
+    private float yaw;
+    private float pitch;
 
     [Header("LockOn")]
     [SerializeField] float switchThreshold = 0.2f; // 마우스 얼마나 움직이면 타겟 전환할지
     [SerializeField] float switchCooldown = 0.3f; // 연속 전환 방지
-    
-    private Transform target;
     private float switchTimer;
     private float scanTimer = 0.2f;
-    private float yaw;
-    private float pitch;
+    private List<Transform> enemies = new List<Transform>();
+    private Transform target;
+    [SerializeField] private Transform pivot;
+    [SerializeField] private Transform shoulder;
+
+    [Header("Renderer")]
+    private List<Material> mats = new List<Material>();
+    private float currentAlpha = 1f;
 
     private Camera mainCam;
-    private List<Transform> enemies = new List<Transform>();
-    public Transform Target => target;
 
     public Vector3 camForward { get; private set; }
     public Vector3 camRight { get; private set; }
@@ -39,6 +41,7 @@ public class CameraFollow3D : MonoBehaviour
     {
         mainCam = Camera.main;
         target = null;
+        RefreshRenderers();
     }
     private void Update()
     {
@@ -52,6 +55,19 @@ public class CameraFollow3D : MonoBehaviour
          */
         pivot.position = shoulder.position;
 
+        float dist = Vector3.Distance(cam.position, player.position);
+
+        // 최소/최대 거리 설정
+        float minDist = 1.2f;   // 완전히 투명
+        float maxDist = 2.0f;   // 완전히 보임
+
+        // 0~1 사이 값으로 정규화
+        float t = Mathf.InverseLerp(minDist, maxDist, dist);
+
+        // 알파 적용
+        currentAlpha = Mathf.Lerp(currentAlpha, t, Time.deltaTime * 10f);
+        SetAlpha(currentAlpha);
+
         // 카메라 수동 회전 코드
         if (target == null)
         {
@@ -62,7 +78,7 @@ public class CameraFollow3D : MonoBehaviour
 
             pivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
-        if(target != null)
+        if (target != null)
         {
             Vector3 dir = (target.position - pivot.position).normalized;
 
@@ -94,12 +110,22 @@ public class CameraFollow3D : MonoBehaviour
             ScanEnemies();
             scanTimer = 0.2f;
         }
-        
+
         if (target != null)
             lockOnTarget.position = (player.position + target.position) * 0.5f + Vector3.up * 0.5f;
 
         // 록온 코드
         HandleLockOn();
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        foreach (var mat in mats)
+        {
+            Color c = mat.color;
+            c.a = alpha;
+            mat.SetColor("_BaseColor", c);
+        }
     }
     private void ScanEnemies() // HandlLockOn과 FindTarget에서의 중복 코드
     {
@@ -284,6 +310,21 @@ public class CameraFollow3D : MonoBehaviour
                 input.RequestLockOn(false);
                 target = null;
                 return;
+            }
+        }
+    }
+
+    private void RefreshRenderers()
+    {
+        mats.Clear();
+
+        Renderer[] renderers = player.GetComponentsInChildren<Renderer>(true);
+
+        foreach (var ren in renderers)
+        {
+            foreach (var mat in ren.materials)
+            {
+                mats.Add(mat);
             }
         }
     }
