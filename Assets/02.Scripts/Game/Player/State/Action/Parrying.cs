@@ -9,7 +9,7 @@ public class Parrying : PlayerBehaviour
     {
         con.Animation.SetParry(true);
         timer = InvincibleTime;
-        con.ActionState.ChangeInvincible(true);
+        con.Player.ChangeInvincible(true);
     }
 
     public void Exit()
@@ -31,7 +31,7 @@ public class Parrying : PlayerBehaviour
         timer -= Time.deltaTime;
         if(timer < 0)
         {
-            con.ActionState.ChangeInvincible(false);
+            con.Player.ChangeInvincible(false);
         }
 
     }

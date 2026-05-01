@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField] CharacterController characterController;
     [SerializeField] Animator animator;
     [SerializeField] Parrying parrying;
+    [SerializeField] Dodge dodge;
 
     private PlayerController Controller;
 
@@ -20,6 +21,8 @@ public class Player : MonoBehaviour
     // 이거 옮겨줘야할듯
     public AttackType currentAttackType { get; private set; }
     public AttackType previousAttackType { get; private set; }
+    public bool IsInvincible { get; private set; }
+
     public enum AttackType
     {
         Sword,
@@ -38,6 +41,7 @@ public class Player : MonoBehaviour
             groundCheck, 
             cam,  
             characterController,
+            dodge,
             animator
         );
 
@@ -59,12 +63,15 @@ public class Player : MonoBehaviour
         previousAttackType = currentAttackType;
         currentAttackType = type;
     }
-
     public ItemType CurrentItemType {  get; private set; }
         public enum ItemType
     {
         HPPosion,
         Bomb
+    }
+    public void ChangeInvincible(bool value)
+    {
+        IsInvincible = value;
     }
 
 }

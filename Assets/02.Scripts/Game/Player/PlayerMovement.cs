@@ -6,6 +6,7 @@ public class PlayerMovement
 
     private float walkSpeed = 3f;
     private float runSpeed = 7f;
+    private float lockOnSpeed = 1.5f;
     private float jumpForwardPower = 2f;
     private float jumpUpPower = 2f;
     private float rotSpeed = 10f;
@@ -36,6 +37,11 @@ public class PlayerMovement
         else
         {
             float speed = isRun ? runSpeed : walkSpeed;
+
+            // ·Ï¿Â ½Ã speed¸¦ µ¤¾î¾º¿ò
+            if (con.Input.IsLockOn)
+                speed = lockOnSpeed;
+
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
             

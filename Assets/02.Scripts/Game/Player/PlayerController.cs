@@ -3,8 +3,8 @@ using UnityEngine;
 public class PlayerController
 {
     // Components (MonoBehavior)
-    public InputManager Input { get; }    
-    public CameraFollow3D Cam {  get; }    
+    public InputManager Input { get; }
+    public CameraFollow3D Cam { get; }
     public Player Player { get; }
     public PlayerStateMachine StateMachine { get; }
     public AttackState AttackState { get; }
@@ -29,14 +29,15 @@ public class PlayerController
 
 
     // 决
-    public PlayerController(InputManager input, 
-        Player player, 
-        PlayerStateMachine stateMachine, 
+    public PlayerController(InputManager input,
+        Player player,
+        PlayerStateMachine stateMachine,
         AttackState attackState,
         InteractionState interactionState,
-        GroundCheck groundCheck, 
-        CameraFollow3D cam, 
+        GroundCheck groundCheck,
+        CameraFollow3D cam,
         CharacterController characterController,
+        Dodge dodge,
         Animator animator)
     {
         Input = input;
@@ -47,6 +48,7 @@ public class PlayerController
         GroundCheck = groundCheck;
         Cam = cam;
         cc = characterController;
+        Dodge = dodge;
         Animator = animator;
 
         // 鉴荐 C# 内靛 积己

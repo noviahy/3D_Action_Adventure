@@ -231,6 +231,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &200601203 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3608543309761950973, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdacbf4d20a1574b9caad2f68eabaa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dodge
 --- !u!1 &303803715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,6 +1206,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1174007945}
     - target: {fileID: 268689089389701591, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: dodge
+      value: 
+      objectReference: {fileID: 200601203}
+    - target: {fileID: 268689089389701591, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: input
       value: 
       objectReference: {fileID: 360286960}
@@ -1202,10 +1217,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 6d1d29e29bd67c14186ecd2b832de765, type: 2}
-    - target: {fileID: 6884316129576254724, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6884316129576254724, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_AnimatePhysics
       value: 1

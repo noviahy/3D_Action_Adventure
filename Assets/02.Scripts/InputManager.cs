@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -10,7 +11,7 @@ public class InputManager : MonoBehaviour
 
     public bool RunPressed { get; private set; }
     public bool ParryingPressed { get; private set; }
-    public bool DodgePressed { get; private set; }
+    public bool DodgeBuffered { get; private set; }
 
     public bool StartBowCharging { get; private set; }
     public bool BowCharging { get; private set; }
@@ -24,7 +25,7 @@ public class InputManager : MonoBehaviour
 
     public float MouseX { get; private set; }
     public float MouseY { get; private set; }
-    public float Direction {  get; private set; }
+    public float Direction { get; private set; }
     public float PreDirection { get; private set; }
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
@@ -34,6 +35,8 @@ public class InputManager : MonoBehaviour
     private PlayerController con;
     private float prevRT;
     private float deadZone = 0.2f;
+    private float bufferTime = 0.3f;
+    private float bufferTimer;
 
     public InputMode CurrentInput { get; private set; }
 
@@ -68,7 +71,7 @@ public class InputManager : MonoBehaviour
             side = 0;
 
         MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
-        if(MoveInput.sqrMagnitude < deadZone * deadZone)
+        if (MoveInput.sqrMagnitude < deadZone * deadZone)
             MoveInput = Vector3.zero;
 
         LightAttack = Input.GetButtonDown("Light");
@@ -88,23 +91,35 @@ public class InputManager : MonoBehaviour
 
         InteractionPressed = Input.GetButtonDown("Interaction");
 
+        // 달리기와 회피
         RunPressed = Input.GetButton("Run");
 
+        bufferTimer -= Time.deltaTime;
+        if (Input.GetButtonDown("Run"))
+        {
+            DodgeBuffered = true;
+            bufferTimer = bufferTime;
+        }
+        if(bufferTimer < 0)
+        {
+            DodgeBuffered = false;
+        }
+
+        // 패링 상태
         ParryingPressed = Input.GetButton("Parrying");
 
-        DodgePressed = Input.GetButtonDown("Dodge");
-
+        // 활
         float bow = Input.GetAxis("Bow");
-
         bool wasBowCharging = BowCharging;
 
         BowCharging = bow > 0.5f;
         StartBowCharging = BowCharging && !wasBowCharging;
         BowShoot = !BowCharging && wasBowCharging;
 
-        ActionPressed = AttackPressed || ParryingPressed || DodgePressed || BowCharging || InteractionPressed;
+        // Action State 설정
+        ActionPressed = AttackPressed || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
 
-
+        // LockOn키
         if (Input.GetButtonDown("LockOn"))
         {
             IsLockOn = !IsLockOn;
@@ -114,5 +129,9 @@ public class InputManager : MonoBehaviour
     public void RequestLockOn(bool value)
     {
         IsLockOn = value;
+    }
+    public void AckDodgeFinish()
+    {
+        DodgeBuffered = false;
     }
 }

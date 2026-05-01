@@ -3,6 +3,8 @@ using UnityEngine;
 public class AnimationController
 {
     private PlayerController con;
+    private float idleTimer;
+    private float idleDelay = 0.05f;
 
     public AnimationController(PlayerController con)
     {
@@ -10,14 +12,25 @@ public class AnimationController
     }
     public void SetMove(float speed) //
     {
-        con.Animator.SetFloat("Speed", speed);
+        if (speed <= 0.1f)
+        {
+            idleTimer += Time.deltaTime;
+
+            if (idleTimer >= idleDelay)
+                con.Animator.SetFloat("Speed", 0f);
+        }
+        else
+        {
+            idleTimer = 0;
+            con.Animator.SetFloat("Speed", speed);
+        }
     }
-    public void SetMoveX(float x)
+    public void SetMoveX(float x) // ¾ÕµÚ
     {
         float damp = (x < 0.1f) ? 0.15f : 0.05f;
         con.Animator.SetFloat("MoveX", x, damp, Time.deltaTime);
     }
-    public void SetMoveY(float y)
+    public void SetMoveY(float y) // ¾ç¿·
     {
         float damp = (y < 0.1f) ? 0.08f : 0.05f;
         con.Animator.SetFloat("MoveY", y, damp, Time.deltaTime);
@@ -46,7 +59,7 @@ public class AnimationController
     {
         con.Animator.SetTrigger("Jump");
     }
-    public void PlayAttack() 
+    public void PlayAttack()
     {
         con.Animator.SetTrigger("Attack");
     }

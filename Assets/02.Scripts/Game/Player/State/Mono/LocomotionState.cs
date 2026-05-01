@@ -20,6 +20,9 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
+        if(con.StateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
+            return;
+
         if (con.Movement.JustLanded)
         {
             ChangeState(LocomotionSubState.Idle);
@@ -41,9 +44,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (!con.GroundCheck.IsGrounded)
             return;
-
-        con.Animation.SetMoveX(con.Input.forward);
-        con.Animation.SetMoveY(con.Input.side);
 
         if (con.Input.MoveInput != Vector3.zero)
         {

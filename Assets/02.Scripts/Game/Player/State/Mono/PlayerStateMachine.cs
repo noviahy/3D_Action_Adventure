@@ -38,6 +38,9 @@ public class PlayerStateMachine : PlayerBehaviour
         // µüÈ÷ ¾×¼ÇÀÌ ¾Æ´Ô
         if (currentState == PlayerState.DeadState)
             con.Dead.Dead();
+        
+        con.Animation.SetMoveX(con.Input.forward);
+        con.Animation.SetMoveY(con.Input.side);
 
         if (con.Input.ActionPressed)
         {
@@ -45,7 +48,11 @@ public class PlayerStateMachine : PlayerBehaviour
                 con.Player.ChangeAttackType(Player.AttackType.Bomb);
 
             con.StateMachine.TryChangeState(PlayerState.ActionState);
-            return;
+
+            if (con.Input.IsLockOn && con.Input.DodgeBuffered)
+            {
+                con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
+            }
         }
     }
 }

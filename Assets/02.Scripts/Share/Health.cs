@@ -18,11 +18,11 @@ public class Health : IDamageable
     }
     public void PlayerGetDamage(float value)
     {
-        if (con.ActionState.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Dodge)
+        if (con.Player.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Dodge)
             return;
-        else if (con.ActionState.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Parrying)
+        else if (con.Player.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Parrying)
             return;
-        else if (!con.ActionState.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Parrying)
+        else if (!con.Player.IsInvincible && con.ActionState.currentType == ActionState.ActionType.Parrying)
             HP -= value / 2;
         else
             HP -= value;

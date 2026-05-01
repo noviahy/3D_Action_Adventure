@@ -123,9 +123,9 @@ GameObject:
   - component: {fileID: 4196373986859839318}
   - component: {fileID: 7491683734706545696}
   - component: {fileID: 866694456664364188}
-  - component: {fileID: 8178821541903685814}
   - component: {fileID: 6013803110513568716}
   - component: {fileID: 8342021085270756410}
+  - component: {fileID: 3608543309761950973}
   m_Layer: 0
   m_Name: PlayerMovement
   m_TagString: Untagged
@@ -184,18 +184,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8054517a20d9dad4cb877471e4f81bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionState
---- !u!114 &8178821541903685814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7356631373245446715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cdacbf4d20a1574b9caad2f68eabaa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Dodge
 --- !u!114 &6013803110513568716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,6 +209,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902252b90d599b44ab4ed67fddd3f544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
+--- !u!114 &3608543309761950973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356631373245446715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdacbf4d20a1574b9caad2f68eabaa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dodge
 --- !u!1 &8125920071323429513
 GameObject:
   m_ObjectHideFlags: 0
@@ -292,6 +292,7 @@ MonoBehaviour:
   characterController: {fileID: 7113561916039286552}
   animator: {fileID: 6884316129576254724}
   parrying: {fileID: 6013803110513568716}
+  dodge: {fileID: 3608543309761950973}
 --- !u!143 &7113561916039286552
 CharacterController:
   m_ObjectHideFlags: 0
@@ -369,10 +370,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: HumanF_Model
       objectReference: {fileID: 0}
+    - target: {fileID: 2775862123970177323, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d1d29e29bd67c14186ecd2b832de765, type: 2}
     - target: {fileID: 5866666021909216657, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 51b618598b034a34eb628873ab1950c6, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
+      propertyPath: m_AnimatePhysics
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

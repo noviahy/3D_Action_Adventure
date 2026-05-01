@@ -1,9 +1,9 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ActionState : IPlayerState
 {
     private PlayerController con;
-    public bool IsInvincible { get; private set; }
     public ActionType currentType {  get; private set; }
     public enum ActionType
     {
@@ -13,19 +13,16 @@ public class ActionState : IPlayerState
         Interaction,
         Dodge
     }
+    
     public ActionState(PlayerController controller)
     {
         con = controller;
         currentType = ActionType.Idle;
     }
-    public void ChangeInvincible(bool value)
-    {
-        IsInvincible = value;
-    }
 
     public void TryChangeType(ActionType type)
     {
-        if (currentType != ActionType.Parrying)
+        if (currentType == ActionType.Parrying)
             return;
 
         ChangeType(type);
