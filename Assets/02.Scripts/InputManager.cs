@@ -20,8 +20,10 @@ public class InputManager : MonoBehaviour
     public bool IsLockOn { get; private set; } = false;
 
     public bool InteractionPressed { get; private set; }
-    public bool ChangeItemNext { get; private set; }
-    public bool ChangeItemPrev { get; private set; }
+    public int ChangeItem { get; private set; }
+    public int ChangeWeapon { get; private set; }
+    public bool inputItem { get; private set; }
+    public bool inputWeapon { get; private set; }
 
     public float MouseX { get; private set; }
     public float MouseY { get; private set; }
@@ -37,6 +39,7 @@ public class InputManager : MonoBehaviour
     private float deadZone = 0.2f;
     private float bufferTime = 0.3f;
     private float bufferTimer;
+    private bool isPressed = false;
 
     public InputMode CurrentInput { get; private set; }
 
@@ -56,8 +59,7 @@ public class InputManager : MonoBehaviour
 
         CurrentInput = mode;
     }
-
-    void Update() // 동시에 누를때 생기는 문제 처리해야함
+    void Update()
     {
         MouseX = Input.GetAxis("LookX");
         MouseY = Input.GetAxis("LookY");
@@ -74,6 +76,104 @@ public class InputManager : MonoBehaviour
         if (MoveInput.sqrMagnitude < deadZone * deadZone)
             MoveInput = Vector3.zero;
 
+        // 공격
+        AttackInput();
+
+        // 아이템 변경
+        ItemInput();
+
+        // 무기 변경
+        WeaponInput();
+
+        InteractionPressed = Input.GetButtonDown("Interaction");
+
+        // 달리기와 회피
+        runDodgeInput();
+
+        // 패링 상태
+        ParryingPressed = Input.GetButton("Parrying");
+
+        // 활
+        BowInput();
+
+        // Action State 설정
+        ActionPressed = AttackPressed || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
+
+        // LockOn키
+        if (Input.GetButtonDown("LockOn"))
+        {
+            IsLockOn = !IsLockOn;
+        }
+        con.Animation.SetLockOn(IsLockOn);
+    }
+    private void runDodgeInput()
+    {
+        RunPressed = Input.GetButton("Run");
+
+        bufferTimer -= Time.deltaTime;
+        if (Input.GetButtonDown("Run") && IsLockOn)
+        {
+            DodgeBuffered = true;
+            bufferTimer = bufferTime;
+        }
+        if (bufferTimer < 0)
+        {
+            DodgeBuffered = false;
+        }
+    }
+    private void ItemInput()
+    {
+        float dir = Input.GetAxisRaw("ChangeItem");
+
+        if (dir > 0.5f && !isPressed)
+        {
+            ChangeItem = 1;
+            isPressed = true;
+        }
+        else if (dir < -0.5f)
+        {
+            ChangeItem = -1;
+            isPressed = true;
+        }
+        else if (Mathf.Abs(dir) < 0.1f)
+        {
+            ChangeItem = 0;
+            isPressed = false;
+        }
+    }
+    private void WeaponInput()
+    {
+
+        float dir = Input.GetAxisRaw("ChangeWeapon");
+
+        if (dir > 0.5f && !isPressed)
+        {
+            ChangeWeapon = 1;
+            isPressed = true;
+        }
+        else if (dir < -0.5f)
+        {
+            ChangeWeapon = -1;
+            isPressed = true;
+        }
+        else if (Mathf.Abs(dir) < 0.1f)
+        {
+            ChangeWeapon = 0;
+            isPressed = false;
+        }
+
+    }
+    private void BowInput()
+    {
+        float bow = Input.GetAxis("Bow");
+        bool wasBowCharging = BowCharging;
+
+        BowCharging = bow > 0.5f;
+        StartBowCharging = BowCharging && !wasBowCharging;
+        BowShoot = !BowCharging && wasBowCharging;
+    }
+    private void AttackInput()
+    {
         LightAttack = Input.GetButtonDown("Light");
         float rt = Input.GetAxis("Heavy");
 
@@ -85,46 +185,6 @@ public class InputManager : MonoBehaviour
         prevRT = rt;
         if (LightAttack || HeavyAttack)
             AttackPressed = true;
-
-        ChangeItemNext = Input.GetButtonDown("ChangeItemNext");
-        ChangeItemPrev = Input.GetButtonDown("ChangeItemPre");
-
-        InteractionPressed = Input.GetButtonDown("Interaction");
-
-        // 달리기와 회피
-        RunPressed = Input.GetButton("Run");
-
-        bufferTimer -= Time.deltaTime;
-        if (Input.GetButtonDown("Run"))
-        {
-            DodgeBuffered = true;
-            bufferTimer = bufferTime;
-        }
-        if(bufferTimer < 0)
-        {
-            DodgeBuffered = false;
-        }
-
-        // 패링 상태
-        ParryingPressed = Input.GetButton("Parrying");
-
-        // 활
-        float bow = Input.GetAxis("Bow");
-        bool wasBowCharging = BowCharging;
-
-        BowCharging = bow > 0.5f;
-        StartBowCharging = BowCharging && !wasBowCharging;
-        BowShoot = !BowCharging && wasBowCharging;
-
-        // Action State 설정
-        ActionPressed = AttackPressed || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
-
-        // LockOn키
-        if (Input.GetButtonDown("LockOn"))
-        {
-            IsLockOn = !IsLockOn;
-        }
-        con.Animation.SetLockOn(IsLockOn);
     }
     public void RequestLockOn(bool value)
     {

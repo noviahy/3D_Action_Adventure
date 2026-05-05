@@ -1,7 +1,9 @@
 using UnityEngine;
+using static ActionState;
 
 public class AttackState : PlayerBehaviour
 {
+    private PlayerController con;
     public AttackStyle currentAttackStyle { get; private set; }
     public enum AttackStyle 
     {
@@ -13,10 +15,26 @@ public class AttackState : PlayerBehaviour
         if (currentAttackStyle == style) return;
         currentAttackStyle = style;
     }
-    private void Update()
+    public AttackState(PlayerController controller)
+    {
+        con = controller;
+    }
+    public void Enter()
     {
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
+
+        switch (con.Player.currentWeaponType)
+        {
+            case Player.WeaponType.Sword:
+                con.Animation.PlayAttack();
+                con.Attack.SwordAttack(currentAttackStyle);
+                break;
+            case Player.WeaponType.Bow:
+                con.Attack.BowAttack();
+                break;
+        }
+
         if (con.Input.LightAttack)
         {
             ChangeAttackStyle(AttackStyle.Light);
@@ -29,24 +47,23 @@ public class AttackState : PlayerBehaviour
             con.Animation.SetAttackType(1);
         }
     }
-    private void FixedUpdate()
+    public void Exit()
     {
-        if (con.ActionState.currentType != ActionState.ActionType.Attack)
-            return;
 
-        switch (con.Player.currentAttackType)
+    }
+
+    public void RequestColliderOnOff(bool value)
+    {
+        switch (con.Player.currentWeaponType)
         {
-            case Player.AttackType.Sword:
+            case Player.WeaponType.Sword:
                 con.Animation.SetWeaponType(2);
                 con.Animation.PlayAttack();
                 con.Attack.SwordAttack(currentAttackStyle);
                 break;
-            case Player.AttackType.Bow:
+            case Player.WeaponType.Bow:
                 con.Animation.SetWeaponType(1);
                 con.Attack.BowAttack();
-                break;
-            case Player.AttackType.Bomb:
-                con.Attack.BombAttack();
                 break;
         }
     }

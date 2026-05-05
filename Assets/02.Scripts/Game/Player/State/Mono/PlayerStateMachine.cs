@@ -44,10 +44,15 @@ public class PlayerStateMachine : PlayerBehaviour
 
         if (con.Input.ActionPressed)
         {
-            if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요
-                con.Player.ChangeAttackType(Player.AttackType.Bomb);
-
             con.StateMachine.TryChangeState(PlayerState.ActionState);
+
+            /*if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요
+                 con.Player.ChangeWeaponType(Player.WeaponType.Bomb);*/
+
+            if (con.Input.AttackPressed)
+            {
+                con.ActionState.TryChangeType(ActionState.ActionType.Attack);
+            }
 
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
             {

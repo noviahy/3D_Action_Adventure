@@ -44,6 +44,7 @@ public class ActionState : IPlayerState
                 con.Parrying.Enter();
                 break;
             case ActionType.Attack:
+                con.AttackState.Enter();
                 break;
             case ActionType.Interaction:
                 break;
@@ -61,6 +62,7 @@ public class ActionState : IPlayerState
                 con.Parrying.Exit();
                 break;
             case ActionType.Attack:
+                con.AttackState.Exit();
                 break;
             case ActionType.Interaction:
                 break;

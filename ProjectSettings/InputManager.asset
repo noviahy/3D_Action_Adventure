@@ -662,7 +662,7 @@ InputManager:
     axis: 5
     joyNum: 0
   - serializedVersion: 3
-    m_Name: ChangeItemNext
+    m_Name: ChangeItem
     descriptiveName: 
     descriptiveNegativeName: 
     negativeButton: left
@@ -670,7 +670,7 @@ InputManager:
     altNegativeButton: 
     altPositiveButton: 
     gravity: 1000
-    dead: 0.001
+    dead: 0.2
     sensitivity: 1000
     snap: 0
     invert: 0
@@ -678,7 +678,7 @@ InputManager:
     axis: 6
     joyNum: 0
   - serializedVersion: 3
-    m_Name: ChangeItemPre
+    m_Name: ChangeWeapon
     descriptiveName: 
     descriptiveNegativeName: 
     negativeButton: left
@@ -686,11 +686,11 @@ InputManager:
     altNegativeButton: 
     altPositiveButton: 
     gravity: 1000
-    dead: 0.001
+    dead: 0.2
     sensitivity: 1000
     snap: 0
     invert: 0
     type: 2
-    axis: 6
+    axis: 5
     joyNum: 0
   m_UsePhysicalKeys: 1
