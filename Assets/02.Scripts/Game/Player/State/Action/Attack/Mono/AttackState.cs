@@ -1,9 +1,8 @@
+using System;
 using UnityEngine;
-using static ActionState;
 
 public class AttackState : PlayerBehaviour
 {
-    private PlayerController con;
     public AttackStyle currentAttackStyle { get; private set; }
     public enum AttackStyle 
     {
@@ -21,17 +20,22 @@ public class AttackState : PlayerBehaviour
     }
     public void Enter()
     {
+        con.Animation.SetLayerWeight(0, 0);
+        con.Animation.SetLayerWeight(1, 1);
+        con.Animation.SetLayerWeight(2, 0);
+    }
+    private void Update() // 에니메이션 관리
+    {
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
-
         switch (con.Player.currentWeaponType)
         {
             case Player.WeaponType.Sword:
                 con.Animation.PlayAttack();
-                con.Attack.SwordAttack(currentAttackStyle);
+                con.Attack.RequestSwordAttack();
                 break;
             case Player.WeaponType.Bow:
-                con.Attack.BowAttack();
+                con.Attack.RequestBowAttack();
                 break;
         }
 
@@ -47,24 +51,11 @@ public class AttackState : PlayerBehaviour
             con.Animation.SetAttackType(1);
         }
     }
+
     public void Exit()
     {
-
-    }
-
-    public void RequestColliderOnOff(bool value)
-    {
-        switch (con.Player.currentWeaponType)
-        {
-            case Player.WeaponType.Sword:
-                con.Animation.SetWeaponType(2);
-                con.Animation.PlayAttack();
-                con.Attack.SwordAttack(currentAttackStyle);
-                break;
-            case Player.WeaponType.Bow:
-                con.Animation.SetWeaponType(1);
-                con.Attack.BowAttack();
-                break;
-        }
+        con.Animation.SetLayerWeight(0, 0);
+        con.Animation.SetLayerWeight(1, 1);
+        con.Animation.SetLayerWeight(2, 0);
     }
 }

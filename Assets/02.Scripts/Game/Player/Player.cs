@@ -39,14 +39,16 @@ public class Player : MonoBehaviour
     {
         int length = System.Enum.GetValues(typeof(WeaponType)).Length;
         int index = (int)weaponNum;
-
-        index = (index + Controller.Input.ChangeWeapon + length) % length;
-
-        ChangeWeaponType((WeaponType)index);
+        if (Controller.Input.isPressed)
+        {
+            index = (index + Controller.Input.ChangeWeapon + length) % length;
+            ChangeWeaponType((WeaponType)index);
+        }
     }
     public void ChangeWeaponType(WeaponType type)
     {
-        if (currentWeaponType == type) return;
+        if (currentWeaponType == type)
+            return;
 
         Debug.Log($"WaponType:{type}");
 
@@ -57,18 +59,37 @@ public class Player : MonoBehaviour
         {
             case WeaponType.Default:
                 sword.enabled = false;
+                Controller.Animator.SetLayerWeight(2, 0);
                 Controller.Animation.SetWeaponType(0);
                 // 나중에 활 추가
                 return;
 
             case WeaponType.Sword:
                 sword.enabled = true; // 콜라이더 활성화는 다른 코드에서
+                Controller.Animator.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(2);
                 return;
             case WeaponType.Bow:
+                Controller.Animator.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(1);
                 return;
-
+        }
+        equipWeapon();
+    }
+    private void equipWeapon()
+    {
+        // 현재 무기 조건으로 Renderer 켜기
+        switch (currentWeaponType)
+        {
+            case WeaponType.Default:
+                sword.enabled = false;
+                break;
+            case WeaponType.Sword:
+                sword.enabled = true;
+                break;
+            case WeaponType.Bow:
+                // 활 렌더러 켜기
+                break;
         }
     }
     public ItemType CurrentItemType { get; private set; }
@@ -77,11 +98,8 @@ public class Player : MonoBehaviour
         HPPosion,
         Bomb
     }
-    private void equipWeapon()
-    {
-
-    }
-    public void ChangeInvincible(bool value)
+    // 무적
+    public void ChangeInvincible(bool value) // 카운터 시간은 따로 만들어야함
     {
         IsInvincible = value;
     }
@@ -102,6 +120,7 @@ public class Player : MonoBehaviour
             attack,
             attackState
         );
+        ChangeWeaponType(0);
 
     }
     private void Start()

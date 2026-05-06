@@ -6,6 +6,7 @@ public class InputManager : MonoBehaviour
 {
     public Vector3 MoveInput { get; private set; }
     public bool AttackPressed { get; private set; }
+    public bool isAttacking { get; private set; }
     public bool LightAttack { get; private set; }
     public bool HeavyAttack { get; private set; }
 
@@ -37,9 +38,13 @@ public class InputManager : MonoBehaviour
     private PlayerController con;
     private float prevRT;
     private float deadZone = 0.2f;
-    private float bufferTime = 0.3f;
-    private float bufferTimer;
-    private bool isPressed = false;
+
+    private float dodgeTime = 0.3f;
+    private float dodgeTimer;
+
+    private float attackTime = 0.4f;
+    private float attackTImer;
+    public bool isPressed { get; private set; } = false;
 
     public InputMode CurrentInput { get; private set; }
 
@@ -83,6 +88,7 @@ public class InputManager : MonoBehaviour
         ItemInput();
 
         // 무기 변경
+        if(!isAttacking)
         WeaponInput();
 
         InteractionPressed = Input.GetButtonDown("Interaction");
@@ -97,7 +103,7 @@ public class InputManager : MonoBehaviour
         BowInput();
 
         // Action State 설정
-        ActionPressed = AttackPressed || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
+        ActionPressed = AttackPressed|| isAttacking || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
 
         // LockOn키
         if (Input.GetButtonDown("LockOn"))
@@ -110,17 +116,52 @@ public class InputManager : MonoBehaviour
     {
         RunPressed = Input.GetButton("Run");
 
-        bufferTimer -= Time.deltaTime;
+        dodgeTimer -= Time.deltaTime;
         if (Input.GetButtonDown("Run") && IsLockOn)
         {
             DodgeBuffered = true;
-            bufferTimer = bufferTime;
+            dodgeTimer = dodgeTime;
         }
-        if (bufferTimer < 0)
+        if (dodgeTimer < 0)
         {
             DodgeBuffered = false;
         }
     }
+    private void AttackInput()
+    {
+        bool LightBuffered = Input.GetButtonDown("Light");
+        float rt = Input.GetAxis("Heavy");
+
+        bool isPressed = rt > 0.5f;
+        bool wasPressed = prevRT > 0.5f;
+
+        bool HeavyBuffered = isPressed && !wasPressed;
+
+        prevRT = rt;
+
+        attackTImer -= Time.deltaTime;
+        if (LightBuffered || HeavyBuffered)
+        {
+            AttackPressed = true;
+            isAttacking = true;
+            attackTImer = attackTime;
+
+            // 초기화
+            LightAttack = false;
+            HeavyAttack = false;
+
+            // 마지막 값만 유지
+            if (LightBuffered)
+                LightAttack = true;
+            if (HeavyBuffered)
+                HeavyAttack = true;
+        }
+        if (attackTImer < 0)
+        {
+            AttackPressed = false;
+        }
+    }
+
     private void ItemInput()
     {
         float dir = Input.GetAxisRaw("ChangeItem");
@@ -143,7 +184,6 @@ public class InputManager : MonoBehaviour
     }
     private void WeaponInput()
     {
-
         float dir = Input.GetAxisRaw("ChangeWeapon");
 
         if (dir > 0.5f && !isPressed)
@@ -172,19 +212,14 @@ public class InputManager : MonoBehaviour
         StartBowCharging = BowCharging && !wasBowCharging;
         BowShoot = !BowCharging && wasBowCharging;
     }
-    private void AttackInput()
+    public void AckAttack()
     {
-        LightAttack = Input.GetButtonDown("Light");
-        float rt = Input.GetAxis("Heavy");
-
-        bool isPressed = rt > 0.5f;
-        bool wasPressed = prevRT > 0.5f;
-
-        HeavyAttack = isPressed && !wasPressed;
-
-        prevRT = rt;
-        if (LightAttack || HeavyAttack)
-            AttackPressed = true;
+        LightAttack = false;
+        HeavyAttack = false;
+    }
+    public void FinishAttacking()
+    {
+        isAttacking = false;
     }
     public void RequestLockOn(bool value)
     {
