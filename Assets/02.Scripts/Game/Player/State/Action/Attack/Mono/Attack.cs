@@ -23,10 +23,14 @@ public class Attack : PlayerBehaviour
 
     IEnumerator SwordAttack()
     {
+        yield return new WaitUntil(() => !con.Input.isAttacking);
+
         switch (con.AttackState.currentAttackStyle)
         {
             case AttackState.AttackStyle.Light:
                 {
+                    con.Animation.PlayAttack();
+                    con.Input.StartAttacking();
                     if (con.Input.isAttacking)
                     {
                         comboIndex++;

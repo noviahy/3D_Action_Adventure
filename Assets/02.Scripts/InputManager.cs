@@ -143,7 +143,6 @@ public class InputManager : MonoBehaviour
         if (LightBuffered || HeavyBuffered)
         {
             AttackPressed = true;
-            isAttacking = true;
             attackTImer = attackTime;
 
             // √ ±‚»≠
@@ -216,6 +215,10 @@ public class InputManager : MonoBehaviour
     {
         LightAttack = false;
         HeavyAttack = false;
+    }
+    public void StartAttacking()
+    {
+        isAttacking = true;
     }
     public void FinishAttacking()
     {

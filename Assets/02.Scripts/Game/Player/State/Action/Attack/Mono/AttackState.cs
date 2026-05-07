@@ -31,7 +31,6 @@ public class AttackState : PlayerBehaviour
         switch (con.Player.currentWeaponType)
         {
             case Player.WeaponType.Sword:
-                con.Animation.PlayAttack();
                 con.Attack.RequestSwordAttack();
                 break;
             case Player.WeaponType.Bow:
