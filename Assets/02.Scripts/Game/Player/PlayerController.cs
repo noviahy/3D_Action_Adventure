@@ -26,7 +26,7 @@ public class PlayerController
     public ActionState ActionState { get; }
     public EventManager Event { get; }
     public AnimationController Animation { get; }
-
+    public AnimationEventController AnimationEventController { get; }
 
 
     // 决
@@ -62,6 +62,7 @@ public class PlayerController
         ActionState = new ActionState(this);
         Event = new EventManager(this);
         Animation = new AnimationController(this);
+        AnimationEventController = new AnimationEventController(this);
 
         // Input俊 流立 持绢淋
         input.Init(this);

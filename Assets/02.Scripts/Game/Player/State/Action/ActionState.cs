@@ -1,6 +1,3 @@
-using Unity.VisualScripting;
-using UnityEngine;
-
 public class ActionState : IPlayerState
 {
     private PlayerController con;

@@ -59,9 +59,9 @@ public class AnimationController
     {
         con.Animator.SetTrigger("Jump");
     }
-    public void PlayAttack()
+    public void PlayAttack(bool value)
     {
-        con.Animator.SetTrigger("Attack");
+        con.Animator.SetBool("Attack", value);
     }
     public void PlayDodge() //
     {

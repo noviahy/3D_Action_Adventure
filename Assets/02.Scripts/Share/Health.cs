@@ -29,7 +29,7 @@ public class Health : IDamageable
 
         if (HP <= 0)
         {
-            con.StateMachine.ChangePlayerState(PlayerStateMachine.PlayerState.DeadState);
+            con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.DeadState);
         }
     }
     public void MonsterGetDamage(float value)

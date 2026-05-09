@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 
@@ -6,7 +5,6 @@ public class InputManager : MonoBehaviour
 {
     public Vector3 MoveInput { get; private set; }
     public bool AttackPressed { get; private set; }
-    public bool isAttacking { get; private set; }
     public bool LightAttack { get; private set; }
     public bool HeavyAttack { get; private set; }
 
@@ -88,7 +86,6 @@ public class InputManager : MonoBehaviour
         ItemInput();
 
         // 무기 변경
-        if(!isAttacking)
         WeaponInput();
 
         InteractionPressed = Input.GetButtonDown("Interaction");
@@ -103,7 +100,7 @@ public class InputManager : MonoBehaviour
         BowInput();
 
         // Action State 설정
-        ActionPressed = AttackPressed|| isAttacking || ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
+        ActionPressed = ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
 
         // LockOn키
         if (Input.GetButtonDown("LockOn"))
@@ -159,6 +156,7 @@ public class InputManager : MonoBehaviour
         {
             AttackPressed = false;
         }
+        con.Animation.PlayAttack(AttackPressed);
     }
 
     private void ItemInput()
@@ -215,14 +213,6 @@ public class InputManager : MonoBehaviour
     {
         LightAttack = false;
         HeavyAttack = false;
-    }
-    public void StartAttacking()
-    {
-        isAttacking = true;
-    }
-    public void FinishAttacking()
-    {
-        isAttacking = false;
     }
     public void RequestLockOn(bool value)
     {

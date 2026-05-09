@@ -6,7 +6,7 @@ public class Dodge : PlayerBehaviour
     private Coroutine coroutine;
     private float dodgeSpeed = 6f;
     private float timer = 0f;
-    private float dodgeDuration = 0.7f;
+    private float dodgeDuration = 0.6f;
     public void Enter() // ActionSate에서 호출
     {
         if (coroutine == null) // 코루틴 조건
@@ -23,7 +23,7 @@ public class Dodge : PlayerBehaviour
         // 에니메이션 weight 변경
         // 여기에 문제가 있는것 같음 회피 에니메이션이 씹힘
         //
-        con.Animation.SetLayerWeight(1, 1); 
+        con.Animation.SetLayerWeight(1, 1);
         con.Animation.SetLayerWeight(0, 0);
         con.Animation.PlayDodge();
 
@@ -64,7 +64,7 @@ public class Dodge : PlayerBehaviour
             t = Mathf.Clamp01(t);
 
             // sin형으로 속도 조절
-            float speedMultiplier = Mathf.Sin(t * Mathf.PI);
+            float speedMultiplier = 1f - Mathf.Pow(t, 2);
 
             // 이동 방향 설정
             Vector3 move = dodgeDir * dodgeSpeed * speedMultiplier;

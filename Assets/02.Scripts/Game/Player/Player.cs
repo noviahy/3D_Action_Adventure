@@ -35,8 +35,25 @@ public class Player : MonoBehaviour
         Sword,
         Bow
     }
+    private void Start()
+    {
+        sword.enabled = false;
+
+        var behaviours = GetComponentsInChildren<PlayerBehaviour>();
+
+        foreach (var b in behaviours)
+        {
+            b.Init(Controller);
+        }
+        // ChangeWeaponType(WeaponType.Default);
+    }
+
     private void Update()
     {
+        // Debug.Log(currentWeaponType);
+        if(attackState.isAttacking)
+            return;
+
         int length = System.Enum.GetValues(typeof(WeaponType)).Length;
         int index = (int)weaponNum;
         if (Controller.Input.isPressed)
@@ -72,26 +89,11 @@ public class Player : MonoBehaviour
             case WeaponType.Bow:
                 Controller.Animator.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(1);
+                // 활 렌더러 켜기
                 return;
         }
-        equipWeapon();
     }
-    private void equipWeapon()
-    {
-        // 현재 무기 조건으로 Renderer 켜기
-        switch (currentWeaponType)
-        {
-            case WeaponType.Default:
-                sword.enabled = false;
-                break;
-            case WeaponType.Sword:
-                sword.enabled = true;
-                break;
-            case WeaponType.Bow:
-                // 활 렌더러 켜기
-                break;
-        }
-    }
+
     public ItemType CurrentItemType { get; private set; }
     public enum ItemType
     {
@@ -120,16 +122,5 @@ public class Player : MonoBehaviour
             attack,
             attackState
         );
-        ChangeWeaponType(0);
-
-    }
-    private void Start()
-    {
-        var behaviours = GetComponentsInChildren<PlayerBehaviour>();
-
-        foreach (var b in behaviours)
-        {
-            b.Init(Controller);
-        }
     }
 }

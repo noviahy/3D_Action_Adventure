@@ -1,11 +1,15 @@
 using UnityEngine;
 
-public class AnimationEventController : MonoBehaviour
+public class AnimationEventController
 {
-    [SerializeField] InputManager inputManager;
+    private PlayerController con;
 
+    public AnimationEventController(PlayerController con)
+    {
+        this.con = con;
+    }
     public void RequestFinishAttacking()
     {
-        inputManager.FinishAttacking();
+        con.AttackState.FinishAttacking();
     }
 }

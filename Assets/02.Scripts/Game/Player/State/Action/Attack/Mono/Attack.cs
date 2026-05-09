@@ -1,12 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using static AttackState;
 
 public class Attack : PlayerBehaviour
 {
-    [SerializeField] private Collider SwordCollider;
-
     private Coroutine coroutine;
-    private int comboIndex = 0;
     // Bow 사용 시 Upper Body가 안 움직일 것 같은데 수정해야겠음
     // 공격시 모든 움직임 멈춰야함
     // 넉벡 공격에 넉벡 당함 넉벡이 우선임
@@ -18,38 +16,42 @@ public class Attack : PlayerBehaviour
     public void RequestSwordAttack()
     {
         if (coroutine == null)
+        {
             coroutine = StartCoroutine(SwordAttack());
+        }
     }
 
     IEnumerator SwordAttack()
     {
-        yield return new WaitUntil(() => !con.Input.isAttacking);
-
         switch (con.AttackState.currentAttackStyle)
         {
             case AttackState.AttackStyle.Light:
+                while (true)
                 {
-                    con.Animation.PlayAttack();
-                    con.Input.StartAttacking();
-                    if (con.Input.isAttacking)
-                    {
-                        comboIndex++;
+                    // hitEnemies 클리어 코드
 
-                        if (comboIndex > 2)
-                            comboIndex = 0;
-                        
-                        con.Input.AckAttack();
-                    }
-                    break;
+                    lightAttackProcedure();
+
+                    // time * 0.2초동안 대기
+                    // 무기 콜라이더 활성화 코드 -> Sword 코드는 나중에 따로 작성
+                    // time * 0.8초동안 대기
+                    // 무기 콜라이더 비활성화 코드
+                    
+                    yield return new WaitUntil(() => !con.AttackState.isAttacking);
+
+                    if (!con.Input.AttackPressed)
+                        break;
                 }
+                break;
             case AttackState.AttackStyle.Heavy:
-                {
-                    break;
-                }
+                con.AttackState.ChangeAttackStyle(AttackStyle.Heavy);
+                con.Animation.SetAttackType(1);
+                yield return new WaitUntil(() => !con.AttackState.isAttacking);
+                break;
         }
-
         coroutine = null;
-        yield return null;
+        con.AttackState.ChangeAttackStyle(AttackStyle.Default);
+        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
     }
 
     public void RequestBowAttack()
@@ -71,7 +73,6 @@ public class Attack : PlayerBehaviour
         if (con.Input.BowShoot)
         {
             con.Animation.SetBowAim(false);
-            con.Animation.PlayAttack();
         }
         con.Player.ChangeWeaponType(Player.WeaponType.Bow);
 
@@ -79,13 +80,13 @@ public class Attack : PlayerBehaviour
 
         yield return null;
     }
-    public void EnableCombo()
+    private void lightAttackProcedure()
     {
-        SwordCollider.enabled = false;
+        con.Animation.SetAttackType(0);
+
+        con.AttackState.StartAttacking();
+        con.AttackState.ChangeAttackStyle(AttackStyle.Light);
+
+        con.Input.AckAttack();
     }
-    public void OnAttackEnd()
-    {
-        comboIndex = 0;
-    }
-    
 }
