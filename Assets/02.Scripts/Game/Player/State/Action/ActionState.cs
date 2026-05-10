@@ -21,11 +21,15 @@ public class ActionState : IPlayerState
     {
         if (currentType == ActionType.Parrying)
             return;
+        if (currentType == ActionType.Attack)
+            return;
+        if(currentType == ActionType.Dodge && type != ActionType.Idle)
+            return;
 
         ChangeType(type);
     }
 
-    public void ChangeType(ActionType type)
+    private void ChangeType(ActionType type)
     {
         exitAction(currentType);
 

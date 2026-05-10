@@ -71,8 +71,7 @@ public class PlayerMovement
         if (con.cc.isGrounded)
         {
             isJumping = true;
-            con.Animation.PlayJump();
-
+            // Jump 애니메이션 삽입
             if (dir == Vector3.zero)
                 jumpDir = con.Locomotion.transform.forward;
             else

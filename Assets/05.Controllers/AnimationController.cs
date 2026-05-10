@@ -55,17 +55,9 @@ public class AnimationController
     {
         con.Animator.SetBool("BowAim", true);
     }
-    public void PlayJump() //
+    public void PlayDodge(string dir) //
     {
-        con.Animator.SetTrigger("Jump");
-    }
-    public void PlayAttack(bool value)
-    {
-        con.Animator.SetBool("Attack", value);
-    }
-    public void PlayDodge() //
-    {
-        con.Animator.SetTrigger("Dodge");
+        con.Animator.CrossFade($"{dir}JumpMove", 0.05f);
     }
     public void SetWeaponType(int type) //
     {
@@ -74,6 +66,14 @@ public class AnimationController
     public void SetAttackType(int type) //
     {
         con.Animator.SetInteger("AttackType", type);
+    }
+    public void PlayAttack(int combo)
+    {
+        con.Animator.CrossFade($"LightAttack{combo}", 0.05f);
+    }
+     public void PlayJump()
+    {
+        con.Animator.CrossFadeInFixedTime("Jump", 0.05f);
     }
     public void PlayHit() //
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 public class Dodge : PlayerBehaviour
 {
     private Coroutine coroutine;
-    private float dodgeSpeed = 6f;
+    private float dodgeSpeed = 6.5f;
     private float timer = 0f;
     private float dodgeDuration = 0.6f;
     public void Enter() // ActionSate에서 호출
@@ -15,7 +15,7 @@ public class Dodge : PlayerBehaviour
             con.Input.AckDodgeFinish(); // 버퍼 초기화
             coroutine = StartCoroutine(DoDodge()); // 실행
         }
-    }//
+    }
     IEnumerator DoDodge()
     {
         con.Player.ChangeInvincible(true); // 무적
@@ -23,9 +23,8 @@ public class Dodge : PlayerBehaviour
         // 에니메이션 weight 변경
         // 여기에 문제가 있는것 같음 회피 에니메이션이 씹힘
         //
-        con.Animation.SetLayerWeight(1, 1);
-        con.Animation.SetLayerWeight(0, 0);
-        con.Animation.PlayDodge();
+        con.Animation.SetLayerWeight(1, 1f);
+        con.Animation.SetLayerWeight(0, 0f);
 
         // 방향 정규화
         Vector3 inputDir = con.Input.MoveInput;
@@ -53,7 +52,10 @@ public class Dodge : PlayerBehaviour
         {
             dodgeDir = con.Cam.camForward;
         }
-
+        if (dodgeDir.x < 0)
+            con.Animation.PlayDodge("Left");
+        if (dodgeDir.x >= 0)
+            con.Animation.PlayDodge("Right");
 
         // dodge 완료까지 반복
         while (true)
@@ -78,26 +80,28 @@ public class Dodge : PlayerBehaviour
 
             yield return null;
         }
-
-        // Layer weight 다시 바꿔줌
-        float w = 0;
-        while (w < 1f)
-        {
-            w += Time.deltaTime * 3f;
-            con.Animation.SetLayerWeight(0, w);
-            con.Animation.SetLayerWeight(1, 1 - w);
-            yield return null;
-        }
-
         // 상태 변경
-        con.ActionState.ChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
+        con.ActionState.TryChangeType(ActionState.ActionType.Idle);
 
         coroutine = null;
     }
     public void Exit()
     {
         // idle로 상태 변경시 자동으로 호출
+        StartCoroutine(ChangeLayerWaight());
         con.Player.ChangeInvincible(false);
+    }
+    IEnumerator ChangeLayerWaight()
+    {
+        // Layer weight 다시 바꿔줌
+        float w = 0;
+        while (w < 1f)
+        {
+            w += Time.deltaTime * 1.5f;
+            con.Animation.SetLayerWeight(0, w);
+            con.Animation.SetLayerWeight(1, 1 - w);
+            yield return null;
+        }
     }
 }

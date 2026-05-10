@@ -45,7 +45,6 @@ public class PlayerStateMachine : PlayerBehaviour
         if (con.Input.ActionPressed || (con.Input.AttackPressed && con.Player.currentWeaponType != Player.WeaponType.Default))
         {
             TryChangeState(PlayerState.ActionState);
-            Debug.Log("!");
             /*if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요
                  con.Player.ChangeWeaponType(Player.WeaponType.Bomb);*/
 

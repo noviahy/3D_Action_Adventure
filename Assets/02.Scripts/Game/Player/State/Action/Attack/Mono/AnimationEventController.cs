@@ -1,15 +1,11 @@
-using UnityEngine;
-
-public class AnimationEventController
+public class AnimationEventController: PlayerBehaviour
 {
-    private PlayerController con;
-
-    public AnimationEventController(PlayerController con)
-    {
-        this.con = con;
-    }
     public void RequestFinishAttacking()
     {
         con.AttackState.FinishAttacking();
+    }
+    public void RequestUnequip()
+    {
+        con.Player.Unequip();
     }
 }

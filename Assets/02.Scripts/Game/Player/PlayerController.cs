@@ -17,6 +17,7 @@ public class PlayerController
     public Animator Animator { get; }
     public Attack Attack { get; }
     public AttackState AttackState { get; }
+    public AnimationEventController AnimationEventController { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -26,8 +27,6 @@ public class PlayerController
     public ActionState ActionState { get; }
     public EventManager Event { get; }
     public AnimationController Animation { get; }
-    public AnimationEventController AnimationEventController { get; }
-
 
     // 엄
     public PlayerController(InputManager input,
@@ -40,7 +39,8 @@ public class PlayerController
         Dodge dodge,
         Animator animator,
         Attack attack,
-        AttackState attackState)
+        AttackState attackState,
+        AnimationEventController animationEvent)
     {
         Input = input;
         Player = player;
@@ -53,6 +53,7 @@ public class PlayerController
         Dodge = dodge;
         Animator = animator;
         AttackState = attackState;
+        AnimationEventController = animationEvent;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);
@@ -62,7 +63,6 @@ public class PlayerController
         ActionState = new ActionState(this);
         Event = new EventManager(this);
         Animation = new AnimationController(this);
-        AnimationEventController = new AnimationEventController(this);
 
         // Input에 직접 넣어줌
         input.Init(this);

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -15,9 +16,11 @@ public class Player : MonoBehaviour
     [SerializeField] Dodge dodge;
     [SerializeField] Attack attack;
     [SerializeField] AttackState attackState;
+    [SerializeField] AnimationEventController animatorEventController;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
+    [SerializeField] Renderer bow;
 
     private PlayerController Controller;
 
@@ -25,9 +28,19 @@ public class Player : MonoBehaviour
     // 무기 바꿀 때 바꾼지 확인 가능
     // 이거 옮겨줘야할듯
     public WeaponType currentWeaponType { get; private set; }
-    public WeaponType previousWeaponType { get; private set; }
+    private WeaponType previousWeaponType;
+
+    public ItemType currentItemType { get; private set; }
+    private ItemType previousItemType;
+
     public bool IsInvincible { get; private set; }
+    
     private int weaponNum = 0;
+    private int itemNum = 0;
+    private bool isEquip = false;
+
+    private Coroutine defaultCoroutine;
+    private Coroutine changeCoroutine;
 
     public enum WeaponType
     {
@@ -38,6 +51,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         sword.enabled = false;
+        bow.enabled = false;
 
         var behaviours = GetComponentsInChildren<PlayerBehaviour>();
 
@@ -45,22 +59,35 @@ public class Player : MonoBehaviour
         {
             b.Init(Controller);
         }
-        // ChangeWeaponType(WeaponType.Default);
     }
 
     private void Update()
     {
         // Debug.Log(currentWeaponType);
-        if(attackState.isAttacking)
+        if (attackState.isAttacking)
             return;
 
-        int length = System.Enum.GetValues(typeof(WeaponType)).Length;
-        int index = (int)weaponNum;
-        if (Controller.Input.isPressed)
+        int weaponLength = System.Enum.GetValues(typeof(WeaponType)).Length;
+
+        if (Controller.Input.ChangeWeapon != 0 && changeCoroutine == null)
         {
-            index = (index + Controller.Input.ChangeWeapon + length) % length;
-            ChangeWeaponType((WeaponType)index);
+            weaponNum = (weaponNum + Controller.Input.ChangeWeapon + weaponLength) % weaponLength;
+            Controller.Input.AckWeaponInput();
+            RequestChangeCoroutine();
         }
+
+        ChangeWeaponType((WeaponType)weaponNum);
+
+        int itemLength = System.Enum.GetValues(typeof(WeaponType)).Length;
+
+        if (Controller.Input.ChangeWeapon != 0 && changeCoroutine == null)
+        {
+            itemNum = (itemNum + Controller.Input.ChangeWeapon + itemLength) % itemLength;
+            Controller.Input.AckItemInput();
+            RequestChangeCoroutine();
+        }
+
+        ChangeItemType((ItemType)itemNum);
     }
     public void ChangeWeaponType(WeaponType type)
     {
@@ -75,30 +102,63 @@ public class Player : MonoBehaviour
         switch (type)
         {
             case WeaponType.Default:
-                sword.enabled = false;
-                Controller.Animator.SetLayerWeight(2, 0);
                 Controller.Animation.SetWeaponType(0);
-                // 나중에 활 추가
+                RequestCoroutine();
                 return;
 
             case WeaponType.Sword:
-                sword.enabled = true; // 콜라이더 활성화는 다른 코드에서
-                Controller.Animator.SetLayerWeight(2, 1);
+                isEquip = true;
                 Controller.Animation.SetWeaponType(2);
+                Controller.Animator.SetLayerWeight(2, 1);
+                sword.enabled = true; // 콜라이더 활성화는 다른 코드에서
+                bow.enabled = false;
                 return;
             case WeaponType.Bow:
+                isEquip = true;
                 Controller.Animator.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(1);
+                sword.enabled = false;
+                bow.enabled = true;
                 // 활 렌더러 켜기
                 return;
         }
     }
-
     public ItemType CurrentItemType { get; private set; }
     public enum ItemType
     {
         HPPosion,
         Bomb
+    }
+
+    public void ChangeItemType(ItemType type)
+    {
+        if (currentItemType == type)
+            return;
+
+        Debug.Log($"WaponType:{type}");
+
+        previousItemType = currentItemType;
+        currentItemType = type;
+
+        switch (type)
+        {
+            case ItemType.HPPosion:
+                Controller.Animation.SetWeaponType(0);
+                RequestCoroutine();
+                return;
+
+            case ItemType.Bomb:
+                isEquip = true;
+                Controller.Animation.SetWeaponType(2);
+                Controller.Animator.SetLayerWeight(2, 1);
+                sword.enabled = true; // 콜라이더 활성화는 다른 코드에서
+                bow.enabled = false;
+                return;
+        }
+    }
+    public void Unequip()
+    {
+        isEquip = false;
     }
     // 무적
     public void ChangeInvincible(bool value) // 카운터 시간은 따로 만들어야함
@@ -120,7 +180,32 @@ public class Player : MonoBehaviour
             dodge,
             animator,
             attack,
-            attackState
+            attackState,
+            animatorEventController
         );
+        Controller.Animation.SetWeaponType(0);
+    }
+    private void RequestCoroutine()
+    {
+        if(defaultCoroutine == null)
+            defaultCoroutine = StartCoroutine(DefaultWeapon());
+    }
+    IEnumerator DefaultWeapon()
+    {
+        yield return new WaitUntil(()=>!isEquip);
+
+        Controller.Animator.SetLayerWeight(2, 0);
+        sword.enabled = false;
+        bow.enabled = false;
+    }
+    private void RequestChangeCoroutine()
+    {
+        if (changeCoroutine == null)
+            changeCoroutine = StartCoroutine(WaitForChangeInput());
+    }
+    IEnumerator WaitForChangeInput()
+    {
+        yield return new WaitForSeconds(0.3f);
+        changeCoroutine = null;
     }
 }

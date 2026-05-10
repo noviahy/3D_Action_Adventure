@@ -21,7 +21,7 @@ public class Parrying : PlayerBehaviour
         if(!con.Input.ParryingPressed && con.ActionState.currentType == ActionState.ActionType.Parrying)
         {
             // Parrying 타이밍에 따라 들어가는 데미지 분리는 나중에 짜기로
-            con.ActionState.ChangeType(ActionState.ActionType.Idle);
+            con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         }
 
         if (con.ActionState.currentType != ActionState.ActionType.Parrying)

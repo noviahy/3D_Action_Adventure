@@ -34,13 +34,17 @@ public class AttackState : PlayerBehaviour
     private void Update() // 에니메이션 관리
     {
         // Debug.Log($"AttackStyle:{currentAttackStyle}");
-        // Debug.Log($"ActionState:{con.ActionState.currentType}");
-        // Debug.Log($"PlayerState:{con.StateMachine.currentState}");
+        Debug.Log($"ActionState:{con.ActionState.currentType}");
+        Debug.Log($"PlayerState:{con.StateMachine.currentState}");
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
         switch (con.Player.currentWeaponType)
         {
             case Player.WeaponType.Sword:
+                if (con.Input.LightAttack)
+                    ChangeAttackStyle(AttackStyle.Light);
+                if(con.Input.HeavyAttack)
+                    ChangeAttackStyle(AttackStyle.Heavy);
                 con.Attack.RequestSwordAttack();
                 break;
             case Player.WeaponType.Bow:
@@ -52,8 +56,8 @@ public class AttackState : PlayerBehaviour
     public void Exit()
     {
         con.Animation.SetLayerWeight(0, 0);
-        con.Animation.SetLayerWeight(1, 1);
-        con.Animation.SetLayerWeight(2, 0);
+        con.Animation.SetLayerWeight(1, 0);
+        con.Animation.SetLayerWeight(2, 1);
         
     }
     public void StartAttacking()

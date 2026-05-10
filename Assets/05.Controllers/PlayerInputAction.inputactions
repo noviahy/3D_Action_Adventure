@@ -79,27 +79,45 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChangeItem",
-                    "type": "Value",
-                    "id": "cf3d0176-37ef-49e5-b0d7-debdbf4b1b8a",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "ChangeWeapon",
-                    "type": "Value",
-                    "id": "c69e5609-f894-4cf4-bf6b-63ecd7c37d0e",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "Bow",
                     "type": "Value",
                     "id": "02d8be98-a434-428c-b697-6bd22a8f9f7e",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PrevWeapon",
+                    "type": "Value",
+                    "id": "a39c9775-eef7-4e37-90d2-7594a8cbf4f6",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "NextWeapon",
+                    "type": "Value",
+                    "id": "d56d381d-d54e-4953-bb28-5bbec7d5fb72",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PrevItem",
+                    "type": "Value",
+                    "id": "6f78dd64-f063-4152-a93a-1ba04cdc1de4",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "NextItem",
+                    "type": "Value",
+                    "id": "089595d0-c824-47fd-b045-66d2ce924c2a",
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
@@ -197,34 +215,56 @@
                 },
                 {
                     "name": "",
-                    "id": "847b734c-036a-4946-8eab-dac452ebb668",
-                    "path": "<Gamepad>/dpad/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ChangeItem",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "2c04db6d-02a2-4f0c-9f15-b6eab4d79031",
-                    "path": "<Gamepad>/dpad/x",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ChangeWeapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "d1ea4442-86f5-4e66-bff0-df6000a3745a",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Bow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "34656dda-91e5-4bc3-b507-7da3d6547537",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3d050f16-2070-42b2-b93b-99198de64806",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8fb5fd6e-6a64-4b95-a811-190bf857bc27",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevItem",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "64c5ccff-6e54-492e-99cb-0a9f4d3028df",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

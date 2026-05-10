@@ -1,9 +1,11 @@
 using UnityEngine;
 
-
 public class InputManager : MonoBehaviour
 {
+    // 이동 방향
     public Vector3 MoveInput { get; private set; }
+
+    // 공격
     public bool AttackPressed { get; private set; }
     public bool LightAttack { get; private set; }
     public bool HeavyAttack { get; private set; }
@@ -12,28 +14,36 @@ public class InputManager : MonoBehaviour
     public bool ParryingPressed { get; private set; }
     public bool DodgeBuffered { get; private set; }
 
+    // 활
     public bool StartBowCharging { get; private set; }
     public bool BowCharging { get; private set; }
     public bool BowShoot { get; private set; }
 
+    // 록온
     public bool IsLockOn { get; private set; } = false;
 
+    // 상호작용 키
     public bool InteractionPressed { get; private set; }
     public int ChangeItem { get; private set; }
     public int ChangeWeapon { get; private set; }
     public bool inputItem { get; private set; }
     public bool inputWeapon { get; private set; }
 
+    // 카메라 회전
     public float MouseX { get; private set; }
     public float MouseY { get; private set; }
     public float Direction { get; private set; }
     public float PreDirection { get; private set; }
+
+    // 상태
     public bool LocomotionPressed { get; private set; }
     public bool ActionPressed { get; private set; }
     public float forward { get; private set; }
     public float side { get; private set; }
 
     private PlayerController con;
+    private PlayerInputAction inputAction;
+
     private float prevRT;
     private float deadZone = 0.2f;
 
@@ -42,8 +52,6 @@ public class InputManager : MonoBehaviour
 
     private float attackTime = 0.4f;
     private float attackTImer;
-    public bool isPressed { get; private set; } = false;
-
     public InputMode CurrentInput { get; private set; }
 
     public enum InputMode
@@ -56,6 +64,18 @@ public class InputManager : MonoBehaviour
     {
         con = controller;
     }
+    private void Awake()
+    {
+        inputAction = new PlayerInputAction();
+    }
+    private void OnEnable()
+    {
+        inputAction.Enable();
+    }
+    private void OnDisable()
+    {
+        inputAction.Disable();
+    }
     public void ChangeInputMode(InputMode mode)
     {
         if (CurrentInput == mode) return;
@@ -64,18 +84,25 @@ public class InputManager : MonoBehaviour
     }
     void Update()
     {
-        MouseX = Input.GetAxis("LookX");
-        MouseY = Input.GetAxis("LookY");
+        // 카메라 회전용
+        Vector2 look = inputAction.Player.Look.ReadValue<Vector2>();
+        MouseX = look.x;
+        MouseY = -look.y;
 
-        forward = Input.GetAxisRaw("Vertical");
-        side = Input.GetAxisRaw("Horizontal");
+        // Player 이동용
+        Vector2 move = inputAction.Player.Move.ReadValue<Vector2>();
+        forward = move.y;
+        side = move.x;
 
+        // 떨림 방지
         if (Mathf.Abs(forward) < deadZone)
             forward = 0;
         if (Mathf.Abs(side) < deadZone)
             side = 0;
 
+        // 방향 계산
         MoveInput = con.Cam.camForward * forward + con.Cam.camRight * side;
+        // 떨림 방지
         if (MoveInput.sqrMagnitude < deadZone * deadZone)
             MoveInput = Vector3.zero;
 
@@ -88,13 +115,14 @@ public class InputManager : MonoBehaviour
         // 무기 변경
         WeaponInput();
 
-        InteractionPressed = Input.GetButtonDown("Interaction");
+        // 상호작용키
+        InteractionPressed = inputAction.Player.Interaction.WasPressedThisFrame();
 
         // 달리기와 회피
         runDodgeInput();
 
         // 패링 상태
-        ParryingPressed = Input.GetButton("Parrying");
+        ParryingPressed = inputAction.Player.Parry.IsPressed();
 
         // 활
         BowInput();
@@ -103,7 +131,7 @@ public class InputManager : MonoBehaviour
         ActionPressed = ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
 
         // LockOn키
-        if (Input.GetButtonDown("LockOn"))
+        if (inputAction.Player.LockOn.WasPressedThisFrame())
         {
             IsLockOn = !IsLockOn;
         }
@@ -111,10 +139,10 @@ public class InputManager : MonoBehaviour
     }
     private void runDodgeInput()
     {
-        RunPressed = Input.GetButton("Run");
+        RunPressed = inputAction.Player.Run.IsPressed();
 
         dodgeTimer -= Time.deltaTime;
-        if (Input.GetButtonDown("Run") && IsLockOn)
+        if (inputAction.Player.Run.WasPressedThisFrame() && IsLockOn)
         {
             DodgeBuffered = true;
             dodgeTimer = dodgeTime;
@@ -126,8 +154,8 @@ public class InputManager : MonoBehaviour
     }
     private void AttackInput()
     {
-        bool LightBuffered = Input.GetButtonDown("Light");
-        float rt = Input.GetAxis("Heavy");
+        bool lightBuffered = inputAction.Player.Light.WasPressedThisFrame();
+        float rt = inputAction.Player.Heavy.ReadValue<float>();
 
         bool isPressed = rt > 0.5f;
         bool wasPressed = prevRT > 0.5f;
@@ -137,7 +165,7 @@ public class InputManager : MonoBehaviour
         prevRT = rt;
 
         attackTImer -= Time.deltaTime;
-        if (LightBuffered || HeavyBuffered)
+        if (lightBuffered || HeavyBuffered)
         {
             AttackPressed = true;
             attackTImer = attackTime;
@@ -147,7 +175,7 @@ public class InputManager : MonoBehaviour
             HeavyAttack = false;
 
             // 마지막 값만 유지
-            if (LightBuffered)
+            if (lightBuffered)
                 LightAttack = true;
             if (HeavyBuffered)
                 HeavyAttack = true;
@@ -156,58 +184,26 @@ public class InputManager : MonoBehaviour
         {
             AttackPressed = false;
         }
-        con.Animation.PlayAttack(AttackPressed);
-    }
-
-    private void ItemInput()
-    {
-        float dir = Input.GetAxisRaw("ChangeItem");
-
-        if (dir > 0.5f && !isPressed)
-        {
-            ChangeItem = 1;
-            isPressed = true;
-        }
-        else if (dir < -0.5f)
-        {
-            ChangeItem = -1;
-            isPressed = true;
-        }
-        else if (Mathf.Abs(dir) < 0.1f)
-        {
-            ChangeItem = 0;
-            isPressed = false;
-        }
     }
     private void WeaponInput()
     {
-        float dir = Input.GetAxisRaw("ChangeWeapon");
-
-        if (dir > 0.5f && !isPressed)
-        {
+        if (inputAction.Player.NextWeapon.WasPressedThisFrame())
             ChangeWeapon = 1;
-            isPressed = true;
-        }
-        else if (dir < -0.5f)
-        {
+        else if (inputAction.Player.PrevWeapon.WasPressedThisFrame())
             ChangeWeapon = -1;
-            isPressed = true;
-        }
-        else if (Mathf.Abs(dir) < 0.1f)
-        {
-            ChangeWeapon = 0;
-            isPressed = false;
-        }
-
+    }
+    private void ItemInput()
+    {
+        if (inputAction.Player.NextItem.WasPressedThisFrame())
+            ChangeItem = 1;
+        else if (inputAction.Player.PrevItem.WasPressedThisFrame())
+            ChangeItem = -1;
     }
     private void BowInput()
     {
-        float bow = Input.GetAxis("Bow");
-        bool wasBowCharging = BowCharging;
-
-        BowCharging = bow > 0.5f;
-        StartBowCharging = BowCharging && !wasBowCharging;
-        BowShoot = !BowCharging && wasBowCharging;
+        BowCharging = inputAction.Player.Bow.IsPressed();
+        StartBowCharging = inputAction.Player.Bow.WasPressedThisFrame();
+        BowShoot = inputAction.Player.Bow.WasReleasedThisFrame();
     }
     public void AckAttack()
     {
@@ -221,5 +217,13 @@ public class InputManager : MonoBehaviour
     public void AckDodgeFinish()
     {
         DodgeBuffered = false;
+    }
+    public void AckWeaponInput()
+    {
+        ChangeWeapon = 0;
+    }
+    public void AckItemInput()
+    {
+        ChangeItem = 0;
     }
 }
