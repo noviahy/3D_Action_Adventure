@@ -24,7 +24,6 @@ public class Dodge : PlayerBehaviour
         // 여기에 문제가 있는것 같음 회피 에니메이션이 씹힘
         //
         con.Animation.SetLayerWeight(1, 1f);
-        con.Animation.SetLayerWeight(0, 0f);
 
         // 방향 정규화
         Vector3 inputDir = con.Input.MoveInput;
@@ -99,7 +98,6 @@ public class Dodge : PlayerBehaviour
         while (w < 1f)
         {
             w += Time.deltaTime * 1.5f;
-            con.Animation.SetLayerWeight(0, w);
             con.Animation.SetLayerWeight(1, 1 - w);
             yield return null;
         }

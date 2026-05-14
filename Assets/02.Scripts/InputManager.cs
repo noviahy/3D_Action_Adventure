@@ -50,7 +50,7 @@ public class InputManager : MonoBehaviour
     private float dodgeTime = 0.3f;
     private float dodgeTimer;
 
-    private float attackTime = 0.4f;
+    private float attackTime = 0.2f;
     private float attackTImer;
     public InputMode CurrentInput { get; private set; }
 

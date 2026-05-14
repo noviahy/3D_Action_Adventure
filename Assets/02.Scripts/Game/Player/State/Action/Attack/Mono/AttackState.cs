@@ -1,16 +1,17 @@
-using System;
+using System.Collections;
 using UnityEngine;
 
 public class AttackState : PlayerBehaviour
 {
     public AttackStyle currentAttackStyle { get; private set; }
+    public Coroutine AttackExiting { get; private set; }
     public bool isAttacking { get; private set; }
 
     private void Start()
     {
         currentAttackStyle = AttackStyle.Default;
     }
-    public enum AttackStyle 
+    public enum AttackStyle
     {
         Default,
         Light,
@@ -27,7 +28,8 @@ public class AttackState : PlayerBehaviour
     }
     public void Enter()
     {
-        con.Animation.SetLayerWeight(0, 0);
+        StopCoroutine(ExitCoroutine());
+
         con.Animation.SetLayerWeight(1, 1);
         con.Animation.SetLayerWeight(2, 0);
     }
@@ -43,7 +45,7 @@ public class AttackState : PlayerBehaviour
             case Player.WeaponType.Sword:
                 if (con.Input.LightAttack)
                     ChangeAttackStyle(AttackStyle.Light);
-                if(con.Input.HeavyAttack)
+                if (con.Input.HeavyAttack)
                     ChangeAttackStyle(AttackStyle.Heavy);
                 con.Attack.RequestSwordAttack();
                 break;
@@ -55,11 +57,32 @@ public class AttackState : PlayerBehaviour
 
     public void Exit()
     {
-        con.Animation.SetLayerWeight(0, 0);
-        con.Animation.SetLayerWeight(1, 0);
-        con.Animation.SetLayerWeight(2, 1);
-        
+        StartCoroutine(ExitCoroutine());
     }
+    IEnumerator ExitCoroutine()
+    {
+        float t = 0;
+        
+        while (t <= 1)
+        {
+            t += Time.deltaTime * 6;
+
+            con.Animator.SetLayerWeight(2, t);
+            yield return null;
+        }
+        con.Animation.SetLayerWeight(2, 1);
+
+        t = 0;
+        while (t <= 1)
+        {
+            t += Time.deltaTime * 2;
+
+            con.Animator.SetLayerWeight(1, 1 - t);
+            yield return null;
+        }
+        con.Animation.SetLayerWeight(0, 1);
+    }
+
     public void StartAttacking()
     {
         isAttacking = true;
@@ -68,5 +91,4 @@ public class AttackState : PlayerBehaviour
     {
         isAttacking = false;
     }
-
 }

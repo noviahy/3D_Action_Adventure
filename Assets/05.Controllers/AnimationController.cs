@@ -63,13 +63,17 @@ public class AnimationController
     {
         con.Animator.SetInteger("WeaponType", type);
     }
-    public void SetAttackType(int type) //
+    public void PlayUpperBody(string type)
     {
-        con.Animator.SetInteger("AttackType", type);
+        con.Animator.CrossFadeInFixedTime(type, 0.25f);
     }
-    public void PlayAttack(int combo)
+    public void PlayLightAttack(int combo)
     {
         con.Animator.CrossFade($"LightAttack{combo}", 0.05f);
+    }
+    public void PlayHeavyAttack()
+    {
+        con.Animator.CrossFadeInFixedTime("HeavyAttack", 0.05f);
     }
      public void PlayJump()
     {

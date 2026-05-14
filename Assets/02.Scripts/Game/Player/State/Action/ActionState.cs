@@ -19,12 +19,15 @@ public class ActionState : IPlayerState
 
     public void TryChangeType(ActionType type)
     {
-        if (currentType == ActionType.Parrying)
-            return;
-        if (currentType == ActionType.Attack)
-            return;
-        if(currentType == ActionType.Dodge && type != ActionType.Idle)
-            return;
+        if (type != ActionType.Idle)
+        {
+            if (currentType == ActionType.Parrying)
+                return;
+            if (currentType == ActionType.Attack)
+                return;
+            if (currentType == ActionType.Dodge)
+                return;
+        }
 
         ChangeType(type);
     }

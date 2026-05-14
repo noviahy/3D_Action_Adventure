@@ -27,7 +27,6 @@ public class Attack : PlayerBehaviour
         {
             case AttackState.AttackStyle.Light:
                 combo = 1;
-                con.Animation.SetAttackType(0);
 
                 while (true)
                 {
@@ -40,7 +39,7 @@ public class Attack : PlayerBehaviour
                     // time * 0.8초동안 대기
                     // 무기 콜라이더 비활성화 코드
                     yield return new WaitUntil(() => !con.AttackState.isAttacking);
-                    
+
                     if (!con.Input.AttackPressed)
                         break;
                     combo++;
@@ -49,14 +48,31 @@ public class Attack : PlayerBehaviour
                 }
                 break;
             case AttackState.AttackStyle.Heavy:
-                con.Animation.SetAttackType(1);
+                HeavyAttackProcedure();
                 yield return new WaitUntil(() => !con.AttackState.isAttacking);
                 break;
         }
         con.AttackState.ChangeAttackStyle(AttackStyle.Default);
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
+        con.Animation.PlayUpperBody("SwordIdle");
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
         coroutine = null;
+    }
+    private void lightAttackProcedure()
+    {
+        con.Animation.PlayLightAttack(combo);
+
+        con.AttackState.StartAttacking();
+
+        con.Input.AckAttack();
+    }
+    private void HeavyAttackProcedure()
+    {
+        con.Animation.PlayHeavyAttack();
+
+        con.AttackState.StartAttacking();
+
+        con.Input.AckAttack();
     }
 
     public void RequestBowAttack()
@@ -84,13 +100,5 @@ public class Attack : PlayerBehaviour
         coroutine = null;
 
         yield return null;
-    }
-    private void lightAttackProcedure()
-    {
-        con.Animation.PlayAttack(combo);
-
-        con.AttackState.StartAttacking();
-
-        con.Input.AckAttack();
     }
 }
