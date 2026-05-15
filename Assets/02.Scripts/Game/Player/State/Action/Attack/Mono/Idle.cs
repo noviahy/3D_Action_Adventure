@@ -31,7 +31,7 @@ public class Idle : PlayerBehaviour
         {
             t += Time.deltaTime * 6;
 
-            con.Animator.SetLayerWeight(2, t);
+            con.Animation.SetLayerWeight(2, t);
             yield return null;
         }
         con.Animation.SetLayerWeight(2, 1);
@@ -45,7 +45,7 @@ public class Idle : PlayerBehaviour
         {
             t += Time.deltaTime * 2;
 
-            con.Animator.SetLayerWeight(1, 1 - t);
+            con.Animation.SetLayerWeight(1, 1 - t);
             yield return null;
         }
 

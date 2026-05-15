@@ -45,7 +45,8 @@ public class PlayerMovement
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
             
-            if (!con.Input.IsLockOn)
+            // Player 회전 코드
+            if (!con.Input.IsLockOn && !con.Attack.BowAimed)
             {
                 Quaternion targetRot = Quaternion.LookRotation(inputDir);
 

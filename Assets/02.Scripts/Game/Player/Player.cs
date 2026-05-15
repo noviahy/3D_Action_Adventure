@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     public ItemType currentItemType { get; private set; }
 
     public bool Invincibility { get; private set; }
-    public bool Guard {  get; private set; }
+    public bool Guard { get; private set; }
 
     private int weaponNum = 0;
     private int itemNum = 0;
@@ -65,7 +65,8 @@ public class Player : MonoBehaviour
     private void Update()
     {
         // Debug.Log(currentWeaponType);
-        if (attackState.isAttacking)
+        Debug.Log(Controller.Input.IsLockOn);
+        if (attackState.isAttacking || Controller.Idle.IdleBlending)
             return;
 
         if (Controller.Input.BowCharging)
@@ -114,7 +115,7 @@ public class Player : MonoBehaviour
 
             case WeaponType.Sword:
                 isEquip = true;
-                Controller.Animator.SetLayerWeight(2, 1);
+                Controller.Animation.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(2);
                 Controller.Animation.PlayUpperBody("Sword");
                 sword.enabled = true; // 콜라이더 활성화는 다른 코드에서
@@ -122,7 +123,8 @@ public class Player : MonoBehaviour
                 return;
             case WeaponType.Bow:
                 isEquip = true;
-                Controller.Animator.SetLayerWeight(2, 1);
+                Controller.Input.RequestLockOn(false);
+                Controller.Animation.SetLayerWeight(2, 1);
                 Controller.Animation.SetWeaponType(1);
                 Controller.Animation.PlayUpperBody("Bow");
                 sword.enabled = false;
@@ -174,11 +176,11 @@ public class Player : MonoBehaviour
         {
             t += Time.deltaTime * 3;
 
-            Controller.Animator.SetLayerWeight(2, 1 - t);
+            Controller.Animation.SetLayerWeight(2, 1 - t);
 
             yield return null;
         }
-        Controller.Animator.SetLayerWeight(2, 0);
+        Controller.Animation.SetLayerWeight(2, 0);
 
         defaultCoroutine = null;
     }
@@ -192,13 +194,12 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(0.7f);
         changeCoroutine = null;
     }
-
     public void Unequip()
     {
         isEquip = false;
     }
     // 무적
-    public void ChangeInvincibility(bool value) 
+    public void ChangeInvincibility(bool value)
     {
         Invincibility = value;
     }

@@ -51,10 +51,6 @@ public class AnimationController
     {
         con.Animator.SetBool("Dead", isDead);
     }
-    public void SetBowAim(bool bowAim)
-    {
-        con.Animator.SetBool("BowAim", true);
-    }
     public void PlayLoadBow()
     {
         con.Animator.CrossFadeInFixedTime("Load", 0.05f);
@@ -69,7 +65,11 @@ public class AnimationController
     }
     public void PlayUpperBody(string type)
     {
-        con.Animator.CrossFadeInFixedTime(type, 0.25f);
+        con.Animator.CrossFadeInFixedTime($"Upper Body.{type}", 0.25f);
+    }
+    public void PlayLowerBody(string type)
+    {
+        con.Animator.CrossFadeInFixedTime($"Lower Body.{type}", 0.25f);
     }
     public void PlayLightAttack(int combo)
     {

@@ -129,7 +129,7 @@ public class InputManager : MonoBehaviour
         ActionPressed = ParryingPressed || DodgeBuffered || InteractionPressed;
 
         // LockOnŰ
-        if (inputAction.Player.LockOn.WasPressedThisFrame())
+        if (inputAction.Player.LockOn.WasPressedThisFrame() && con.Player.currentWeaponType != Player.WeaponType.Bow)
         {
             IsLockOn = !IsLockOn;
         }

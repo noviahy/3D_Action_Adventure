@@ -42,7 +42,7 @@ public class PlayerStateMachine : PlayerBehaviour
 
         // 여기선 다시 Locomotion으로 바꿔주지 않습니다
         // 다른 코드에서 상태가 끝날때 꼭 Locomotion으로 바꿔줘야한다는걸 기억해야해요
-        if (con.Input.ActionPressed || (con.Input.AttackPressed && con.Player.currentWeaponType != Player.WeaponType.Default))
+        if (con.Input.ActionPressed || (con.Input.AttackPressed && con.Player.currentWeaponType == Player.WeaponType.Sword))
         {
             TryChangeState(PlayerState.ActionState);
             /*if (con.Input.InteractionPressed) // 아이템 종류 생각! 수정 필요

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class AttackState : PlayerBehaviour
@@ -57,7 +56,6 @@ public class AttackState : PlayerBehaviour
                 con.Attack.RequestSwordAttack();
                 break;
             case Player.WeaponType.Bow:
-                Debug.Log("!");
                 con.Attack.RequestBowAttack();
                 break;
         }
