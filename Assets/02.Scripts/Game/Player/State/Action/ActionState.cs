@@ -2,6 +2,7 @@ public class ActionState : IPlayerState
 {
     private PlayerController con;
     public ActionType currentType {  get; private set; }
+    public ActionType preType { get; private set; }
     public enum ActionType
     {
         Idle,
@@ -19,6 +20,25 @@ public class ActionState : IPlayerState
 
     public void TryChangeType(ActionType type)
     {
+        if(currentType == type) return;
+
+        if (con.Idle.IdleBlending) 
+        {
+            switch (type)
+            {
+                case ActionType.Attack:
+                    con.Idle.RequestStopAllCoroutine();
+                    break;
+                case ActionType.Dodge:
+                    con.Idle.RequestStopDodgeLayer();
+                    con.Idle.RequestStopLayer1();
+                    break;
+                case ActionType.Parrying:
+                    con.Idle.RequestStopDodgeLayer();
+                    con.Idle.RequestStopLayer1();
+                    break;
+            }
+        }
         if (type != ActionType.Idle)
         {
             if (currentType == ActionType.Parrying)
@@ -26,6 +46,8 @@ public class ActionState : IPlayerState
             if (currentType == ActionType.Attack)
                 return;
             if (currentType == ActionType.Dodge)
+                return;
+            if(currentType == ActionType.Interaction)
                 return;
         }
 
@@ -36,6 +58,7 @@ public class ActionState : IPlayerState
     {
         exitAction(currentType);
 
+        preType = currentType;
         currentType = type;
 
         enterAction(currentType);
@@ -44,6 +67,9 @@ public class ActionState : IPlayerState
     {
         switch (type)
         {
+            case ActionType.Idle:
+                con.Idle.Enter(preType);
+                break;
             case ActionType.Parrying:
                 con.Parrying.Enter();
                 break;

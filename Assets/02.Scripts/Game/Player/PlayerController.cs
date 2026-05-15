@@ -18,6 +18,8 @@ public class PlayerController
     public Attack Attack { get; }
     public AttackState AttackState { get; }
     public AnimationEventController AnimationEventController { get; }
+    public Idle Idle { get; }
+    public BowAttack BowAttack { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -28,7 +30,7 @@ public class PlayerController
     public EventManager Event { get; }
     public AnimationController Animation { get; }
 
-    // 엄
+    // 모노
     public PlayerController(InputManager input,
         Player player,
         PlayerStateMachine stateMachine,
@@ -40,7 +42,10 @@ public class PlayerController
         Animator animator,
         Attack attack,
         AttackState attackState,
-        AnimationEventController animationEvent)
+        AnimationEventController animationEvent,
+        Idle idle,
+        Parrying parrying,
+        BowAttack bowAttack)
     {
         Input = input;
         Player = player;
@@ -54,6 +59,9 @@ public class PlayerController
         Animator = animator;
         AttackState = attackState;
         AnimationEventController = animationEvent;
+        Idle = idle;
+        Parrying = parrying;
+        BowAttack = bowAttack;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);

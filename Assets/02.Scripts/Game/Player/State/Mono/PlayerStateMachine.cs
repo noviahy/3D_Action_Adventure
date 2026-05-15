@@ -1,9 +1,9 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerStateMachine : PlayerBehaviour
 {
     public PlayerState currentState { get; private set; }
-
     public enum PlayerState
     {
         LocomotionState,
@@ -49,14 +49,13 @@ public class PlayerStateMachine : PlayerBehaviour
                  con.Player.ChangeWeaponType(Player.WeaponType.Bomb);*/
 
             if (con.Input.AttackPressed)
-            {
                 con.ActionState.TryChangeType(ActionState.ActionType.Attack);
-            }
-
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
-            {
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
-            }
+            if(con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
+                con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
         }
+        if (con.Input.BowCharging)
+            con.ActionState.TryChangeType(ActionState.ActionType.Attack);
     }
 }

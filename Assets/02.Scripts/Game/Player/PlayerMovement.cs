@@ -39,7 +39,7 @@ public class PlayerMovement
             float speed = isRun ? runSpeed : walkSpeed;
 
             // ·Ï¿Â ½Ã speed¸¦ µ¤¾î¾º¿ò
-            if (con.Input.IsLockOn)
+            if (con.Input.IsLockOn || con.Attack.BowAimed)
                 speed = lockOnSpeed;
 
             horizontal = inputDir.normalized * speed;

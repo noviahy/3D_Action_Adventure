@@ -15,9 +15,7 @@ public class InputManager : MonoBehaviour
     public bool DodgeBuffered { get; private set; }
 
     // 활
-    public bool StartBowCharging { get; private set; }
     public bool BowCharging { get; private set; }
-    public bool BowShoot { get; private set; }
 
     // 록온
     public bool IsLockOn { get; private set; } = false;
@@ -50,7 +48,7 @@ public class InputManager : MonoBehaviour
     private float dodgeTime = 0.3f;
     private float dodgeTimer;
 
-    private float attackTime = 0.2f;
+    private float attackTime = 0.15f;
     private float attackTImer;
     public InputMode CurrentInput { get; private set; }
 
@@ -125,10 +123,10 @@ public class InputManager : MonoBehaviour
         ParryingPressed = inputAction.Player.Parry.IsPressed();
 
         // 활
-        BowInput();
+        BowCharging = inputAction.Player.Bow.IsPressed();
 
         // Action State 설정
-        ActionPressed = ParryingPressed || DodgeBuffered || BowCharging || InteractionPressed;
+        ActionPressed = ParryingPressed || DodgeBuffered || InteractionPressed;
 
         // LockOn키
         if (inputAction.Player.LockOn.WasPressedThisFrame())
@@ -198,12 +196,6 @@ public class InputManager : MonoBehaviour
             ChangeItem = 1;
         else if (inputAction.Player.PrevItem.WasPressedThisFrame())
             ChangeItem = -1;
-    }
-    private void BowInput()
-    {
-        BowCharging = inputAction.Player.Bow.IsPressed();
-        StartBowCharging = inputAction.Player.Bow.WasPressedThisFrame();
-        BowShoot = inputAction.Player.Bow.WasReleasedThisFrame();
     }
     public void AckAttack()
     {

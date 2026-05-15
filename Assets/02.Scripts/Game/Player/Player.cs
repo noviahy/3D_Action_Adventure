@@ -17,6 +17,8 @@ public class Player : MonoBehaviour
     [SerializeField] Attack attack;
     [SerializeField] AttackState attackState;
     [SerializeField] AnimationEventController animatorEventController;
+    [SerializeField] Idle idle;
+    [SerializeField] BowAttack bowAttack;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -31,7 +33,8 @@ public class Player : MonoBehaviour
 
     public ItemType currentItemType { get; private set; }
 
-    public bool IsInvincible { get; private set; }
+    public bool Invincibility { get; private set; }
+    public bool Guard {  get; private set; }
 
     private int weaponNum = 0;
     private int itemNum = 0;
@@ -65,6 +68,12 @@ public class Player : MonoBehaviour
         if (attackState.isAttacking)
             return;
 
+        if (Controller.Input.BowCharging)
+        {
+            weaponNum = 2;
+            RequestChangeCoroutine();
+        }
+
         int weaponLength = System.Enum.GetValues(typeof(WeaponType)).Length;
 
         if (Controller.Input.ChangeWeapon != 0 && changeCoroutine == null && defaultCoroutine == null)
@@ -92,7 +101,7 @@ public class Player : MonoBehaviour
         if (currentWeaponType == type)
             return;
 
-        Debug.Log($"WaponType:{type}");
+        // Debug.Log($"WaponType:{type}");
 
         currentWeaponType = type;
 
@@ -189,9 +198,13 @@ public class Player : MonoBehaviour
         isEquip = false;
     }
     // 무적
-    public void ChangeInvincible(bool value) // 카운터 시간은 따로 만들어야함
+    public void ChangeInvincibility(bool value) 
     {
-        IsInvincible = value;
+        Invincibility = value;
+    }
+    public void NormalGuard(bool value)
+    {
+        Guard = value;
     }
 
     private void Awake()
@@ -209,7 +222,10 @@ public class Player : MonoBehaviour
             animator,
             attack,
             attackState,
-            animatorEventController
+            animatorEventController,
+            idle,
+            parrying,
+            bowAttack
         );
         Controller.Animation.SetWeaponType(0);
     }

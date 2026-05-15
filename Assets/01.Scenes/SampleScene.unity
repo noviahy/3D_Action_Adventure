@@ -892,6 +892,23 @@ MonoBehaviour:
   switchCooldown: 0.3
   pivot: {fileID: 303803716}
   shoulder: {fileID: 2095293008430523849}
+--- !u!1 &1182088634 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7356631373245446715, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1182088643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1182088634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c920451b66174c4da2581e8b900e187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Idle
 --- !u!1 &1245659398
 GameObject:
   m_ObjectHideFlags: 0
@@ -1443,6 +1460,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1174007945}
     - target: {fileID: 268689089389701591, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: idle
+      value: 
+      objectReference: {fileID: 1182088643}
+    - target: {fileID: 268689089389701591, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: input
       value: 
       objectReference: {fileID: 360286960}
@@ -1525,6 +1546,9 @@ PrefabInstance:
       insertIndex: 0
       addedObject: {fileID: 1754010724952977209}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7356631373245446715, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1182088643}
     - targetCorrespondingSourceObject: {fileID: 6521383359830076335, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2138309159}

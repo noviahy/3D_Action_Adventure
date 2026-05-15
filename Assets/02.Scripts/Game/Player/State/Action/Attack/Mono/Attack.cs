@@ -4,6 +4,7 @@ using static AttackState;
 
 public class Attack : PlayerBehaviour
 {
+    public bool BowAimed {  get; private set; }
     private Coroutine coroutine;
     private int combo = 1;
     // Bow 사용 시 Upper Body가 안 움직일 것 같은데 수정해야겠음
@@ -42,6 +43,8 @@ public class Attack : PlayerBehaviour
 
                     if (!con.Input.AttackPressed)
                         break;
+                    if (con.Input.HeavyAttack)
+                        break;
                     combo++;
                     if (combo > 3)
                         combo = 1;
@@ -77,28 +80,31 @@ public class Attack : PlayerBehaviour
 
     public void RequestBowAttack()
     {
+        Debug.Log(coroutine);
         if (coroutine == null)
         {
             coroutine = StartCoroutine(BowAttack());
+            BowAimed = true;
         }
     }
     IEnumerator BowAttack()
     {
-        if (con.Input.StartBowCharging)
-        {
-            con.Animation.SetBowAim(true);
-        }
         if (con.Input.BowCharging)
         {
+            con.Animation.SetBowAim(true);
+            con.Animation.PlayLoadBow();
+            Debug.Log("!");
         }
-        if (con.Input.BowShoot)
-        {
-            con.Animation.SetBowAim(false);
-        }
-        con.Player.ChangeWeaponType(Player.WeaponType.Bow);
 
+        while (con.Input.BowCharging)
+            yield return null;
+
+        con.Animation.SetBowAim(false);
+
+        con.ActionState.TryChangeType(ActionState.ActionType.Idle);
+        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
+
+        BowAimed = false;
         coroutine = null;
-
-        yield return null;
     }
 }

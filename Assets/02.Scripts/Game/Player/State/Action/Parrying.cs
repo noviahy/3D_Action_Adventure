@@ -1,38 +1,40 @@
+using System.Collections;
 using UnityEngine;
 
 public class Parrying : PlayerBehaviour
 {
-    [SerializeField] private float InvincibleTime = 0.3f;
-    
-    private float timer;
+    private float InvincibleTime = 0.3f;
     public void Enter()
     {
+        StopCoroutine(InvincibleTimer());
         con.Animation.SetParry(true);
-        timer = InvincibleTime;
-        con.Player.ChangeInvincible(true);
-    }
-
-    public void Exit()
-    {
-        con.Animation.SetParry(false);
+        con.Player.ChangeInvincibility(true);
+        con.Player.NormalGuard(true);
+        StartCoroutine(InvincibleTimer());
     }
     private void Update()
     {
-        if(!con.Input.ParryingPressed && con.ActionState.currentType == ActionState.ActionType.Parrying)
-        {
-            // Parrying 타이밍에 따라 들어가는 데미지 분리는 나중에 짜기로
+        if (con.ActionState.currentType != ActionState.ActionType.Parrying)
+            return;
+
+        if(!con.Input.ParryingPressed)
             con.ActionState.TryChangeType(ActionState.ActionType.Idle);
-        }
 
         if (con.ActionState.currentType != ActionState.ActionType.Parrying)
             return;
 
         // if(con.ActionState.currentType == ActionState.ActionType.Parrying) -> 나중에 코드 추가
-        timer -= Time.deltaTime;
-        if(timer < 0)
-        {
-            con.Player.ChangeInvincible(false);
-        }
+    }
+    public void Exit()
+    {
+        con.Player.ChangeInvincibility(false);
+        con.Player.NormalGuard(false);
+        con.Animation.SetParry(false);
+    }
 
+    IEnumerator InvincibleTimer()
+    {
+        yield return new WaitForSeconds(InvincibleTime);
+        con.Player.ChangeInvincibility(false);
     }
 }

@@ -55,6 +55,10 @@ public class AnimationController
     {
         con.Animator.SetBool("BowAim", true);
     }
+    public void PlayLoadBow()
+    {
+        con.Animator.CrossFadeInFixedTime("Load", 0.05f);
+    }
     public void PlayDodge(string dir) //
     {
         con.Animator.CrossFade($"{dir}JumpMove", 0.05f);

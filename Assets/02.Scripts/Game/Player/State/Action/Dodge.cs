@@ -6,7 +6,7 @@ public class Dodge : PlayerBehaviour
     private Coroutine coroutine;
     private float dodgeSpeed = 6.5f;
     private float timer = 0f;
-    private float dodgeDuration = 0.6f;
+    private float dodgeDuration = 0.8f;
     public void Enter() // ActionSate에서 호출
     {
         if (coroutine == null) // 코루틴 조건
@@ -18,12 +18,11 @@ public class Dodge : PlayerBehaviour
     }
     IEnumerator DoDodge()
     {
-        con.Player.ChangeInvincible(true); // 무적
+        con.Player.ChangeInvincibility(true); // 무적
 
         // 에니메이션 weight 변경
         // 여기에 문제가 있는것 같음 회피 에니메이션이 씹힘
         //
-        con.Animation.SetLayerWeight(1, 1f);
 
         // 방향 정규화
         Vector3 inputDir = con.Input.MoveInput;
@@ -51,6 +50,8 @@ public class Dodge : PlayerBehaviour
         {
             dodgeDir = con.Cam.camForward;
         }
+        con.Animation.SetLayerWeight(1, 1f);
+
         if (dodgeDir.x < 0)
             con.Animation.PlayDodge("Left");
         if (dodgeDir.x >= 0)
@@ -80,26 +81,15 @@ public class Dodge : PlayerBehaviour
             yield return null;
         }
         // 상태 변경
-        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
+        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
 
         coroutine = null;
     }
     public void Exit()
     {
-        // idle로 상태 변경시 자동으로 호출
-        StartCoroutine(ChangeLayerWaight());
-        con.Player.ChangeInvincible(false);
+        // 무적
+        con.Player.ChangeInvincibility(false);
     }
-    IEnumerator ChangeLayerWaight()
-    {
-        // Layer weight 다시 바꿔줌
-        float w = 0;
-        while (w < 1f)
-        {
-            w += Time.deltaTime * 1.5f;
-            con.Animation.SetLayerWeight(1, 1 - w);
-            yield return null;
-        }
-    }
+
 }
