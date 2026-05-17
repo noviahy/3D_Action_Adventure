@@ -20,7 +20,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
-        if(con.StateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState || con.Attack.BowAimed)
+        if(con.StateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState && !con.Attack.BowAimed)
             return;
 
         if (con.Movement.JustLanded)

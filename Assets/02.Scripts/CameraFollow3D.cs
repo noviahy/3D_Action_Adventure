@@ -1,22 +1,41 @@
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
+// 미래의 내가 나중에 NPC 대화 카메라 짤때 리팩토링 할거라 믿고있어 ㅇㅇ
 public class CameraFollow3D : MonoBehaviour
-
 {
-    [SerializeField] private Transform player; // 위아래 회전, 거리 조절
+    [Header("Code")]
     [SerializeField] private InputManager input;
+    [SerializeField] private Attack attack;
+    // [SerializeField] private Animator animator;
+
+    [Header("Transform")]
+    [SerializeField] private Transform player; // 위아래 회전, 거리 조절
     [SerializeField] private Transform cam;
     [SerializeField] private CinemachineCamera vcam;
     [SerializeField] private Transform lockOnTarget;
+    [SerializeField] private Transform pivot;
+    [SerializeField] private Transform shoulder;
+
+    [Header("BowAimed")]
+    [SerializeField] private Transform aimTarget;
+    [SerializeField] private Rig upperBodyRig;
+    [SerializeField] float bowOffset = -0.2f;
+    [SerializeField] float pitchDistanceOffset = -1f;
+    private CinemachineThirdPersonFollow follow;
+    private float normalDistance;
+    // private float turnAccum;
 
     [Header("Camera")]
     [SerializeField] float rotationSpeed = 120f;
+    [SerializeField] float BowRotationSpeed = 60f;
     [SerializeField] float minPitch = -40f;
     [SerializeField] float maxPitch = 30f;
     private float yaw;
     private float pitch;
+    private float currentRotationSpeed;
 
     [Header("LockOn")]
     [SerializeField] float switchThreshold = 0.2f; // 마우스 얼마나 움직이면 타겟 전환할지
@@ -25,8 +44,6 @@ public class CameraFollow3D : MonoBehaviour
     private float scanTimer = 0.2f;
     private List<Transform> enemies = new List<Transform>();
     private Transform target;
-    [SerializeField] private Transform pivot;
-    [SerializeField] private Transform shoulder;
 
     [Header("Renderer")]
     private List<Material> mats = new List<Material>();
@@ -41,6 +58,8 @@ public class CameraFollow3D : MonoBehaviour
     {
         mainCam = Camera.main;
         target = null;
+        follow = vcam.GetComponent<CinemachineThirdPersonFollow>();
+        normalDistance = follow.CameraDistance;
         RefreshRenderers();
     }
     private void Update()
@@ -68,23 +87,43 @@ public class CameraFollow3D : MonoBehaviour
         currentAlpha = Mathf.Lerp(currentAlpha, t, Time.deltaTime * 10f);
         SetAlpha(currentAlpha);
 
-        // 카메라 수동 회전 코드
+        float targetDistance = normalDistance;
+        float speed = 6f;
+
+        // pitch를 0~1로 변환
+        float pitchT = Mathf.InverseLerp(0f, minPitch, pitch);
+        // 위를 볼수록 카메라 가까워짐
+        targetDistance += pitchDistanceOffset * pitchT;
+
+        currentRotationSpeed = rotationSpeed;
+        // Bow Charging 상태 : 카메라 정면 보기
+        if (attack.BowAimed || attack.Standby)
+        {
+            currentRotationSpeed = BowRotationSpeed;
+            BowChargingCam();
+            targetDistance += bowOffset;
+        }
+
+        follow.CameraDistance = Mathf.Lerp(follow.CameraDistance, targetDistance, Time.deltaTime * speed);
+
+        // 카메라 수동 회전: 타켓 없음 기본
         if (target == null)
         {
-            yaw += input.MouseX * rotationSpeed * Time.deltaTime;
-            pitch += input.MouseY * rotationSpeed * Time.deltaTime;
+            yaw += input.MouseX * currentRotationSpeed * Time.deltaTime;
+            pitch += input.MouseY * currentRotationSpeed * Time.deltaTime;
 
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
             pivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
-        if (target != null)
+        // 록온 상태: 타겟 있음
+        if (target != null && !attack.BowAimed) // Bow 들고 있을땐 록온이 안되긴 하는데 혹시 모르니까
         {
             Vector3 dir = (target.position - pivot.position).normalized;
 
             Quaternion targetRot = Quaternion.LookRotation(dir);
 
-            // 부드럽게 회전
+            // 부드럽게 카메라 회전
             pivot.rotation = Quaternion.Slerp(
                 pivot.rotation,
                 targetRot,
@@ -97,7 +136,6 @@ public class CameraFollow3D : MonoBehaviour
             yaw = angles.y;
         }
     }
-
     private void LateUpdate()
     {
         // 타켓 변경 딜레이 
@@ -116,6 +154,30 @@ public class CameraFollow3D : MonoBehaviour
 
         // 록온 코드
         HandleLockOn();
+
+        // 활 과녁
+        Vector3 aimPos =
+            cam.position +
+            cam.forward * 10f;
+
+        aimTarget.position = aimPos;
+
+        float targetWeight = 0f;
+
+        if (!attack.BowShoot)
+            targetWeight = 0.7f;
+
+        upperBodyRig.weight = Mathf.Lerp(upperBodyRig.weight, targetWeight, Time.deltaTime * 10);
+
+    }
+    private void BowChargingCam()
+    {
+        Vector3 dir = camForward;
+        dir.y = 0f;
+
+        Quaternion targetRot = Quaternion.LookRotation(dir);
+
+        player.rotation = Quaternion.Slerp(player.rotation, targetRot, 15f * Time.deltaTime);
     }
 
     private void SetAlpha(float alpha)
@@ -313,7 +375,6 @@ public class CameraFollow3D : MonoBehaviour
             }
         }
     }
-
     private void RefreshRenderers()
     {
         mats.Clear();
@@ -329,3 +390,28 @@ public class CameraFollow3D : MonoBehaviour
         }
     }
 }
+
+// 제자리 회전 코드
+/*
+if (!attack.BowShoot)
+{
+    turnAccum += input.MouseX * rotationSpeed * Time.deltaTime;
+    if(turnAccum > 60f)
+    {
+        animator.CrossFadeInFixedTime($"Lower Body.TurnRight", 0.25f);
+        turnAccum = 0f;
+    }
+    if (turnAccum < -60f)
+    {
+        animator.CrossFadeInFixedTime($"Lower Body.TurnLeft", 0.25f);
+        turnAccum = 0f;
+    }
+}
+귀찮아서 유기함
+뭐랄까 이걸 만지려면 적당한 애니메이션과 60 전까지는 몸통만 돌아가게 또 조건을 만저야하는데
+그렇게 하다간 끝도 안 날 것 같음
+애초에 IK를 안 하는 이유도 이건건데
+애니메이션을 넣으려면 Rig 때문에 또 레이어를 나눠서 발만 작동하게 해줘야하는데 
+그러면 회전 전에 몸통 회전이랑 그 다음 발 회전까지 해줘야하는게 너무너무 큰 일이 되고
+잘 보이지도 않아서 안 하기로 함
+*/

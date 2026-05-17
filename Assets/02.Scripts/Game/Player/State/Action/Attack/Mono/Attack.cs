@@ -1,17 +1,16 @@
 using System.Collections;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using static AttackState;
 
 public class Attack : PlayerBehaviour
 {
     public bool BowAimed { get; private set; }
+    public bool BowShoot { get; private set; }
     public bool Standby { get; private set; }
 
-    // 여기있는 코루틴 안 쓰긴 하는데 나중에 디버깅할 때 편하라고 넣어둠
     private Coroutine coroutine;
     private Coroutine exitCoroutine;
-    private Coroutine enterCoroutine;
+    private Coroutine enterCoroutine; // 안 쓰긴 하는데 나중에 필요할까봐 세트로 만들어둠
     private Coroutine releaseCoroutine;
     private int combo = 1;
     // 넉벡 공격에 넉벡 당함 넉벡이 우선임
@@ -23,10 +22,7 @@ public class Attack : PlayerBehaviour
     {
         currentBowState = bowState.Idle;
         Standby = false;
-    }
-    private void Update()
-    {
-        Debug.Log(Standby);
+        BowShoot = true;
     }
     public void RequestSwordAttack()
     {
@@ -122,6 +118,12 @@ public class Attack : PlayerBehaviour
             case bowState.Released:
                 if (releaseCoroutine != null)
                     StopCoroutine(releaseCoroutine);
+                if (exitCoroutine != null)
+                {
+                    StopCoroutine(exitCoroutine);
+                    exitCoroutine = null;
+                    con.Animation.SetLayerWeight(3, 1);
+                }
                 releaseCoroutine = StartCoroutine(BowRelease());
                 break;
             case bowState.Exiting:
@@ -132,6 +134,8 @@ public class Attack : PlayerBehaviour
 
     IEnumerator BowEnter()
     {
+        BowAimed = true;
+        BowShoot = false;
         con.Animation.PlayLoadBow();
 
         if (con.Input.BowCharging)
@@ -155,23 +159,39 @@ public class Attack : PlayerBehaviour
     }
     IEnumerator BowRelease()
     {
-        if(preBowState != bowState.Enter)
-        con.Animation.PlayLoadBow();
+        if (preBowState != bowState.Enter)
+        {
+            con.Animation.PlayLoadBow();
+            BowAimed = true;
+            BowShoot = false;
+        }
 
         while (con.Input.BowCharging)
             yield return null;
 
         con.Animation.PlayUpperBody("Release");
         con.Animation.PlayLowerBody("BowIdle");
+        float t = 0;
+
+        // 활 쏘는 모션까지 좀 기다려야 rig가 쏘는 애니메이션에도 활성화된 상태일 수 있는 www
+        while(t <= 0.4f)
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
+        BowShoot = true;
 
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
 
-        BowAimed = false;
         Standby = true;
+        BowAimed = false;
 
-        while (Standby)
+        t = 0;
+        while (t <= 1f)
         {
+            t += Time.deltaTime;
+            
             // 한번더!
             if (con.Input.BowCharging)
                 ChangeBowState(bowState.Released);
@@ -183,10 +203,16 @@ public class Attack : PlayerBehaviour
     // 그 이윤 Layer3번과 상호작용 하는게 없어서 그냥 여기서 0으로 가던 1으로 가던 상관 없음
     IEnumerator BowExit()
     {
+        Standby = false;
         float t = 0;
 
         while (t <= 1)
         {
+            if (con.Input.BowCharging)
+            {
+                ChangeBowState(bowState.Released);
+                yield break;
+            }
             t += Time.deltaTime * 2;
             con.Animation.SetLayerWeight(3, 1 - t);
 
@@ -196,8 +222,5 @@ public class Attack : PlayerBehaviour
         exitCoroutine = null;
         ChangeBowState(bowState.Idle);
     }
-    public void DoBowReleassd()
-    {
-        Standby = false;
-    }
+
 }

@@ -8,8 +8,4 @@ public class AnimationEventController: PlayerBehaviour
     {
         con.Player.Unequip();
     }
-    public void RequestBowRelease()
-    {
-        con.Attack.DoBowReleassd();
-    }
 }

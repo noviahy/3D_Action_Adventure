@@ -86,7 +86,7 @@ public class InputManager : MonoBehaviour
         Vector2 look = inputAction.Player.Look.ReadValue<Vector2>();
         MouseX = look.x;
         MouseY = -look.y;
-
+        
         // Player 이동용
         Vector2 move = inputAction.Player.Move.ReadValue<Vector2>();
         forward = move.y;
@@ -126,7 +126,7 @@ public class InputManager : MonoBehaviour
         BowCharging = inputAction.Player.Bow.IsPressed();
 
         // Action State 설정
-        ActionPressed = ParryingPressed || DodgeBuffered || InteractionPressed;
+        ActionPressed = DodgeBuffered || InteractionPressed;
 
         // LockOn키
         if (inputAction.Player.LockOn.WasPressedThisFrame() && con.Player.currentWeaponType != Player.WeaponType.Bow)

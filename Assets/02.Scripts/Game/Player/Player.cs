@@ -65,7 +65,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         // Debug.Log(currentWeaponType);
-        Debug.Log(Controller.Input.IsLockOn);
+        // Debug.Log(Controller.Input.IsLockOn);
         if (attackState.isAttacking || Controller.Idle.IdleBlending)
             return;
 

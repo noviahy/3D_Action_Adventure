@@ -52,10 +52,11 @@ public class PlayerStateMachine : PlayerBehaviour
                 con.ActionState.TryChangeType(ActionState.ActionType.Attack);
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
-            if(con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
-                con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
         }
         if (con.Input.BowCharging)
             con.ActionState.TryChangeType(ActionState.ActionType.Attack);
+        if (con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
+            con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
+
     }
 }

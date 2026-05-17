@@ -35,6 +35,10 @@ public class AnimationController
         float damp = (y < 0.1f) ? 0.08f : 0.05f;
         con.Animator.SetFloat("MoveY", y, damp, Time.deltaTime);
     }
+    public void SetMouseX(float x)
+    {
+        con.Animator.SetFloat("MouseX", x);
+    }
     public void SetGrounded(bool isGrounded) // 왜 안되는지 찾아야함
     {
         // con.Animator.SetBool("isGrounded", isGrounded);
