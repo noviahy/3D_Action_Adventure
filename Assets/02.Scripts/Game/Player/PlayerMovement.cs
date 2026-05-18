@@ -39,14 +39,14 @@ public class PlayerMovement
             float speed = isRun ? runSpeed : walkSpeed;
 
             // 록온 시 speed를 덮어씌움
-            if (con.Input.IsLockOn || con.Attack.BowAimed)
+            if (con.Input.IsLockOn || con.BowAttack.BowAimed)
                 speed = lockOnSpeed;
 
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
             
             // Player 회전 코드
-            if (!con.Input.IsLockOn && !con.Attack.BowAimed && !con.Attack.Standby)
+            if (!con.Input.IsLockOn && !con.BowAttack.BowAimed && !con.BowAttack.Standby)
             {
                 Quaternion targetRot = Quaternion.LookRotation(inputDir);
 

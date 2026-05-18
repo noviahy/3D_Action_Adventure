@@ -17,6 +17,7 @@ public class InputManager : MonoBehaviour
     // È°
     public bool BowCharging { get; private set; }
 
+
     // ·Ï¿Â
     public bool IsLockOn { get; private set; } = false;
 
@@ -65,6 +66,7 @@ public class InputManager : MonoBehaviour
     private void Awake()
     {
         inputAction = new PlayerInputAction();
+        BowCharging = false;
     }
     private void OnEnable()
     {

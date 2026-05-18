@@ -41,7 +41,7 @@ public class AttackState : PlayerBehaviour
     private void Update()
     {
         // Debug.Log($"AttackStyle:{currentAttackStyle}");
-        Debug.Log($"ActionState:{con.ActionState.currentType}");
+        // Debug.Log($"ActionState:{con.ActionState.currentType}");
         // Debug.Log($"PlayerState:{con.StateMachine.currentState}");
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
@@ -56,7 +56,7 @@ public class AttackState : PlayerBehaviour
                 con.Attack.RequestSwordAttack();
                 break;
             case Player.WeaponType.Bow:
-                con.Attack.RequestBowAttack();
+                con.BowAttack.RequestBowAttack();
                 break;
         }
     }

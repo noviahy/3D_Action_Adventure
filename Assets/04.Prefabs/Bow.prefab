@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7646000175122860139}
+  - component: {fileID: 5760620558677446457}
   m_Layer: 0
   m_Name: Bow
   m_TagString: Untagged
@@ -32,6 +33,20 @@ Transform:
   - {fileID: 8152015455164829797}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5760620558677446457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7433969184839290704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 387fddf6245b98b47b8262e63635ad61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArrowPool
+  arrowPrefab: {fileID: 8124197393232630598, guid: bfec600b55098ed45b8c757b13ebe523, type: 3}
+  poolSize: 15
 --- !u!1001 &8551068646928381838
 PrefabInstance:
   m_ObjectHideFlags: 0

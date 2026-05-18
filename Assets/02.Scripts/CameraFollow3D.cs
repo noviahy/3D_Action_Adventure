@@ -8,7 +8,7 @@ public class CameraFollow3D : MonoBehaviour
 {
     [Header("Code")]
     [SerializeField] private InputManager input;
-    [SerializeField] private Attack attack;
+    [SerializeField] private BowAttack bowAttack;
     // [SerializeField] private Animator animator;
 
     [Header("Transform")]
@@ -23,7 +23,7 @@ public class CameraFollow3D : MonoBehaviour
     [SerializeField] private Transform aimTarget;
     [SerializeField] private Rig upperBodyRig;
     [SerializeField] float bowOffset = -0.2f;
-    [SerializeField] float pitchDistanceOffset = -1f;
+    float pitchDistanceOffset = -1f;
     private CinemachineThirdPersonFollow follow;
     private float normalDistance;
     // private float turnAccum;
@@ -49,14 +49,14 @@ public class CameraFollow3D : MonoBehaviour
     private List<Material> mats = new List<Material>();
     private float currentAlpha = 1f;
 
-    private Camera mainCam;
+    public Camera MainCam { get; private set; }
 
     public Vector3 camForward { get; private set; }
     public Vector3 camRight { get; private set; }
 
     private void Start()
     {
-        mainCam = Camera.main;
+        MainCam = Camera.main;
         target = null;
         follow = vcam.GetComponent<CinemachineThirdPersonFollow>();
         normalDistance = follow.CameraDistance;
@@ -97,7 +97,7 @@ public class CameraFollow3D : MonoBehaviour
 
         currentRotationSpeed = rotationSpeed;
         // Bow Charging 상태 : 카메라 정면 보기
-        if (attack.BowAimed || attack.Standby)
+        if (bowAttack.BowAimed || bowAttack.Standby)
         {
             currentRotationSpeed = BowRotationSpeed;
             BowChargingCam();
@@ -117,7 +117,7 @@ public class CameraFollow3D : MonoBehaviour
             pivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
         // 록온 상태: 타겟 있음
-        if (target != null && !attack.BowAimed) // Bow 들고 있을땐 록온이 안되긴 하는데 혹시 모르니까
+        if (target != null && !bowAttack.BowAimed) // Bow 들고 있을땐 록온이 안되긴 하는데 혹시 모르니까
         {
             Vector3 dir = (target.position - pivot.position).normalized;
 
@@ -164,8 +164,8 @@ public class CameraFollow3D : MonoBehaviour
 
         float targetWeight = 0f;
 
-        if (!attack.BowShoot)
-            targetWeight = 0.7f;
+        if (!bowAttack.BowShoot)
+            targetWeight = 0.9f;
 
         upperBodyRig.weight = Mathf.Lerp(upperBodyRig.weight, targetWeight, Time.deltaTime * 10);
 
@@ -283,7 +283,7 @@ public class CameraFollow3D : MonoBehaviour
             if (forwardDot < 0.3f) continue;
 
             // 적이 화면 중앙에서 얼마나 떨어져 있는지 계산
-            Vector3 screenPos = mainCam.WorldToViewportPoint(enemy.position); // 3D 위치를 화면 좌표로 변경
+            Vector3 screenPos = MainCam.WorldToViewportPoint(enemy.position); // 3D 위치를 화면 좌표로 변경
 
             float screenX = Mathf.Abs(screenPos.x - 0.5f); // 중앙이 0이어야하기 때문에 -0.5
             float screenY = Mathf.Abs(screenPos.y - 0.5f);
@@ -328,7 +328,7 @@ public class CameraFollow3D : MonoBehaviour
             if (toRight && sideDot < 0) continue;
             if (!toRight && sideDot > 0) continue;
 
-            Vector3 screenPos = mainCam.WorldToViewportPoint(enemy.position);
+            Vector3 screenPos = MainCam.WorldToViewportPoint(enemy.position);
 
             float screenX = Mathf.Abs(screenPos.x - 0.5f);
             float screenY = Mathf.Abs(screenPos.y - 0.5f);
