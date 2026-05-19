@@ -165,7 +165,7 @@ public class CameraFollow3D : MonoBehaviour
         float targetWeight = 0f;
 
         if (!bowAttack.BowShoot)
-            targetWeight = 0.9f;
+            targetWeight = 1f;
 
         upperBodyRig.weight = Mathf.Lerp(upperBodyRig.weight, targetWeight, Time.deltaTime * 10);
 

@@ -42,7 +42,7 @@ public class CrossHair : MonoBehaviour
                 StopCoroutine(coroutine);
                 coroutine = null;
             }
-            zoomSpeed = 4f;
+            zoomSpeed = 2f;
             CrossHairGroup.alpha = 0.7f;
             targetGap = aimGap;
         }
@@ -79,7 +79,7 @@ public class CrossHair : MonoBehaviour
         float t = 0;
         while (t < duration)
         {
-            t += Time.deltaTime;
+            t += Time.deltaTime * 1.5f;
 
             float normalized = t / duration;
             CrossHairGroup.alpha = Mathf.Lerp(0.7f, 0f, normalized);

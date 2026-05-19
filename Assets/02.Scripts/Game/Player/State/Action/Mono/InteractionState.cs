@@ -2,20 +2,22 @@ using UnityEngine;
 
 public class InteractionState : PlayerBehaviour
 {
-    /*
-    public InteractionType interactionType {  get; private set; }
+    
+    public InteractionType CurrentInteractionType {  get; private set; }
     public enum InteractionType
     {
-        None,
+        Idle,
         UseItem,
         Select,
-        Dialogue
+        Dialogue,
+        Traversal
     }
     public void ChangeInteractionType(InteractionType type)
     {
-        interactionType = type;
+        if (CurrentInteractionType != InteractionType.Idle)
+            return;
+        CurrentInteractionType = type;
     }
-    */
 
     private void Update()
     {

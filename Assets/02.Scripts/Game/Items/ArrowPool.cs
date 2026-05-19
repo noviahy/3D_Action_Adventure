@@ -34,10 +34,10 @@ public class ArrowPool : MonoBehaviour
         obj.transform.position = firePoint.position;
 
         // πÊ«‚
-        obj.transform.rotation = Quaternion.LookRotation(dir);
+        obj.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
 
         obj.SetActive(true);
-
+         
         Arrow objCode = obj.GetComponent<Arrow>();
         objCode.Shoot(this, dir, force * ShootForce);
 
