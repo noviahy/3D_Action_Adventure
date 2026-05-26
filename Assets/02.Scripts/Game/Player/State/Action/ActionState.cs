@@ -8,7 +8,7 @@ public class ActionState : IPlayerState
         Idle,
         Parrying,
         Attack,
-        Interaction,
+        Activity,
         Dodge
     }
     
@@ -22,20 +22,22 @@ public class ActionState : IPlayerState
     {
         if(currentType == type) return;
 
-        if (con.Idle.IdleBlending) 
+        if (con.ActionIdle.IdleBlending) 
         {
             switch (type)
             {
                 case ActionType.Attack:
-                    con.Idle.RequestStopAllCoroutine();
+                    con.ActionIdle.RequestStopAllCoroutine();
                     break;
                 case ActionType.Dodge:
-                    con.Idle.RequestStopDodgeLayer();
-                    con.Idle.RequestStopLayer1();
+                    con.ActionIdle.RequestStopDodgeLayer();
+                    con.ActionIdle.RequestStopLayer1();
                     break;
                 case ActionType.Parrying:
-                    con.Idle.RequestStopDodgeLayer();
-                    con.Idle.RequestStopLayer1();
+                    con.ActionIdle.RequestStopDodgeLayer();
+                    con.ActionIdle.RequestStopLayer1();
+                    break;
+                case ActionType.Activity:
                     break;
             }
         }
@@ -47,7 +49,7 @@ public class ActionState : IPlayerState
                 return;
             if (currentType == ActionType.Dodge)
                 return;
-            if(currentType == ActionType.Interaction)
+            if(currentType == ActionType.Activity)
                 return;
         }
 
@@ -68,7 +70,7 @@ public class ActionState : IPlayerState
         switch (type)
         {
             case ActionType.Idle:
-                con.Idle.Enter(preType);
+                con.ActionIdle.Enter(preType);
                 break;
             case ActionType.Parrying:
                 con.Parrying.Enter();
@@ -76,7 +78,8 @@ public class ActionState : IPlayerState
             case ActionType.Attack:
                 con.AttackState.Enter();
                 break;
-            case ActionType.Interaction:
+            case ActionType.Activity:
+                // 따로 코드 생성해야함
                 break;
             case ActionType.Dodge:
                 con.Dodge.Enter();
@@ -94,7 +97,7 @@ public class ActionState : IPlayerState
             case ActionType.Attack:
                 con.AttackState.Exit();
                 break;
-            case ActionType.Interaction:
+            case ActionType.Activity:
                 break;
             case ActionType.Dodge:
                 con.Dodge.Exit();

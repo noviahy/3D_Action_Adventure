@@ -15,13 +15,6 @@ public class Arrow : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        
-        // 프레임 사이 움직임 부드럽게 보간
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-    }
-    private void Update()
-    {
-        Debug.Log(rb.linearVelocity);
     }
     private void FixedUpdate()
     {
@@ -97,11 +90,9 @@ public class Arrow : MonoBehaviour
 
         // 
         transform.localScale = Vector3.one;
-        transform.rotation = transform.rotation =
-    Quaternion.LookRotation(dir, Vector3.up);
+        transform.rotation =  Quaternion.LookRotation(dir, Vector3.up);
 
         stuck = false;
-
 
         // 물리 활성화
         rb.isKinematic = false;
@@ -129,7 +120,6 @@ public class Arrow : MonoBehaviour
         if (stuck) return;
 
         stuck = true;
-
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;

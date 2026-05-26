@@ -21,10 +21,7 @@ public class PlayerMovement
     {
         con = controller;
     }
-    public void ChangeJustLanded()
-    {
-        JustLanded = false;
-    }
+    // 보통 여기에 진짜 천천히 움직이는걸 하나 더 만들어야 하지만 그건 다음 게임에 추가
     public void Move(Vector3 inputDir, bool isRun)
     {
         Vector3 horizontal;
@@ -44,7 +41,7 @@ public class PlayerMovement
 
             horizontal = inputDir.normalized * speed;
             con.Animation.SetMove(speed);
-            
+
             // Player 회전 코드
             if (!con.Input.IsLockOn && !con.BowAttack.BowAimed && !con.BowAttack.Standby)
             {
@@ -80,5 +77,19 @@ public class PlayerMovement
 
             yVelocity = jumpUpPower;
         }
+    }
+    public void ChangeJustLanded()
+    {
+        JustLanded = false;
+    }
+
+    public void Climb(float dir, bool isRun)
+    {
+        float speed = isRun ? runSpeed : walkSpeed;
+
+        con.Animation.SetMove(speed);
+
+        Vector3 move = Vector3.up * dir * speed;
+        con.cc.Move(move * Time.deltaTime);
     }
 }

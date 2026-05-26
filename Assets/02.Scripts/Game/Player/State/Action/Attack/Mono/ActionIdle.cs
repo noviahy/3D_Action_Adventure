@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class Idle : PlayerBehaviour
+public class ActionIdle : PlayerBehaviour
 {
     public bool IdleBlending { get; private set; } = false;
     private Coroutine layer1Coroutine;
@@ -19,6 +19,7 @@ public class Idle : PlayerBehaviour
                 if (con.Player.currentWeaponType == Player.WeaponType.Sword)
                     StartCoroutine(FromAttackLayer2());
                 break;
+            
         }
     }
     IEnumerator FromAttackLayer2()

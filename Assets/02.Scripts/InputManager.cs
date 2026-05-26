@@ -17,6 +17,8 @@ public class InputManager : MonoBehaviour
     // 활
     public bool BowCharging { get; private set; }
 
+    // 아이템
+    public bool ItemBuffered { get; private set; }
 
     // 록온
     public bool IsLockOn { get; private set; } = false;
@@ -27,6 +29,7 @@ public class InputManager : MonoBehaviour
     public int ChangeWeapon { get; private set; }
     public bool inputItem { get; private set; }
     public bool inputWeapon { get; private set; }
+    public bool BackBuffered {  get; private set; }
 
     // 카메라 회전
     public float MouseX { get; private set; }
@@ -46,27 +49,41 @@ public class InputManager : MonoBehaviour
     private float prevRT;
     private float deadZone = 0.2f;
 
-    private float dodgeTime = 0.3f;
+    private float dodgeTime = 0.2f;
     private float dodgeTimer;
+
+    private float ItemTime = 0.12f;
+    private float ItemTimer;
 
     private float attackTime = 0.15f;
     private float attackTImer;
-    public InputMode CurrentInput { get; private set; }
+    public InputMode CurrentInputMode { get; private set; }
 
     public enum InputMode
     {
-        PlayerInput,
-        UIInput,
-        InputLock
+        Gameplay,
+        UI,
+        Dialogue,
+        Traversal
     }
     public void Init(PlayerController controller)
     {
         con = controller;
     }
+    public void ChangeInputMode(InputMode mode)
+    {
+        if (CurrentInputMode == mode) 
+            return;
+
+        CurrentInputMode = mode;
+    }
+
     private void Awake()
     {
         inputAction = new PlayerInputAction();
         BowCharging = false;
+        // 
+        CurrentInputMode = InputMode.Gameplay;
     }
     private void OnEnable()
     {
@@ -75,12 +92,6 @@ public class InputManager : MonoBehaviour
     private void OnDisable()
     {
         inputAction.Disable();
-    }
-    public void ChangeInputMode(InputMode mode)
-    {
-        if (CurrentInput == mode) return;
-
-        CurrentInput = mode;
     }
     void Update()
     {
@@ -109,11 +120,13 @@ public class InputManager : MonoBehaviour
         // 공격
         AttackInput();
 
-        // 아이템 변경
+        // 아이템 사용
         ItemInput();
+        // 아이템 변경
+        ItemChangeInput();
 
         // 무기 변경
-        WeaponInput();
+        WeaponChangeInput();
 
         // 상호작용키
         InteractionPressed = inputAction.Player.Interaction.WasPressedThisFrame();
@@ -128,7 +141,7 @@ public class InputManager : MonoBehaviour
         BowCharging = inputAction.Player.Bow.IsPressed();
 
         // Action State 설정
-        ActionPressed = DodgeBuffered || InteractionPressed;
+        ActionPressed = DodgeBuffered || InteractionPressed || ItemBuffered;
 
         // LockOn키
         if (inputAction.Player.LockOn.WasPressedThisFrame() && con.Player.currentWeaponType != Player.WeaponType.Bow)
@@ -145,11 +158,14 @@ public class InputManager : MonoBehaviour
         if (inputAction.Player.Run.WasPressedThisFrame() && IsLockOn)
         {
             DodgeBuffered = true;
+            BackBuffered = true;
             dodgeTimer = dodgeTime;
+
         }
         if (dodgeTimer < 0)
         {
             DodgeBuffered = false;
+            BackBuffered = false;
         }
     }
     private void AttackInput()
@@ -185,19 +201,35 @@ public class InputManager : MonoBehaviour
             AttackPressed = false;
         }
     }
-    private void WeaponInput()
+    private void WeaponChangeInput()
     {
         if (inputAction.Player.NextWeapon.WasPressedThisFrame())
             ChangeWeapon = 1;
         else if (inputAction.Player.PrevWeapon.WasPressedThisFrame())
             ChangeWeapon = -1;
     }
-    private void ItemInput()
+    private void ItemChangeInput()
     {
         if (inputAction.Player.NextItem.WasPressedThisFrame())
             ChangeItem = 1;
         else if (inputAction.Player.PrevItem.WasPressedThisFrame())
             ChangeItem = -1;
+    }
+    private void ItemInput()
+    {
+        bool ItemPressed = inputAction.Player.Item.WasPressedThisFrame();
+
+
+        ItemTimer -= Time.deltaTime;
+        if(ItemPressed)
+        {
+            ItemBuffered = true;
+            ItemTimer = ItemTime;
+        }
+        if(ItemTimer < -0)
+        {
+            ItemBuffered = false;
+        }
     }
     public void AckAttack()
     {

@@ -7,7 +7,6 @@ public class Player : MonoBehaviour
     [Header("Init")]
     [SerializeField] InputManager input;
     [SerializeField] PlayerStateMachine stateMachine;
-    [SerializeField] InteractionState interaction;
     [SerializeField] GroundCheck groundCheck;
     [SerializeField] CameraFollow3D cam;
     [SerializeField] CharacterController characterController;
@@ -17,8 +16,9 @@ public class Player : MonoBehaviour
     [SerializeField] Attack attack;
     [SerializeField] AttackState attackState;
     [SerializeField] AnimationEventController animatorEventController;
-    [SerializeField] Idle idle;
+    [SerializeField] ActionIdle actionIdle;
     [SerializeField] BowAttack bowAttack;
+    [SerializeField] Climb climb;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
     private int itemNum = 0;
     private bool isEquip = false;
 
-    private Coroutine defaultCoroutine;
+    public Coroutine defaultCoroutine;
     private Coroutine changeCoroutine;
 
     public enum WeaponType
@@ -66,7 +66,7 @@ public class Player : MonoBehaviour
     {
         // Debug.Log(currentWeaponType);
         // Debug.Log(Controller.Input.IsLockOn);
-        if (attackState.isAttacking || Controller.Idle.IdleBlending)
+        if (attackState.isAttacking || Controller.ActionIdle.IdleBlending)
             return;
 
         if (Controller.Input.BowCharging)
@@ -215,7 +215,6 @@ public class Player : MonoBehaviour
             input,
             this,
             stateMachine,
-            interaction,
             groundCheck,
             cam,
             characterController,
@@ -224,9 +223,10 @@ public class Player : MonoBehaviour
             attack,
             attackState,
             animatorEventController,
-            idle,
+            actionIdle,
             parrying,
-            bowAttack
+            bowAttack,
+            climb
         );
         Controller.Animation.SetWeaponType(0);
     }

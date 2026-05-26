@@ -208,6 +208,15 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Item"",
+                    ""type"": ""Button"",
+                    ""id"": ""8ecd4ef9-69d7-42ad-b6d7-7dc07ca74b92"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -364,6 +373,17 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
                     ""action"": ""NextItem"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f0b8cbb6-fe0e-47d8-8805-3bf4e1c4da85"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Item"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -385,6 +405,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         m_Player_NextWeapon = m_Player.FindAction("NextWeapon", throwIfNotFound: true);
         m_Player_PrevItem = m_Player.FindAction("PrevItem", throwIfNotFound: true);
         m_Player_NextItem = m_Player.FindAction("NextItem", throwIfNotFound: true);
+        m_Player_Item = m_Player.FindAction("Item", throwIfNotFound: true);
     }
 
     ~@PlayerInputAction()
@@ -478,6 +499,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_NextWeapon;
     private readonly InputAction m_Player_PrevItem;
     private readonly InputAction m_Player_NextItem;
+    private readonly InputAction m_Player_Item;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -541,6 +563,10 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/NextItem".
         /// </summary>
         public InputAction @NextItem => m_Wrapper.m_Player_NextItem;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Item".
+        /// </summary>
+        public InputAction @Item => m_Wrapper.m_Player_Item;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -606,6 +632,9 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
             @NextItem.started += instance.OnNextItem;
             @NextItem.performed += instance.OnNextItem;
             @NextItem.canceled += instance.OnNextItem;
+            @Item.started += instance.OnItem;
+            @Item.performed += instance.OnItem;
+            @Item.canceled += instance.OnItem;
         }
 
         /// <summary>
@@ -656,6 +685,9 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
             @NextItem.started -= instance.OnNextItem;
             @NextItem.performed -= instance.OnNextItem;
             @NextItem.canceled -= instance.OnNextItem;
+            @Item.started -= instance.OnItem;
+            @Item.performed -= instance.OnItem;
+            @Item.canceled -= instance.OnItem;
         }
 
         /// <summary>
@@ -787,5 +819,12 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnNextItem(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Item" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItem(InputAction.CallbackContext context);
     }
 }

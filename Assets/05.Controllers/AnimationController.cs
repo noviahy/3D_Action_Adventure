@@ -63,6 +63,19 @@ public class AnimationController
     {
         con.Animator.CrossFade($"{dir}JumpMove", 0.05f);
     }
+    public void PlayUseingItem(Player.ItemType type)
+    {
+        switch (type)
+        {
+            case Player.ItemType.HPPosion:
+                con.Animator.CrossFadeInFixedTime("Drink", 0.05f);
+                break;
+            case Player.ItemType.Bomb:
+                con.Animator.CrossFadeInFixedTime("Throw", 0.05f);
+                break;
+        }
+
+    }
     public void SetWeaponType(int type) //
     {
         con.Animator.SetInteger("WeaponType", type);
@@ -83,7 +96,7 @@ public class AnimationController
     {
         con.Animator.CrossFadeInFixedTime("HeavyAttack", 0.05f);
     }
-     public void PlayJump()
+    public void PlayJump()
     {
         con.Animator.CrossFadeInFixedTime("Jump", 0.05f);
     }
@@ -94,5 +107,13 @@ public class AnimationController
     public void SetLayerWeight(int index, float weight)
     {
         con.Animator.SetLayerWeight(index, weight);
+    }
+    public void PlayFalling()
+    {
+        con.Animator.CrossFadeInFixedTime("Falling", 0.05f);
+    }
+    public void PlayLending()
+    {
+        con.Animator.CrossFadeInFixedTime("Landing", 0.05f);
     }
 }

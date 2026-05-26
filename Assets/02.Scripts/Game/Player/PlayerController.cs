@@ -10,7 +10,6 @@ public class PlayerController
     public GroundCheck GroundCheck { get; }
     public PlayerTrigger Trigger { get; }
     public CharacterController cc { get; }
-    public InteractionState Interaction { get; }
     public LocomotionState Locomotion { get; }
     public Parrying Parrying { get; }
     public Dodge Dodge { get; }
@@ -18,8 +17,9 @@ public class PlayerController
     public Attack Attack { get; }
     public AttackState AttackState { get; }
     public AnimationEventController AnimationEventController { get; }
-    public Idle Idle { get; }
+    public ActionIdle ActionIdle { get; }
     public BowAttack BowAttack { get; }
+    public Climb Climb { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -29,12 +29,12 @@ public class PlayerController
     public ActionState ActionState { get; }
     public EventManager Event { get; }
     public AnimationController Animation { get; }
+    public InteractionState InteractionState { get; }
 
     // 모노
     public PlayerController(InputManager input,
         Player player,
         PlayerStateMachine stateMachine,
-        InteractionState interactionState,
         GroundCheck groundCheck,
         CameraFollow3D cam,
         CharacterController characterController,
@@ -43,15 +43,15 @@ public class PlayerController
         Attack attack,
         AttackState attackState,
         AnimationEventController animationEvent,
-        Idle idle,
+        ActionIdle actionIdle,
         Parrying parrying,
-        BowAttack bowAttack)
+        BowAttack bowAttack,
+        Climb climb)
     {
         Input = input;
         Player = player;
         StateMachine = stateMachine;
         Attack = attack;
-        Interaction = interactionState;
         GroundCheck = groundCheck;
         Cam = cam;
         cc = characterController;
@@ -59,9 +59,10 @@ public class PlayerController
         Animator = animator;
         AttackState = attackState;
         AnimationEventController = animationEvent;
-        Idle = idle;
+        ActionIdle = actionIdle;
         Parrying = parrying;
         BowAttack = bowAttack;
+        Climb = climb;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);
@@ -71,6 +72,7 @@ public class PlayerController
         ActionState = new ActionState(this);
         Event = new EventManager(this);
         Animation = new AnimationController(this);
+        InteractionState = new InteractionState(this);
 
         // Input에 직접 넣어줌
         input.Init(this);

@@ -11,7 +11,8 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     public void ChangeState(LocomotionSubState state)
     {
-        if (currentSubState == state) return;
+        if (currentSubState == state) 
+            return;
         currentSubState = state;
     }
     private void Start()
@@ -20,15 +21,32 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
-        if(con.StateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState && !con.BowAttack.BowAimed)
+        bool locomotion = 
+            con.StateMachine.currentState == PlayerStateMachine.PlayerState.LocomotionState;
+
+        bool bow = con.BowAttack.BowAimed;
+
+        bool climb = 
+            con.StateMachine.currentState == PlayerStateMachine.PlayerState.InteractionState && con.Climb.isClimbing;
+
+        if (!locomotion && !bow && !climb)
             return;
 
+        // Land 확인 코드
         if (con.Movement.JustLanded)
         {
             ChangeState(LocomotionSubState.Idle);
             con.Movement.ChangeJustLanded();
         }
 
+        // 사다리 코드
+        if (con.InteractionState.CurrentInteractionType == InteractionState.InteractionType.Climb)
+        {
+            con.Movement.Climb(con.Input.forward, con.Input.RunPressed);
+            return;
+        }
+
+        // 나머지 이동 코드
         switch (currentSubState)
         {
             case LocomotionSubState.Idle:
