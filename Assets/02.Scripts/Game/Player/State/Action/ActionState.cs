@@ -41,6 +41,8 @@ public class ActionState : IPlayerState
                     break;
             }
         }
+        // 이거 왜 이렇게 하나하나 다 써놨는지 모르겠음
+        // 그래도 나중에 혹시 쓸일이 있을까 일단 남겨둠
         if (type != ActionType.Idle)
         {
             if (currentType == ActionType.Parrying)

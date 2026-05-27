@@ -40,7 +40,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         }
 
         // 사다리 코드
-        if (con.InteractionState.CurrentInteractionType == InteractionState.InteractionType.Climb)
+        if (con.InteractionState.CurrentType == InteractionState.InteractionType.Climb)
         {
             con.Movement.Climb(con.Input.forward, con.Input.RunPressed);
             return;

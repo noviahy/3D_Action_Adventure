@@ -8,7 +8,8 @@ public class UsingItem : PlayerBehaviour
     // 이건 무기를 들고 있을때도 생각해 봐야될듯
     [SerializeField] private Renderer Potion;
     [SerializeField] private Renderer Bomb;
-    
+
+    public bool isUsingItem { get; private set; } = false;
     private Coroutine enterCoroutine;
     public void Enter()
     {

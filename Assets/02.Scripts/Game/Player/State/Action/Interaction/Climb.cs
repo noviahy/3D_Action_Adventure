@@ -21,7 +21,7 @@ public class Climb : PlayerBehaviour
     }
     private void Update()
     {
-        if (con.InteractionState.CurrentInteractionType != InteractionState.InteractionType.Climb)
+        if (con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
             return;
 
         if (!con.StateMachine.isLadder && arriveCoroutine == null && fallingCoroutine == null)
@@ -31,11 +31,14 @@ public class Climb : PlayerBehaviour
             fallingCoroutine = StartCoroutine(FallingCoroutine());
     }
     // 도착 혹은 떨어져 착지 전까지 Climb State 유지
-    public void Exit()
+    public void Finish()
     {
         con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Idle);
-        // 이름 확인 
         con.StateMachine.TryChangeState(PlayerState.LocomotionState);
+    }
+    public void Exit()
+    {
+
     }
     IEnumerator FallingCoroutine()
     {
@@ -45,12 +48,13 @@ public class Climb : PlayerBehaviour
 
         // 랜딩 애니메이션 대기
         yield return new WaitForSeconds(1f);
-        Exit();
+        Finish();
         fallingCoroutine = null;
     }
 
     IEnumerator EnterClimbing()
     {
+        //여기에 무기 0으로 바꾸는 코루틴 대기 시간을 넣어줘야 할듯
         float time = 0;
         while (time <= 1)
         {
@@ -65,7 +69,7 @@ public class Climb : PlayerBehaviour
     IEnumerator ArriveCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        Exit();
+        Finish();
         arriveCoroutine = null;
     }
 }

@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField] ActionIdle actionIdle;
     [SerializeField] BowAttack bowAttack;
     [SerializeField] Climb climb;
+    [SerializeField] InteractionIdle interactionIdle;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -208,6 +209,8 @@ public class Player : MonoBehaviour
         Guard = value;
     }
 
+    // 나중에 Item 사용시 무기를 끄고 키는거 만들어야함
+
     private void Awake()
     {
         // Controller 생성
@@ -226,7 +229,8 @@ public class Player : MonoBehaviour
             actionIdle,
             parrying,
             bowAttack,
-            climb
+            climb,
+            interactionIdle
         );
         Controller.Animation.SetWeaponType(0);
     }
