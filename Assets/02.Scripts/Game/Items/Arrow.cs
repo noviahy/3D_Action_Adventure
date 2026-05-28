@@ -103,8 +103,6 @@ public class Arrow : MonoBehaviour
         rb.linearVelocity = shootDir * force;
 
         prevPos = transform.position;
-        Debug.Log(dir);
-
     }
 
     void ReturnToPool()

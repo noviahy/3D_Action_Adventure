@@ -27,7 +27,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         bool bow = con.BowAttack.BowAimed;
 
         bool climb = 
-            con.StateMachine.currentState == PlayerStateMachine.PlayerState.InteractionState && con.Climb.isClimbing;
+            con.StateMachine.currentState == PlayerStateMachine.PlayerState.InteractionState && con.Climb.currentState == Climb.ClimbState.Climbing;
 
         if (!locomotion && !bow && !climb)
             return;
@@ -40,11 +40,13 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         }
 
         // 사다리 코드
-        if (con.InteractionState.CurrentType == InteractionState.InteractionType.Climb)
+        if (con.Climb.currentState == Climb.ClimbState.Climbing)
         {
             con.Movement.Climb(con.Input.forward, con.Input.RunPressed);
             return;
         }
+        if (con.Climb.currentState == Climb.ClimbState.Falling && !con.GroundCheck.IsGrounded)
+            con.Movement.Falling();
 
         // 나머지 이동 코드
         switch (currentSubState)

@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
     {
         // Debug.Log(currentWeaponType);
         // Debug.Log(Controller.Input.IsLockOn);
-        if (attackState.isAttacking || Controller.ActionIdle.IdleBlending)
+        if (stateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
             return;
 
         if (Controller.Input.BowCharging)

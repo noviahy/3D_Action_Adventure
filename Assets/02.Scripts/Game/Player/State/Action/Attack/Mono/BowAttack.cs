@@ -92,6 +92,9 @@ public class BowAttack : PlayerBehaviour
         }
         con.Animation.SetLayerWeight(3, 1);
 
+        // 애니메이션 대기
+        yield return new WaitForSeconds(0.5f);
+
         ChangeBowState(bowState.Released);
     }
     IEnumerator BowRelease()
@@ -103,19 +106,21 @@ public class BowAttack : PlayerBehaviour
             showCrosshair = true;
             BowAimed = true;
             BowShoot = false;
+            // 애니메이션 대기
+            yield return new WaitForSeconds(0.5f);
         }
 
         float force = 0;
         while (con.Input.BowCharging)
         {
-            force += Time.deltaTime * 0.7f;
+            force += Time.deltaTime * 1.5f;
             force = Mathf.Clamp01(force);
-            if (force < 0.2f)
-                force = 0.2f;
             yield return null;
         }
+        if (force < 0.2f)
+            force = 0.2f;
 
-        // 활 생성
+        // 화살 생성
         Vector3 dir = GetShootDirection();
         arrowPool.GetArrow(dir, firePoint, force);
         arrowRenderer.enabled = false;

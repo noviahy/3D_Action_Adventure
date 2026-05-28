@@ -72,14 +72,14 @@ public class CrossHair : MonoBehaviour
     }
     IEnumerator CrossHairFO()
     {
-        float duration = 0.5f;
+        float duration = 0.45f;
 
         yield return new WaitForSeconds(1f);
 
         float t = 0;
         while (t < duration)
         {
-            t += Time.deltaTime * 1.5f;
+            t += Time.deltaTime;
 
             float normalized = t / duration;
             CrossHairGroup.alpha = Mathf.Lerp(0.7f, 0f, normalized);

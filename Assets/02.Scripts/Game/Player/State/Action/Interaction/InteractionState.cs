@@ -35,7 +35,7 @@ public class InteractionState
 
         if (CurrentType != InteractionType.Idle && type != InteractionType.Idle)
             return;
-
+        
         ChangeType(type);
     }
     private void ChangeType(InteractionType type)
@@ -62,7 +62,7 @@ public class InteractionState
             case InteractionType.Mantle:
                 break;
             case InteractionType.Climb:
-                con.Dodge.Enter();
+                con.Climb.Enter();
                 break;
         }
     }

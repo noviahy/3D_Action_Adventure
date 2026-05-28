@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 2018397728485192570}
   - component: {fileID: 8211549139352496818}
   - component: {fileID: 5987266028050661576}
+  - component: {fileID: 6885732768413295120}
   m_Layer: 9
   m_Name: PlayerMovement
   m_TagString: Untagged
@@ -404,9 +405,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902252b90d599b44ab4ed67fddd3f544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
-  wallMask:
+  Head: {fileID: 0}
+  LadderMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
+--- !u!114 &6885732768413295120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356631373245446715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40a4ec64b94244247aaec2a017540700, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionIdle
 --- !u!1 &8125920071323429513
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,6 +457,7 @@ Transform:
   - {fileID: 4898797592886188194}
   - {fileID: 4366242621637294733}
   - {fileID: 8780229674925672591}
+  - {fileID: 8806019667399944356}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8805215732625320224
@@ -476,7 +491,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.25
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -495,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   input: {fileID: 0}
-  stateMachine: {fileID: 0}
+  stateMachine: {fileID: 5987266028050661576}
   groundCheck: {fileID: 1203165965842752932}
   cam: {fileID: 0}
   characterController: {fileID: 7113561916039286552}
@@ -508,8 +523,40 @@ MonoBehaviour:
   actionIdle: {fileID: 7810307939755476231}
   bowAttack: {fileID: 2018397728485192570}
   climb: {fileID: 8211549139352496818}
+  interactionIdle: {fileID: 6885732768413295120}
   sword: {fileID: 2508213279660673567}
   bow: {fileID: 9003156226288143570}
+--- !u!1 &8487760766027529254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8806019667399944356}
+  m_Layer: 9
+  m_Name: Head
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8806019667399944356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8487760766027529254}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.484, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9127978430954455101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9070662700364824185
 GameObject:
   m_ObjectHideFlags: 0

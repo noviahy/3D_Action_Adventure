@@ -18,11 +18,13 @@ public class AnimationController
 
             if (idleTimer >= idleDelay)
                 con.Animator.SetFloat("Speed", 0f);
+            Debug.Log("0");
         }
         else
         {
             idleTimer = 0;
             con.Animator.SetFloat("Speed", speed);
+            Debug.Log(speed);
         }
     }
     public void SetMoveX(float x) // ¾ÕµÚ
@@ -107,6 +109,10 @@ public class AnimationController
     public void SetLayerWeight(int index, float weight)
     {
         con.Animator.SetLayerWeight(index, weight);
+    }
+    public void PlayClimbing()
+    {
+        con.Animator.CrossFadeInFixedTime("ClimbUp", 0.05f);
     }
     public void PlayFalling()
     {

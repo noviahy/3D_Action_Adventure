@@ -125,7 +125,7 @@ public class InputManager : MonoBehaviour
         // 아이템 변경
         ItemChangeInput();
 
-        // 무기 변경
+        // 무기 변경 사용
         WeaponChangeInput();
 
         // 상호작용키
@@ -158,14 +158,12 @@ public class InputManager : MonoBehaviour
         if (inputAction.Player.Run.WasPressedThisFrame() && IsLockOn)
         {
             DodgeBuffered = true;
-            BackBuffered = true;
             dodgeTimer = dodgeTime;
 
         }
         if (dodgeTimer < 0)
         {
             DodgeBuffered = false;
-            BackBuffered = false;
         }
     }
     private void AttackInput()
@@ -219,16 +217,17 @@ public class InputManager : MonoBehaviour
     {
         bool ItemPressed = inputAction.Player.Item.WasPressedThisFrame();
 
-
         ItemTimer -= Time.deltaTime;
         if(ItemPressed)
         {
             ItemBuffered = true;
+            BackBuffered = true;
             ItemTimer = ItemTime;
         }
-        if(ItemTimer < -0)
+        if(ItemTimer < 0)
         {
             ItemBuffered = false;
+            BackBuffered= false;
         }
     }
     public void AckAttack()

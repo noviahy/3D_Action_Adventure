@@ -6,10 +6,16 @@ public class PlayerMovement
 
     private float walkSpeed = 3f;
     private float runSpeed = 7f;
+    
     private float lockOnSpeed = 1.5f;
+    
     private float jumpForwardPower = 2f;
     private float jumpUpPower = 2f;
+    
     private float rotSpeed = 10f;
+
+    private float ladderSpeed = 2f;
+    private float fastLadderSpeed = 4f;
 
     private Vector3 jumpDir;
     private float yVelocity;
@@ -82,14 +88,35 @@ public class PlayerMovement
     {
         JustLanded = false;
     }
+    public void ResetYVelocity()
+    {
+        yVelocity = 0;
+    }
+
+    public void EnterClimb()
+    {
+        Vector3 move = Vector3.up * 0.3f;
+        con.cc.Move(move);
+    }
 
     public void Climb(float dir, bool isRun)
     {
-        float speed = isRun ? runSpeed : walkSpeed;
+        float speed = isRun ? fastLadderSpeed : ladderSpeed;
 
-        con.Animation.SetMove(speed);
 
         Vector3 move = Vector3.up * dir * speed;
+        float climbSpeed = Mathf.Abs(dir * speed);
+        con.Animation.SetMove(climbSpeed);
+
+        con.cc.Move(move * Time.deltaTime);
+    }
+    public void Falling()
+    {
+        yVelocity += Physics.gravity.y * Time.deltaTime;
+
+        Vector3 move =
+            Vector3.up * yVelocity;
+
         con.cc.Move(move * Time.deltaTime);
     }
 }

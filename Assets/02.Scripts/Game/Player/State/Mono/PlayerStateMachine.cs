@@ -6,6 +6,7 @@ public class PlayerStateMachine : PlayerBehaviour
 {
     public PlayerState currentState { get; private set; }
     public bool isLadder { get; private set; }
+    [SerializeField] private Transform Head;
     [SerializeField] private LayerMask LadderMask;
 
     public enum PlayerState
@@ -73,14 +74,19 @@ public class PlayerStateMachine : PlayerBehaviour
             con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
 
         // 레이케스트를 던져서 앞에 사다리가 아직도 있는지 확인
-        Vector3 origin = transform.position + Vector3.up * 1.5f;
-        isLadder = Physics.Raycast(origin, transform.forward, 0.3f, LadderMask);
+        RaycastHit hit;
+        
+        isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
+
         if (currentState == PlayerState.LocomotionState && isLadder)
         {
             TryChangeState(PlayerState.InteractionState);
 
             if (currentState == PlayerState.InteractionState)
+            {
+                con.Climb.SetLadder(hit.transform);
                 con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Climb);
+            }
         }
 
     }
