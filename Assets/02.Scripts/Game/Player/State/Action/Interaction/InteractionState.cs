@@ -1,6 +1,3 @@
-using UnityEngine;
-using static ActionState;
-
 public class InteractionState
 {
     PlayerController con;

@@ -21,6 +21,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
+        // Debug.Log(currentSubState);
         bool locomotion = 
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.LocomotionState;
 
@@ -45,8 +46,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             con.Movement.Climb(con.Input.forward, con.Input.RunPressed);
             return;
         }
-        if (con.Climb.currentState == Climb.ClimbState.Falling && !con.GroundCheck.IsGrounded)
-            con.Movement.Falling();
 
         // 나머지 이동 코드
         switch (currentSubState)

@@ -18,13 +18,11 @@ public class AnimationController
 
             if (idleTimer >= idleDelay)
                 con.Animator.SetFloat("Speed", 0f);
-            Debug.Log("0");
         }
         else
         {
             idleTimer = 0;
             con.Animator.SetFloat("Speed", speed);
-            Debug.Log(speed);
         }
     }
     public void SetMoveX(float x) // 앞뒤
@@ -43,7 +41,7 @@ public class AnimationController
     }
     public void SetGrounded(bool isGrounded) // 왜 안되는지 찾아야함
     {
-        // con.Animator.SetBool("isGrounded", isGrounded);
+        con.Animator.SetBool("isGrounded", isGrounded);
     }
     public void SetLockOn(bool lockOn) //
     {
@@ -112,14 +110,14 @@ public class AnimationController
     }
     public void PlayClimbing()
     {
-        con.Animator.CrossFadeInFixedTime("ClimbUp", 0.05f);
+        con.Animator.CrossFadeInFixedTime("ClimbIdle", 0.05f);
     }
     public void PlayFalling()
     {
         con.Animator.CrossFadeInFixedTime("Falling", 0.05f);
     }
-    public void PlayLending()
+    public void PlayArrive()
     {
-        con.Animator.CrossFadeInFixedTime("Landing", 0.05f);
+        con.Animator.CrossFadeInFixedTime("Arrive", 0.05f);
     }
 }

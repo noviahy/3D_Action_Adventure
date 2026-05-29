@@ -39,6 +39,7 @@ public class PlayerController
         GroundCheck groundCheck,
         CameraFollow3D cam,
         CharacterController characterController,
+        LocomotionState locomotion,
         Dodge dodge,
         Animator animator,
         Attack attack,
@@ -57,6 +58,7 @@ public class PlayerController
         GroundCheck = groundCheck;
         Cam = cam;
         cc = characterController;
+        Locomotion = locomotion;
         Dodge = dodge;
         Animator = animator;
         AttackState = attackState;

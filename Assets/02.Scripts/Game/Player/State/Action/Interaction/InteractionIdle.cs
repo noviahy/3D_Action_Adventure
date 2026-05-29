@@ -20,12 +20,13 @@ public class InteractionIdle : PlayerBehaviour
                 IdleBlending = true;
                 break;
             case InteractionState.InteractionType.Climb: // Layer1
-                layer1Coroutine = StartCoroutine(FromLayer1());
+                // layer1Coroutine = StartCoroutine(FromLayer1());
                 IdleBlending = true;
                 break;
 
         }
     }
+    /*
     IEnumerator FromLayer1()
     {
         // Layer1 ->0
@@ -41,6 +42,7 @@ public class InteractionIdle : PlayerBehaviour
         con.Animation.SetLayerWeight(1, 0);
         yield return null;
     }
+    */
     IEnumerator FromLayer4()
     {
         

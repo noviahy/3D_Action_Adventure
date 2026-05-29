@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using static PlayerStateMachine;
 
@@ -14,6 +13,8 @@ public class Climb : PlayerBehaviour
     private Coroutine arriveCoroutine;
 
     private Transform currentLadder;
+    private Transform TopArrivePoint;
+    private Transform EnterPoint;
 
     public ClimbState currentState { get; private set; }
     public enum ClimbState
@@ -22,8 +23,8 @@ public class Climb : PlayerBehaviour
         Enter,
         Climbing,
         Falling,
-        Arrive,
-        Exit // 바닥까지 천천히 내려간 상태?
+        ArriveTop,
+        ArriveBottom
     }
     // 내부 호출
     private void ChangeClimbState(ClimbState state)
@@ -44,16 +45,17 @@ public class Climb : PlayerBehaviour
             case ClimbState.Falling:
                 fallingCoroutine = StartCoroutine(FallingCoroutine());
                 break;
-            case ClimbState.Arrive:
-                arriveCoroutine = StartCoroutine(ArriveCoroutine());
+            case ClimbState.ArriveTop:
+                arriveCoroutine = StartCoroutine(ArriveTopCoroutine());
                 break;
-            case ClimbState.Exit:
+            case ClimbState.ArriveBottom:
+                arriveCoroutine = StartCoroutine(ArriveBottomCoroutine());
                 break;
         }
     }
     public void Enter()
     {
-        ChangeClimbState (ClimbState.Enter);
+        ChangeClimbState(ClimbState.Enter);
         if (enterCoroutine == null)
             enterCoroutine = StartCoroutine(EnterClimbing());
 
@@ -62,21 +64,49 @@ public class Climb : PlayerBehaviour
     }
     IEnumerator EnterClimbing()
     {
-        // 무기 끄는 코루틴 완료까지 기다림
-        if (con.Player.currentItemType != 0)
-            yield return new WaitForSeconds(0.5f);
-
-        con.Movement.EnterClimb();
-
         con.Animation.PlayClimbing();
+
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = EnterPoint.position;
+
+        Vector3 dir = -currentLadder.forward;
+        dir.y = 0;
+
         float time = 0;
+
         while (time <= 1)
         {
-            time += Time.deltaTime * 3;
-            con.Animation.SetLayerWeight(1, time);
+            time += Time.deltaTime * 6f;
+
+            Vector3 nextPos = Vector3.Lerp(startPos, targetPos, time);
+
+            Vector3 move = nextPos - transform.position;
+            con.Movement.ClimbMove(move);
+
+            if (dir.sqrMagnitude > 0.001f)
+            {
+                Quaternion lookRot = Quaternion.LookRotation(dir);
+
+                con.Player.transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, 8f * Time.deltaTime);
+            }
+
             yield return null;
         }
-        con.Animation.SetLayerWeight(1, 1);
+
+        time = 0;
+        while (time <= 1)
+        {
+            float delta = Time.deltaTime * 6.5f;
+            time += delta;
+
+            con.Animation.SetLayerWeight(1, time);
+
+            // 총 0.15 이동하도록 분배
+            Vector3 move = Vector3.up * 0.15f * delta;
+            con.Movement.ClimbMove(move);
+
+            yield return null;
+        }
         enterCoroutine = null;
 
         // Enter 종료 후 Climb으로 상태 변경
@@ -85,7 +115,8 @@ public class Climb : PlayerBehaviour
 
     private void Update()
     {
-        Debug.Log(currentState);
+        // Debug.Log(currentState);
+        Debug.Log(con.GroundCheck.IsGrounded);
         if (con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
             return;
 
@@ -94,7 +125,12 @@ public class Climb : PlayerBehaviour
 
         if (!con.StateMachine.isLadder)
         {
-            ChangeClimbState(ClimbState.Arrive);
+            ChangeClimbState(ClimbState.ArriveTop);
+            return;
+        }
+        if (con.GroundCheck.IsGrounded)
+        {
+            ChangeClimbState(ClimbState.ArriveBottom);
             return;
         }
 
@@ -108,24 +144,92 @@ public class Climb : PlayerBehaviour
     {
         con.Movement.ResetYVelocity();
         con.Animation.PlayFalling();
+
+        Vector3 move = Vector3.back * 0.15f;
+        con.Movement.ClimbMove(move);
+
         while (!con.GroundCheck.IsGrounded)
+        {
+            con.Movement.Falling();
             yield return null;
+        }
 
         // 랜딩 애니메이션 대기
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.3f);
+
+        float time = 0;
+        while (time < 1)
+        {
+            time += Time.deltaTime * 4f;
+            con.Animation.SetLayerWeight(1, 1 - time);
+            yield return null;
+        }
+
         fallingCoroutine = null;
         Finish();
     }
 
-    IEnumerator ArriveCoroutine()
+    IEnumerator ArriveTopCoroutine()
     {
-        yield return new WaitForSeconds(1f);
-        arriveCoroutine = null;
+        con.Animation.PlayArrive();
+
+        Vector3 startPos = transform.position;
+
+        Vector3 targetPos = TopArrivePoint.position;
+
+        float time = 0;
+        while (time <= 1)
+        {
+            time += Time.deltaTime * 2f;
+
+            float curve = Mathf.Sin(time * Mathf.PI * 0.5f);
+
+            Vector3 nextPos = Vector3.Lerp(startPos, targetPos, curve);
+
+            Vector3 move = nextPos - transform.position;
+
+            con.Movement.ClimbMove(move);
+
+            yield return null;
+        }
+
+        time = 0;
+        while (time < 1)
+        {
+            time += Time.deltaTime * 4f;
+            con.Animation.SetLayerWeight(1, 1 - time);
+            yield return null;
+        }
+
         Finish();
+        con.Animation.SetLayerWeight(1, 0);
+        arriveCoroutine = null;
+    }
+    IEnumerator ArriveBottomCoroutine()
+    {
+        float time = 0;
+        while (time <= 1)
+        {
+            float delta = Time.deltaTime * 2f;
+            time += delta;
+
+            Vector3 move = Vector3.back * 0.1f * delta;
+            con.Movement.ClimbMove(move);
+
+            con.Animation.SetLayerWeight(1, 1 - time);
+
+            yield return null;
+        }
+
+        Finish();
+        con.Animation.SetLayerWeight(1, 0);
+        arriveCoroutine = null;
     }
     public void SetLadder(Transform ladder)
     {
         currentLadder = ladder;
+        TopArrivePoint = ladder.transform.Find("TopArrivePoint");
+        EnterPoint = ladder.transform.Find("EnterPoint");
     }
 
     // 도착 혹은 떨어져 착지 전까지 Climb State 유지

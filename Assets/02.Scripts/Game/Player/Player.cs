@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] GroundCheck groundCheck;
     [SerializeField] CameraFollow3D cam;
     [SerializeField] CharacterController characterController;
+    [SerializeField] LocomotionState locomotionState;
     [SerializeField] Animator animator;
     [SerializeField] Parrying parrying;
     [SerializeField] Dodge dodge;
@@ -26,10 +27,9 @@ public class Player : MonoBehaviour
     [SerializeField] Renderer bow;
 
     private PlayerController Controller;
-
-    // 매 Attack마다 ChangeWeaponType를 해줘야
-    // 무기 바꿀 때 바꾼지 확인 가능
-    // 이거 옮겨줘야할듯
+    
+    // 2차 상태 확인
+    // Interaction시 이것만 default로 바꾸고 
     public WeaponType currentWeaponType { get; private set; }
 
     public ItemType currentItemType { get; private set; }
@@ -37,7 +37,8 @@ public class Player : MonoBehaviour
     public bool Invincibility { get; private set; }
     public bool Guard { get; private set; }
 
-    private int weaponNum = 0;
+    // 1차 상태 확인
+    public int weaponNum { get; private set; } = 0;
     private int itemNum = 0;
     private bool isEquip = false;
 
@@ -85,6 +86,7 @@ public class Player : MonoBehaviour
             RequestChangeCoroutine();
         }
 
+        // Locomotionstate로 돌아오면 여기서 1차 변수 기반으로 변경
         ChangeWeaponType((WeaponType)weaponNum);
 
         int itemLength = System.Enum.GetValues(typeof(ItemType)).Length;
@@ -221,6 +223,7 @@ public class Player : MonoBehaviour
             groundCheck,
             cam,
             characterController,
+            locomotionState,
             dodge,
             animator,
             attack,

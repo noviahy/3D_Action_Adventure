@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 public class PlayerStateMachine : PlayerBehaviour
 {
@@ -23,7 +21,10 @@ public class PlayerStateMachine : PlayerBehaviour
     }
     private void ChangePlayerState(PlayerState state)
     {
-        if (currentState == state) return;
+        if (currentState == state) 
+            return;
+        if (state != PlayerState.LocomotionState)
+            con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
         currentState = state;
     }
 
@@ -75,7 +76,7 @@ public class PlayerStateMachine : PlayerBehaviour
 
         // 레이케스트를 던져서 앞에 사다리가 아직도 있는지 확인
         RaycastHit hit;
-        
+
         isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
 
         if (currentState == PlayerState.LocomotionState && isLadder)

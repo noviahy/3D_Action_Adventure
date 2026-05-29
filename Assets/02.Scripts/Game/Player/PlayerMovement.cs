@@ -93,9 +93,8 @@ public class PlayerMovement
         yVelocity = 0;
     }
 
-    public void EnterClimb()
+    public void ClimbMove(Vector3 move)
     {
-        Vector3 move = Vector3.up * 0.3f;
         con.cc.Move(move);
     }
 
