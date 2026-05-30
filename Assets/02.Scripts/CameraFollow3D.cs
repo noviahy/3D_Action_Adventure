@@ -9,7 +9,7 @@ public class CameraFollow3D : MonoBehaviour
     [Header("Code")]
     [SerializeField] private InputManager input;
     [SerializeField] private BowAttack bowAttack;
-    // [SerializeField] private Animator animator;
+    [SerializeField] private Climb climb;
 
     [Header("Transform")]
     [SerializeField] private Transform player; // 위아래 회전, 거리 조절
@@ -135,6 +135,11 @@ public class CameraFollow3D : MonoBehaviour
             pitch = angles.x;
             yaw = angles.y;
         }
+
+        if(climb.currentState == Climb.ClimbState.ArriveTop)
+            follow.Damping.y = 4f;
+        else
+            follow.Damping.y = 1f;
     }
     private void LateUpdate()
     {

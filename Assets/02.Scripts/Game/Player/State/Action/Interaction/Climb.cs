@@ -76,7 +76,7 @@ public class Climb : PlayerBehaviour
 
         while (time <= 1)
         {
-            time += Time.deltaTime * 6f;
+            time += Time.deltaTime * 10f;
 
             Vector3 nextPos = Vector3.Lerp(startPos, targetPos, time);
 
@@ -168,7 +168,8 @@ public class Climb : PlayerBehaviour
         fallingCoroutine = null;
         Finish();
     }
-
+    // 다음 수정 예정
+    // 충돌을 껐다가 키는 쪽으로 
     IEnumerator ArriveTopCoroutine()
     {
         con.Animation.PlayArrive();
@@ -180,7 +181,7 @@ public class Climb : PlayerBehaviour
         float time = 0;
         while (time <= 1)
         {
-            time += Time.deltaTime * 2f;
+            time += Time.deltaTime;
 
             float curve = Mathf.Sin(time * Mathf.PI * 0.5f);
 
@@ -213,7 +214,7 @@ public class Climb : PlayerBehaviour
             float delta = Time.deltaTime * 2f;
             time += delta;
 
-            Vector3 move = Vector3.back * 0.1f * delta;
+            Vector3 move = Vector3.back * 0.2f * delta;
             con.Movement.ClimbMove(move);
 
             con.Animation.SetLayerWeight(1, 1 - time);
