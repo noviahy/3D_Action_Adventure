@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 
 public class InputManager : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class InputManager : MonoBehaviour
     public bool HeavyAttack { get; private set; }
 
     public bool RunPressed { get; private set; }
+    public bool RollPressed { get; private set; }
     public bool ParryingPressed { get; private set; }
     public bool DodgeBuffered { get; private set; }
 
@@ -29,7 +32,7 @@ public class InputManager : MonoBehaviour
     public int ChangeWeapon { get; private set; }
     public bool inputItem { get; private set; }
     public bool inputWeapon { get; private set; }
-    public bool BackBuffered {  get; private set; }
+    public bool BackBuffered { get; private set; }
 
     // 카메라 회전
     public float MouseX { get; private set; }
@@ -52,6 +55,10 @@ public class InputManager : MonoBehaviour
     private float dodgeTime = 0.2f;
     private float dodgeTimer;
 
+    private float rollBufferTime = 0.2f;
+    private float rollBufferTimer;
+    private float runPressTime;
+
     private float ItemTime = 0.12f;
     private float ItemTimer;
 
@@ -72,7 +79,7 @@ public class InputManager : MonoBehaviour
     }
     public void ChangeInputMode(InputMode mode)
     {
-        if (CurrentInputMode == mode) 
+        if (CurrentInputMode == mode)
             return;
 
         CurrentInputMode = mode;
@@ -82,8 +89,12 @@ public class InputManager : MonoBehaviour
     {
         inputAction = new PlayerInputAction();
         BowCharging = false;
-        // 
+        IsLockOn = false;
         CurrentInputMode = InputMode.Gameplay;
+
+        inputAction.Player.Run.performed += OnRunPerformed;
+        inputAction.Player.Run.canceled += OnRunCanceled;
+        inputAction.Player.Run.started += OnRunStarted;
     }
     private void OnEnable()
     {
@@ -91,7 +102,8 @@ public class InputManager : MonoBehaviour
     }
     private void OnDisable()
     {
-        inputAction.Disable();
+        if (inputAction != null)
+            inputAction.Disable();
     }
     void Update()
     {
@@ -99,7 +111,7 @@ public class InputManager : MonoBehaviour
         Vector2 look = inputAction.Player.Look.ReadValue<Vector2>();
         MouseX = look.x;
         MouseY = -look.y;
-        
+
         // Player 이동용
         Vector2 move = inputAction.Player.Move.ReadValue<Vector2>();
         forward = move.y;
@@ -132,7 +144,14 @@ public class InputManager : MonoBehaviour
         InteractionPressed = inputAction.Player.Interaction.WasPressedThisFrame();
 
         // 달리기와 회피
-        runDodgeInput();
+        dodgeInput();
+        if (RollPressed)
+        {
+            rollBufferTimer -= Time.deltaTime;
+
+            if (rollBufferTimer <= 0f)
+                RollPressed = false;
+        }
 
         // 패링 상태
         ParryingPressed = inputAction.Player.Parry.IsPressed();
@@ -141,7 +160,7 @@ public class InputManager : MonoBehaviour
         BowCharging = inputAction.Player.Bow.IsPressed();
 
         // Action State 설정
-        ActionPressed = DodgeBuffered || InteractionPressed || ItemBuffered;
+        ActionPressed = DodgeBuffered || RollPressed || InteractionPressed || ItemBuffered;
 
         // LockOn키
         if (inputAction.Player.LockOn.WasPressedThisFrame() && con.Player.currentWeaponType != Player.WeaponType.Bow)
@@ -150,11 +169,10 @@ public class InputManager : MonoBehaviour
         }
         con.Animation.SetLockOn(IsLockOn);
     }
-    private void runDodgeInput()
+    private void dodgeInput()
     {
-        RunPressed = inputAction.Player.Run.IsPressed();
-
         dodgeTimer -= Time.deltaTime;
+
         if (inputAction.Player.Run.WasPressedThisFrame() && IsLockOn)
         {
             DodgeBuffered = true;
@@ -165,6 +183,26 @@ public class InputManager : MonoBehaviour
         {
             DodgeBuffered = false;
         }
+    }
+    private void OnRunStarted(InputAction.CallbackContext ctx)
+    {
+        runPressTime = Time.time;
+    }
+    private void OnRunPerformed(InputAction.CallbackContext ctx)
+    {
+        if (ctx.interaction is HoldInteraction)
+            RunPressed = true;
+    }
+    private void OnRunCanceled(InputAction.CallbackContext ctx)
+    {
+        float heldTime = Time.time - runPressTime;
+
+        if (heldTime <= 0.2f)
+        {
+            RollPressed = true;
+            rollBufferTimer = rollBufferTime;
+        }
+        RunPressed = false;
     }
     private void AttackInput()
     {
@@ -218,16 +256,16 @@ public class InputManager : MonoBehaviour
         bool ItemPressed = inputAction.Player.Item.WasPressedThisFrame();
 
         ItemTimer -= Time.deltaTime;
-        if(ItemPressed)
+        if (ItemPressed)
         {
             ItemBuffered = true;
             BackBuffered = true;
             ItemTimer = ItemTime;
         }
-        if(ItemTimer < 0)
+        if (ItemTimer < 0)
         {
             ItemBuffered = false;
-            BackBuffered= false;
+            BackBuffered = false;
         }
     }
     public void AckAttack()
@@ -250,5 +288,9 @@ public class InputManager : MonoBehaviour
     public void AckItemInput()
     {
         ChangeItem = 0;
+    }
+    public void AckRollFinish()
+    {
+        RollPressed = false;
     }
 }

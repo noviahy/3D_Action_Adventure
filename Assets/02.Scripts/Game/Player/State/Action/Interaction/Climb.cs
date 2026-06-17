@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static PlayerStateMachine;
 
 public class Climb : PlayerBehaviour
@@ -81,7 +82,7 @@ public class Climb : PlayerBehaviour
             Vector3 nextPos = Vector3.Lerp(startPos, targetPos, time);
 
             Vector3 move = nextPos - transform.position;
-            con.Movement.ClimbMove(move);
+            con.Movement.FallMove(move);
 
             if (dir.sqrMagnitude > 0.001f)
             {
@@ -103,7 +104,7 @@ public class Climb : PlayerBehaviour
 
             // 총 0.15 이동하도록 분배
             Vector3 move = Vector3.up * 0.15f * delta;
-            con.Movement.ClimbMove(move);
+            con.Movement.FallMove(move);
 
             yield return null;
         }
@@ -116,7 +117,7 @@ public class Climb : PlayerBehaviour
     private void Update()
     {
         // Debug.Log(currentState);
-        Debug.Log(con.GroundCheck.IsGrounded);
+        // Debug.Log(con.GroundCheck.IsGrounded);
         if (con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
             return;
 
@@ -145,12 +146,12 @@ public class Climb : PlayerBehaviour
         con.Movement.ResetYVelocity();
         con.Animation.PlayFalling();
 
-        Vector3 move = Vector3.back * 0.15f;
-        con.Movement.ClimbMove(move);
+        Vector3 move = -con.Player.transform.forward * 0.15f;
+        con.Movement.FallMove(move);
 
         while (!con.GroundCheck.IsGrounded)
         {
-            con.Movement.Falling();
+            con.Movement.Airborne();
             yield return null;
         }
 
@@ -168,31 +169,54 @@ public class Climb : PlayerBehaviour
         fallingCoroutine = null;
         Finish();
     }
-    // 다음 수정 예정
-    // 충돌을 껐다가 키는 쪽으로 
     IEnumerator ArriveTopCoroutine()
     {
         con.Animation.PlayArrive();
 
+        // 충돌 문제 해결을 위한 코드
+        // 대각선으로 이동하면 앞으로 나갈수가 없어서 튐
+        float originRadius = con.cc.radius;
+        con.cc.radius = 0.1f;
+
+        // 위로만 올라가는 코드
         Vector3 startPos = transform.position;
 
-        Vector3 targetPos = TopArrivePoint.position;
+        Vector3 upTarget = new Vector3(startPos.x, TopArrivePoint.position.y, startPos.z);
 
         float time = 0;
         while (time <= 1)
         {
-            time += Time.deltaTime;
+            time += Time.deltaTime * 1.2f;
 
             float curve = Mathf.Sin(time * Mathf.PI * 0.5f);
 
-            Vector3 nextPos = Vector3.Lerp(startPos, targetPos, curve);
+            Vector3 nextPos = Vector3.Lerp(startPos, upTarget, curve);
 
             Vector3 move = nextPos - transform.position;
 
-            con.Movement.ClimbMove(move);
+            con.Movement.FallMove(move);
 
             yield return null;
         }
+
+        // 종료 후 앞으로 나가는 코드
+        Vector3 forwardStart = transform.position;
+        Vector3 forwardTarget = new Vector3(TopArrivePoint.position.x, transform.position.y, TopArrivePoint.position.z);
+
+        time = 0;
+        while (time <= 1)
+        {
+            time += Time.deltaTime * 2f;
+
+            Vector3 nextPos = Vector3.Lerp(forwardStart, forwardTarget, time);
+
+            Vector3 move = nextPos - transform.position;
+
+            con.Movement.FallMove(move);
+
+            yield return null;
+        }
+        con.Movement.FallMove(forwardTarget - transform.position);
 
         time = 0;
         while (time < 1)
@@ -201,6 +225,8 @@ public class Climb : PlayerBehaviour
             con.Animation.SetLayerWeight(1, 1 - time);
             yield return null;
         }
+
+        con.cc.radius = originRadius;
 
         Finish();
         con.Animation.SetLayerWeight(1, 0);
@@ -215,7 +241,7 @@ public class Climb : PlayerBehaviour
             time += delta;
 
             Vector3 move = Vector3.back * 0.2f * delta;
-            con.Movement.ClimbMove(move);
+            con.Movement.FallMove(move);
 
             con.Animation.SetLayerWeight(1, 1 - time);
 
@@ -245,5 +271,4 @@ public class Climb : PlayerBehaviour
     {
 
     }
-
 }

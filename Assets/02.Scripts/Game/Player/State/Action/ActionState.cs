@@ -1,17 +1,18 @@
 public class ActionState : IPlayerState
 {
     private PlayerController con;
-    public ActionType currentType {  get; private set; }
+    public ActionType currentType { get; private set; }
     public ActionType preType { get; private set; }
     public enum ActionType
     {
         Idle,
-        Parrying,
-        Attack,
+        Parrying, // Layer 3
+        Attack, // Layer 1
         Activity,
-        Dodge
+        Dodge, // Layer 1
+        Roll // 내부에서 처리해줌
     }
-    
+
     public ActionState(PlayerController controller)
     {
         con = controller;
@@ -20,9 +21,9 @@ public class ActionState : IPlayerState
 
     public void TryChangeType(ActionType type)
     {
-        if(currentType == type) return;
+        if (currentType == type) return;
 
-        if (con.ActionIdle.IdleBlending) 
+        if (con.ActionIdle.IdleBlending)
         {
             switch (type)
             {
@@ -39,10 +40,13 @@ public class ActionState : IPlayerState
                     break;
                 case ActionType.Activity:
                     break;
+                case ActionType.Roll:
+                    break;
             }
         }
         // 이거 왜 이렇게 하나하나 다 써놨는지 모르겠음
         // 그래도 나중에 혹시 쓸일이 있을까 일단 남겨둠
+        // 이거 지웠더니 안 돌아감 진짜 왜 그러는거야
         if (type != ActionType.Idle)
         {
             if (currentType == ActionType.Parrying)
@@ -51,7 +55,9 @@ public class ActionState : IPlayerState
                 return;
             if (currentType == ActionType.Dodge)
                 return;
-            if(currentType == ActionType.Activity)
+            if (currentType == ActionType.Activity)
+                return;
+            if (currentType == ActionType.Roll)
                 return;
         }
 
@@ -86,6 +92,9 @@ public class ActionState : IPlayerState
             case ActionType.Dodge:
                 con.Dodge.Enter();
                 break;
+            case ActionType.Roll:
+                con.Roll.Enter();
+                break;
         }
     }
 
@@ -103,6 +112,9 @@ public class ActionState : IPlayerState
                 break;
             case ActionType.Dodge:
                 con.Dodge.Exit();
+                break;
+            case ActionType.Roll:
+                con.Roll.Exit();
                 break;
         }
     }

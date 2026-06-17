@@ -6,12 +6,13 @@ public class PlayerMovement
 
     private float walkSpeed = 3f;
     private float runSpeed = 7f;
-    
+
     private float lockOnSpeed = 1.5f;
-    
-    private float jumpForwardPower = 2f;
-    private float jumpUpPower = 2f;
-    
+
+    public bool isJumping { get; private set; } = false;
+    private float jumpForwardPower = 3f;
+    private float jumpUpPower = 5f;
+
     private float rotSpeed = 10f;
 
     private float ladderSpeed = 2f;
@@ -19,7 +20,6 @@ public class PlayerMovement
 
     private Vector3 jumpDir;
     private float yVelocity;
-    private bool isJumping;
 
     public bool JustLanded { get; private set; } = false;
 
@@ -30,58 +30,59 @@ public class PlayerMovement
     // 보통 여기에 진짜 천천히 움직이는걸 하나 더 만들어야 하지만 그건 다음 게임에 추가
     public void Move(Vector3 inputDir, bool isRun)
     {
+        if (con.cc.isGrounded && yVelocity < 0)
+            yVelocity = -2f;
+
         Vector3 horizontal;
 
-        if (isJumping)
+        float speed = isRun ? runSpeed : walkSpeed;
+
+        // 록온 시 speed를 덮어씌움
+        if (con.Input.IsLockOn || con.BowAttack.BowAimed)
+            speed = lockOnSpeed;
+
+        horizontal = inputDir.normalized * speed;
+        con.Animation.SetMove(speed);
+
+        // Player 회전 코드
+        if (!con.Input.IsLockOn && !con.BowAttack.BowAimed && !con.BowAttack.Standby)
         {
-            // 점프 중이면 고정된 방향으로 이동
-            horizontal = jumpDir * jumpForwardPower;
+            Quaternion targetRot = Quaternion.LookRotation(inputDir);
+
+            con.Player.transform.rotation = Quaternion.Lerp(con.Player.transform.rotation, targetRot, rotSpeed * Time.deltaTime);
         }
-        else
-        {
-            float speed = isRun ? runSpeed : walkSpeed;
-
-            // 록온 시 speed를 덮어씌움
-            if (con.Input.IsLockOn || con.BowAttack.BowAimed)
-                speed = lockOnSpeed;
-
-            horizontal = inputDir.normalized * speed;
-            con.Animation.SetMove(speed);
-
-            // Player 회전 코드
-            if (!con.Input.IsLockOn && !con.BowAttack.BowAimed && !con.BowAttack.Standby)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(inputDir);
-
-                con.Player.transform.rotation = Quaternion.Lerp(con.Player.transform.rotation, targetRot, rotSpeed * Time.deltaTime);
-            }
-        }
-
-        // 중력
-        if (con.cc.isGrounded && yVelocity < 0 && isJumping)
-        {
-            yVelocity = -2f;
-            isJumping = false;
-            JustLanded = true;
-        }
-
-        yVelocity += Physics.gravity.y * Time.deltaTime;
 
         Vector3 move = new Vector3(horizontal.x, yVelocity, horizontal.z);
         con.cc.Move(move * Time.deltaTime);
     }
-    public void Jump(Vector3 dir)
+    // 트리거시 호출하는 코드
+    public void StartJump()
     {
-        if (con.cc.isGrounded)
-        {
-            isJumping = true;
-            // Jump 애니메이션 삽입
-            if (dir == Vector3.zero)
-                jumpDir = con.Locomotion.transform.forward;
-            else
-                jumpDir = dir.normalized;
+        if (con.Input.MoveInput.sqrMagnitude > 0.01f)
+            jumpDir = con.Input.MoveInput.normalized;
+        else
+            jumpDir = con.Player.transform.forward.normalized;
+        yVelocity = jumpUpPower;
 
-            yVelocity = jumpUpPower;
+        con.Animation.PlayJump();
+    }
+    public void Airborne()
+    {
+        Vector3 horizontal = jumpDir * jumpForwardPower;
+
+        yVelocity += Physics.gravity.y * Time.deltaTime;
+
+        Vector3 move = new Vector3(
+            horizontal.x,
+            yVelocity,
+            horizontal.z);
+
+        con.cc.Move(move * Time.deltaTime);
+
+        if (con.cc.isGrounded && yVelocity < 0)
+        {
+            yVelocity = -2f;
+            JustLanded = true;
         }
     }
     public void ChangeJustLanded()
@@ -93,7 +94,7 @@ public class PlayerMovement
         yVelocity = 0;
     }
 
-    public void ClimbMove(Vector3 move)
+    public void FallMove(Vector3 move)
     {
         con.cc.Move(move);
     }
@@ -109,13 +110,6 @@ public class PlayerMovement
 
         con.cc.Move(move * Time.deltaTime);
     }
-    public void Falling()
-    {
-        yVelocity += Physics.gravity.y * Time.deltaTime;
 
-        Vector3 move =
-            Vector3.up * yVelocity;
 
-        con.cc.Move(move * Time.deltaTime);
-    }
 }

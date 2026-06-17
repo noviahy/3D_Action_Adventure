@@ -63,6 +63,10 @@ public class AnimationController
     {
         con.Animator.CrossFade($"{dir}JumpMove", 0.05f);
     }
+    public void PlayRoll()
+    {
+        con.Animator.CrossFade("Roll", 0.05f);
+    }
     public void PlayUseingItem(Player.ItemType type)
     {
         switch (type)

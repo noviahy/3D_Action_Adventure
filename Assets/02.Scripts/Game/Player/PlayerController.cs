@@ -21,6 +21,7 @@ public class PlayerController
     public BowAttack BowAttack { get; }
     public Climb Climb { get; }
     public InteractionIdle InteractionIdle { get; }
+    public Roll Roll { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -49,7 +50,8 @@ public class PlayerController
         Parrying parrying,
         BowAttack bowAttack,
         Climb climb,
-        InteractionIdle interactionIdle)
+        InteractionIdle interactionIdle,
+        Roll roll)
     {
         Input = input;
         Player = player;
@@ -68,6 +70,7 @@ public class PlayerController
         BowAttack = bowAttack;
         Climb = climb;
         InteractionIdle = interactionIdle;
+        Roll = roll;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);

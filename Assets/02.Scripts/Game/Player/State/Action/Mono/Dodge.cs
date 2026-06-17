@@ -6,10 +6,11 @@ public class Dodge : PlayerBehaviour
     private Coroutine coroutine;
     private float dodgeSpeed = 6.5f;
     private float timer = 0f;
-    private float dodgeDuration = 0.8f;
+    private float dodgeDuration = 0.7f;
+
     public void Enter() // ActionSate에서 호출
     {
-        if (coroutine == null) // 코루틴 조건
+        if (coroutine == null && con.Input.IsLockOn) // 코루틴 조건
         {
             timer = 0f; // 타이머 초기화
             con.Input.AckDodgeFinish(); // 버퍼 초기화

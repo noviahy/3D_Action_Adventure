@@ -1708,17 +1708,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de8a590555d03324794bb28c54dfde16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BowAttack
---- !u!114 &1676379805 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5987266028050661576, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-  m_PrefabInstance: {fileID: 2095293008430523848}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 902252b90d599b44ab4ed67fddd3f544, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
 --- !u!114 &1676379814 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4196373986859839318, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
@@ -1902,6 +1891,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.Rig
+--- !u!114 &2062572879 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8259582231601849780, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a87b1cc61cf1814c930e56dfeb79d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Roll
 --- !u!4 &2102265552 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
@@ -1915,10 +1915,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1203165965842752932, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: distance
-      value: 0.3
-      objectReference: {fileID: 0}
     - target: {fileID: 2018397728485192570, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: crossHair
       value: 
@@ -1928,13 +1924,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1174007945}
     - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: roll
+      value: 
+      objectReference: {fileID: 2062572879}
+    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: input
       value: 
       objectReference: {fileID: 360286960}
-    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: stateMachine
-      value: 
-      objectReference: {fileID: 1676379805}
     - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: locomotionState
       value: 
@@ -1947,10 +1943,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 8211549139352496818, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 2102265552}
     - target: {fileID: 8387046485649861652, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform
       value: 

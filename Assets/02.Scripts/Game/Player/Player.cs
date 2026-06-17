@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     [SerializeField] BowAttack bowAttack;
     [SerializeField] Climb climb;
     [SerializeField] InteractionIdle interactionIdle;
+    [SerializeField] Roll roll;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -233,7 +234,8 @@ public class Player : MonoBehaviour
             parrying,
             bowAttack,
             climb,
-            interactionIdle
+            interactionIdle,
+            roll
         );
         Controller.Animation.SetWeaponType(0);
     }

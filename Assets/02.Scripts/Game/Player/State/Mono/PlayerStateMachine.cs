@@ -64,6 +64,8 @@ public class PlayerStateMachine : PlayerBehaviour
                 con.ActionState.TryChangeType(ActionState.ActionType.Attack);
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
+            if (!con.Input.IsLockOn && con.Input.RollPressed)
+                con.ActionState.TryChangeType(ActionState.ActionType.Roll);
         }
         // 여기 지금 상태가 Action으로 안 넘어가고 있지 않아/
         // 저 안에 넣지 않은 이유가 분명히 있지만 왜인진 모름, 시간날떄 이유를 찾아야겠음
