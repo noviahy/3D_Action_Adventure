@@ -1,16 +1,18 @@
 using UnityEngine;
 
-
-public class BoxInteraction : MonoBehaviour
+public class BoxInteractionState : PlayerBehaviour
 {
     public void Enter()
     {
 
     }
+
+    void Update()
+    {
+        
+    }
     public void Exit()
     {
 
     }
-
-    
 }

@@ -6,6 +6,7 @@ public class ActionIdle : PlayerBehaviour
     public bool IdleBlending { get; private set; } = false;
     private Coroutine layer1Coroutine;
     private Coroutine dodgeCoroutine;
+    private Coroutine rollCoroutine;
     public void Enter(ActionState.ActionType preState)
     {
         switch (preState)
@@ -19,7 +20,6 @@ public class ActionIdle : PlayerBehaviour
                 if (con.Player.currentWeaponType == Player.WeaponType.Sword)
                     StartCoroutine(FromAttackLayer2());
                 break;
-            
         }
     }
     IEnumerator FromAttackLayer2()

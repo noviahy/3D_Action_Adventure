@@ -122,6 +122,6 @@ public class AnimationController
     }
     public void PlayArrive()
     {
-        con.Animator.CrossFadeInFixedTime("Arrive", 0.05f);
+        con.Animator.CrossFadeInFixedTime("Arrive", 0.1f);
     }
 }

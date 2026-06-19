@@ -22,6 +22,8 @@ public class PlayerController
     public Climb Climb { get; }
     public InteractionIdle InteractionIdle { get; }
     public Roll Roll { get; }
+    public BoxInteractionState BoxInteractionState { get; }
+    public RootMotionController RootMotionController { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -51,7 +53,9 @@ public class PlayerController
         BowAttack bowAttack,
         Climb climb,
         InteractionIdle interactionIdle,
-        Roll roll)
+        Roll roll,
+        BoxInteractionState boxInteractionState,
+        RootMotionController rootMotionController)
     {
         Input = input;
         Player = player;
@@ -71,6 +75,8 @@ public class PlayerController
         Climb = climb;
         InteractionIdle = interactionIdle;
         Roll = roll;
+        BoxInteractionState = boxInteractionState;
+        RootMotionController = rootMotionController;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);

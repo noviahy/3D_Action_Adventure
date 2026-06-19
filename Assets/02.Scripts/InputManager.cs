@@ -160,7 +160,7 @@ public class InputManager : MonoBehaviour
         BowCharging = inputAction.Player.Bow.IsPressed();
 
         // Action State º≥¡§
-        ActionPressed = DodgeBuffered || RollPressed || InteractionPressed || ItemBuffered;
+        ActionPressed = DodgeBuffered || InteractionPressed || ItemBuffered;
 
         // LockOn≈∞
         if (inputAction.Player.LockOn.WasPressedThisFrame() && con.Player.currentWeaponType != Player.WeaponType.Bow)

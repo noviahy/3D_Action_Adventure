@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using static AttackState;
 
 public class BowAttack : PlayerBehaviour
 {
@@ -10,7 +11,7 @@ public class BowAttack : PlayerBehaviour
     [SerializeField] Transform firePoint;
     public bool BowAimed { get; private set; }
     public bool BowShoot { get; private set; }
-    public bool Standby { get; private set; }
+    public bool Standby { get; private set; } // 활 쏜 후 시점 고정 시간
 
     private Coroutine exitCoroutine;
     private Coroutine releaseCoroutine;
@@ -161,6 +162,15 @@ public class BowAttack : PlayerBehaviour
         releaseCoroutine = null;
         ChangeBowState(bowState.Exiting);
     }
+    public void RollOnRelease()
+    {
+        StopCoroutine(releaseCoroutine);
+        releaseCoroutine = null;
+        BowAimed = false;
+        Standby = false;
+        con.Animation.SetLayerWeight(3, 0);
+        ChangeBowState(bowState.Idle);
+    }
     // 이건 왜 Idle로 안 뺐는가?
     // 그 이윤 Layer3번과 상호작용 하는게 없어서 그냥 여기서 0으로 가던 1으로 가던 상관 없음
     IEnumerator BowExit()
@@ -175,7 +185,7 @@ public class BowAttack : PlayerBehaviour
                 ChangeBowState(bowState.Released);
                 yield break;
             }
-            t += Time.deltaTime * 2;
+            t += Time.deltaTime * 3;
             con.Animation.SetLayerWeight(3, 1 - t);
 
             yield return null;

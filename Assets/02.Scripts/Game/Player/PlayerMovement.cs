@@ -8,6 +8,7 @@ public class PlayerMovement
     private float runSpeed = 7f;
 
     private float lockOnSpeed = 1.5f;
+    private float fallSpeed = 1f;
 
     public bool isJumping { get; private set; } = false;
     private float jumpForwardPower = 3f;
@@ -40,6 +41,8 @@ public class PlayerMovement
         // 록온 시 speed를 덮어씌움
         if (con.Input.IsLockOn || con.BowAttack.BowAimed)
             speed = lockOnSpeed;
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
+            speed = fallSpeed;
 
         horizontal = inputDir.normalized * speed;
         con.Animation.SetMove(speed);
@@ -58,6 +61,7 @@ public class PlayerMovement
     // 트리거시 호출하는 코드
     public void StartJump()
     {
+        isJumping = true;
         if (con.Input.MoveInput.sqrMagnitude > 0.01f)
             jumpDir = con.Input.MoveInput.normalized;
         else
@@ -83,6 +87,8 @@ public class PlayerMovement
         {
             yVelocity = -2f;
             JustLanded = true;
+            isJumping = false;
+            con.Locomotion.RequestOffCoroutine();
         }
     }
     public void ChangeJustLanded()
@@ -111,5 +117,8 @@ public class PlayerMovement
         con.cc.Move(move * Time.deltaTime);
     }
 
+    public void MoveBox()
+    {
 
+    }
 }

@@ -59,12 +59,15 @@ public class Climb : PlayerBehaviour
         ChangeClimbState(ClimbState.Enter);
         if (enterCoroutine == null)
             enterCoroutine = StartCoroutine(EnterClimbing());
-
-        if (con.Player.currentWeaponType != Player.WeaponType.Default)
-            con.Player.ChangeWeaponType(Player.WeaponType.Default);
     }
     IEnumerator EnterClimbing()
     {
+        if (con.Player.currentWeaponType != Player.WeaponType.Default)
+        {
+            con.Player.ChangeWeaponType(Player.WeaponType.Default);
+
+            yield return new WaitForSeconds(0.3f);
+        }
         con.Animation.PlayClimbing();
 
         Vector3 startPos = transform.position;
@@ -129,13 +132,13 @@ public class Climb : PlayerBehaviour
             ChangeClimbState(ClimbState.ArriveTop);
             return;
         }
-        if (con.GroundCheck.IsGrounded)
+        if (con.cc.isGrounded)
         {
             ChangeClimbState(ClimbState.ArriveBottom);
             return;
         }
 
-        if (con.Input.BackBuffered)
+        if (con.Input.BackBuffered && currentState == ClimbState.Climbing)
         {
             ChangeClimbState(ClimbState.Falling);
             return;
@@ -149,7 +152,7 @@ public class Climb : PlayerBehaviour
         Vector3 move = -con.Player.transform.forward * 0.15f;
         con.Movement.FallMove(move);
 
-        while (!con.GroundCheck.IsGrounded)
+        while (!con.cc.isGrounded)
         {
             con.Movement.Airborne();
             yield return null;
@@ -158,75 +161,53 @@ public class Climb : PlayerBehaviour
         // 랜딩 애니메이션 대기
         yield return new WaitForSeconds(0.3f);
 
-        float time = 0;
-        while (time < 1)
-        {
-            time += Time.deltaTime * 4f;
-            con.Animation.SetLayerWeight(1, 1 - time);
-            yield return null;
-        }
-
         fallingCoroutine = null;
         Finish();
     }
     IEnumerator ArriveTopCoroutine()
     {
-        con.Animation.PlayArrive();
-
         // 충돌 문제 해결을 위한 코드
         // 대각선으로 이동하면 앞으로 나갈수가 없어서 튐
         float originRadius = con.cc.radius;
+        float originHeight = con.cc.height;
         con.cc.radius = 0.1f;
+        con.cc.height = 0.1f;
 
-        // 위로만 올라가는 코드
+        // RootMotion 사용 코드
+        con.RootMotionController.RequestRootMotion(true);
+        con.Animation.PlayArrive();
+
+        yield return new WaitUntil(() =>
+            con.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.8f);
+        con.RootMotionController.RequestRootMotion(false);
+
         Vector3 startPos = transform.position;
-
-        Vector3 upTarget = new Vector3(startPos.x, TopArrivePoint.position.y, startPos.z);
+        Vector3 targetPos = TopArrivePoint.position - con.cc.center + Vector3.up * (originHeight * 0.5f);
+        Vector3 prevPos = startPos;
 
         float time = 0;
-        while (time <= 1)
+        while (time < 1)
         {
-            time += Time.deltaTime * 1.2f;
+            time += Time.deltaTime * 4f;
 
-            float curve = Mathf.Sin(time * Mathf.PI * 0.5f);
+            Vector3 nextPos = Vector3.Lerp(startPos, targetPos, time);
+            con.cc.Move(nextPos - prevPos);
 
-            Vector3 nextPos = Vector3.Lerp(startPos, upTarget, curve);
-
-            Vector3 move = nextPos - transform.position;
-
-            con.Movement.FallMove(move);
-
+            prevPos = nextPos;
             yield return null;
         }
-
-        // 종료 후 앞으로 나가는 코드
-        Vector3 forwardStart = transform.position;
-        Vector3 forwardTarget = new Vector3(TopArrivePoint.position.x, transform.position.y, TopArrivePoint.position.z);
-
-        time = 0;
-        while (time <= 1)
-        {
-            time += Time.deltaTime * 2f;
-
-            Vector3 nextPos = Vector3.Lerp(forwardStart, forwardTarget, time);
-
-            Vector3 move = nextPos - transform.position;
-
-            con.Movement.FallMove(move);
-
-            yield return null;
-        }
-        con.Movement.FallMove(forwardTarget - transform.position);
 
         time = 0;
         while (time < 1)
         {
             time += Time.deltaTime * 4f;
+
             con.Animation.SetLayerWeight(1, 1 - time);
             yield return null;
         }
 
         con.cc.radius = originRadius;
+        con.cc.height = originHeight;
 
         Finish();
         con.Animation.SetLayerWeight(1, 0);
@@ -240,11 +221,17 @@ public class Climb : PlayerBehaviour
             float delta = Time.deltaTime * 2f;
             time += delta;
 
-            Vector3 move = Vector3.back * 0.2f * delta;
+            Vector3 move = -con.Player.transform.forward * 0.2f * delta;
             con.Movement.FallMove(move);
 
             con.Animation.SetLayerWeight(1, 1 - time);
 
+            yield return null;
+        }
+
+        while (con.cc.isGrounded)
+        {
+            con.Movement.Airborne();
             yield return null;
         }
 

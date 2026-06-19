@@ -4,12 +4,14 @@ using UnityEngine;
 public class LocomotionState : PlayerBehaviour, IPlayerState
 {
     public LocomotionSubState currentSubState { get; private set; }
-    private Coroutine coroutine;
+    private Coroutine moveCoroutine;
+    private Coroutine layerCoroutine;
     private float duration = 0.5f;
 
     public enum LocomotionSubState
     {
         Idle,
+        SlowWalk,
         Walk,
         Run,
         Airborne,
@@ -22,12 +24,12 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (state == LocomotionSubState.Airborne && !con.Movement.isJumping)
             con.Animation.PlayFalling();
-        
-        // 다음 수정 부분
-        // Update에 절때 두지 마
-        if (state == LocomotionSubState.Airborne && con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
-            coroutine = StartCoroutine(MoveToFall());
 
+        if (state == LocomotionSubState.Airborne && con.InteractionState.CurrentType != InteractionState.InteractionType.Climb && moveCoroutine == null)
+        {
+            // moveCoroutine = StartCoroutine(MoveToFall());
+            layerCoroutine = StartCoroutine(SetAirborneLayerOn());
+        }
 
         currentSubState = state;
     }
@@ -37,7 +39,8 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void Update()
     {
-        Debug.Log(currentSubState);
+        //Debug.Log(con.ActionState.currentType);
+        //Debug.Log(con.StateMachine.currentState);
         bool locomotion =
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.LocomotionState;
 
@@ -69,6 +72,9 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         // 나머지 이동 코드
         switch (currentSubState)
         {
+            case LocomotionSubState.SlowWalk:
+                con.Movement.Move(con.Input.MoveInput, false);
+                break;
             case LocomotionSubState.Walk:
                 con.Movement.Move(con.Input.MoveInput, false);
                 break;
@@ -77,6 +83,8 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                 break;
             case LocomotionSubState.Airborne:
                 con.Movement.Airborne();
+                if (con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
+                    con.Movement.Move(con.Input.MoveInput, false);
                 break;
             case LocomotionSubState.Hang:
                 break;
@@ -101,27 +109,43 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                 return;
             }
         }
-
         if (con.Input.MoveInput == Vector3.zero)
             ChangeState(LocomotionSubState.Idle);
     }
 
-    IEnumerator MoveToFall()
+    public void RequestOnCoroutine()
     {
-        Vector3 startPos = con.Player.transform.position;
-        Vector3 targetPos = startPos + con.Player.transform.forward * 0.5f;
+        if (layerCoroutine != null)
+            StopCoroutine(layerCoroutine);
+        layerCoroutine = StartCoroutine(SetAirborneLayerOn());
+    }
+    public void RequestOffCoroutine()
+    {
+        if (layerCoroutine != null)
+            StopCoroutine(layerCoroutine);
 
+        layerCoroutine = StartCoroutine(SetAirborneLayerOff());
+    }
+    IEnumerator SetAirborneLayerOn()
+    {
         float time = 0f;
-        while (time < duration)
+        while (time < 1f)
         {
-            time += Time.deltaTime;
-
-            float t = time / duration;
-
-            Vector3 pos = Vector3.Lerp(startPos, targetPos, t);
-
-            con.Movement.FallMove(pos);
+            time += Time.deltaTime * 3f;
+            con.Animation.SetLayerWeight(1, time);
             yield return null;
         }
+        layerCoroutine = null;
+    }
+    IEnumerator SetAirborneLayerOff()
+    {
+        float time = 0f;
+        while (time < 1f)
+        {
+            time += Time.deltaTime * 3f;
+            con.Animation.SetLayerWeight(1, 1 - time);
+            yield return null;
+        }
+        layerCoroutine = null;
     }
 }

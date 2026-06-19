@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class BoxInteraction : MonoBehaviour
+public class InteractionBox : MonoBehaviour
 {
     public void Enter()
     {

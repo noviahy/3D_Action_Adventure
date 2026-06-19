@@ -22,13 +22,15 @@ public class Player : MonoBehaviour
     [SerializeField] Climb climb;
     [SerializeField] InteractionIdle interactionIdle;
     [SerializeField] Roll roll;
+    [SerializeField] BoxInteractionState boxInteractionState;
+    [SerializeField] RootMotionController rootMotionController;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
     [SerializeField] Renderer bow;
 
     private PlayerController Controller;
-    
+
     // 2차 상태 확인
     // Interaction시 이것만 default로 바꾸고 
     public WeaponType currentWeaponType { get; private set; }
@@ -64,11 +66,12 @@ public class Player : MonoBehaviour
             b.Init(Controller);
         }
     }
-
     private void Update()
     {
         // Debug.Log(currentWeaponType);
         // Debug.Log(Controller.Input.IsLockOn);
+
+
         if (stateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
             return;
 
@@ -213,7 +216,6 @@ public class Player : MonoBehaviour
     }
 
     // 나중에 Item 사용시 무기를 끄고 키는거 만들어야함
-
     private void Awake()
     {
         // Controller 생성
@@ -235,7 +237,9 @@ public class Player : MonoBehaviour
             bowAttack,
             climb,
             interactionIdle,
-            roll
+            roll,
+            boxInteractionState,
+            rootMotionController
         );
         Controller.Animation.SetWeaponType(0);
     }

@@ -7,7 +7,8 @@ public class Roll : PlayerBehaviour
     private Coroutine coroutine;
     private float timer = 0f;
     private float rollDuration = 0.7f;
-    private float rollSpeed = 6f;
+    private float rollSpeed = 9f;
+    public bool isRollCoolTime = false;
     public void Enter() // ActionSate에서 호출
     {
         con.Input.AckRollFinish(); // 버퍼 초기화
@@ -21,6 +22,7 @@ public class Roll : PlayerBehaviour
     }
     IEnumerator DoRoll()
     {
+        isRollCoolTime = true;
         con.Player.ChangeInvincibility(true); // 무적
 
         // dodgeDir 초기화
@@ -30,7 +32,14 @@ public class Roll : PlayerBehaviour
         if (con.Input.MoveInput.sqrMagnitude > 0.01f)
             rollDir = con.Input.MoveInput;
 
+        if (con.ActionState.fromBow)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(con.Input.MoveInput);
+            con.Player.transform.rotation = targetRot;
+        }
+
         rollDir = rollDir.normalized;
+        con.ActionState.ResetFromBow();
 
         con.Animation.PlayRoll();
 
@@ -59,32 +68,39 @@ public class Roll : PlayerBehaviour
             yield return null;
         }
 
-        timer = 0f;
-        while (timer <= 1f)
+        if (con.Player.currentWeaponType == Player.WeaponType.Default)
         {
-            timer += Time.deltaTime * 2f;
-            con.Animation.SetLayerWeight(1, 1 - timer);
-            yield return null;
+            float timer = 0f;
+            while (timer <= 1f)
+            {
+                timer += Time.deltaTime * 5f;
+                con.Animation.SetLayerWeight(1, 1 - timer);
+                yield return null;
+            }
+            con.Animation.SetLayerWeight(1, 0f);
         }
-        con.Animation.SetLayerWeight(1, 0f);
 
-        if (con.Player.currentWeaponType != Player.WeaponType.Default)
+        else
         {
-            timer = 0f;
+            float timer = 0f;
             while (timer <= 1f)
             {
                 timer += Time.deltaTime * 5f;
                 con.Animation.SetLayerWeight(2, timer);
+                con.Animation.SetLayerWeight(1, 1 - timer);
                 yield return null;
             }
             con.Animation.SetLayerWeight(2, 1f);
+            con.Animation.SetLayerWeight(1, 0f);
         }
+
         con.Input.AckRollFinish();
+        coroutine = null;
+        StartCoroutine(startTimer());
+
         // 상태 변경
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
-
-        coroutine = null;
     }
     IEnumerator setLayer1()
     {
@@ -101,5 +117,10 @@ public class Roll : PlayerBehaviour
     {
         // 무적
         con.Player.ChangeInvincibility(false);
+    }
+    IEnumerator startTimer()
+    {
+        yield return new WaitForSeconds(0.3f);
+        isRollCoolTime = false;
     }
 }

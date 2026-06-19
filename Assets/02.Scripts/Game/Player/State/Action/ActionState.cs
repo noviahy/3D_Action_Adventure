@@ -1,16 +1,18 @@
+using UnityEngine;
 public class ActionState : IPlayerState
 {
     private PlayerController con;
+    public bool fromBow = false;
     public ActionType currentType { get; private set; }
     public ActionType preType { get; private set; }
     public enum ActionType
     {
         Idle,
-        Parrying, // Layer 3
-        Attack, // Layer 1
+        Parrying, // Layer 2: 나머지 자유
+        Attack, // Sword-Layer 1(0,1,2고려) Bow-Layer 2 사용(고려하지 않음-우선순위)
         Activity,
-        Dodge, // Layer 1
-        Roll // 내부에서 처리해줌
+        Dodge, // Layer 1 사용 : 나머지 자유
+        Roll // Layer 1 사용 : 나머지 다 막아야 함
     }
 
     public ActionState(PlayerController controller)
@@ -21,7 +23,8 @@ public class ActionState : IPlayerState
 
     public void TryChangeType(ActionType type)
     {
-        if (currentType == type) return;
+        if (currentType == type)
+            return;
 
         if (con.ActionIdle.IdleBlending)
         {
@@ -41,6 +44,11 @@ public class ActionState : IPlayerState
                 case ActionType.Activity:
                     break;
                 case ActionType.Roll:
+                    if (con.BowAttack.Standby)
+                    {
+                        fromBow = true;
+                        con.BowAttack.RollOnRelease();
+                    }
                     break;
             }
         }
@@ -60,7 +68,6 @@ public class ActionState : IPlayerState
             if (currentType == ActionType.Roll)
                 return;
         }
-
         ChangeType(type);
     }
 
@@ -117,5 +124,9 @@ public class ActionState : IPlayerState
                 con.Roll.Exit();
                 break;
         }
+    }
+    public void ResetFromBow()
+    {
+        fromBow = false;
     }
 }
