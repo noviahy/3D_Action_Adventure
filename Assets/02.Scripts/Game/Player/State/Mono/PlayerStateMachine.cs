@@ -1,15 +1,15 @@
 using UnityEngine;
 
+// 어느 순간 말 그대로 StateMachine이 되어버린 www
 public class PlayerStateMachine : PlayerBehaviour
 {
     public PlayerState currentState { get; private set; }
     public bool isLadder { get; private set; }
     public bool isBox { get; private set; }
+    public bool JustLand {  get; private set; } = false;
     [SerializeField] private Transform Head;
     [SerializeField] private LayerMask LadderMask;
     [SerializeField] private LayerMask BoxMask;
-
-    private bool isInteraction = false;
 
     public enum PlayerState
     {
@@ -38,7 +38,7 @@ public class PlayerStateMachine : PlayerBehaviour
             return;
         if (currentState == PlayerState.KnockbackState)
             return;
-        if (!con.GroundCheck.IsGrounded)
+        if (!con.cc.isGrounded && state != PlayerState.LocomotionState)
             return;
 
         ChangePlayerState(state);
@@ -49,6 +49,7 @@ public class PlayerStateMachine : PlayerBehaviour
     // Action 빼면 아무것도 안 남음 DeadState는 마지막에 확인하는거고 Knockback도 한번만 바꿔주면 되는거고
     private void Update()
     {
+        Debug.Log(currentState);
         if (con.Input.CurrentInputMode == InputManager.InputMode.UI || con.Input.CurrentInputMode == InputManager.InputMode.Dialogue)
             return;
 
@@ -72,11 +73,12 @@ public class PlayerStateMachine : PlayerBehaviour
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
 
         }
-        if (!con.Input.IsLockOn && con.Input.RollPressed && !con.Roll.isRollCoolTime)
+        if (!con.Input.IsLockOn && con.Input.RollPressed && !con.Roll.isRollCoolTime || JustLand)
         {
             TryChangeState(PlayerState.ActionState);
             con.ActionState.TryChangeType(ActionState.ActionType.Roll);
-            Debug.Log("!");
+            JustLand = false;
+            // Debug.Log("!");
             return;
         }
         // 여기 지금 상태가 Action으로 안 넘어가고 있지 않아/
@@ -107,6 +109,9 @@ public class PlayerStateMachine : PlayerBehaviour
                 con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Climb);
             }
         }
-
+    }
+    public void RequestRoll()
+    {
+        JustLand = true;
     }
 }

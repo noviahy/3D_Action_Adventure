@@ -7,7 +7,7 @@ public class Roll : PlayerBehaviour
     private Coroutine coroutine;
     private float timer = 0f;
     private float rollDuration = 0.7f;
-    private float rollSpeed = 9f;
+    private float rollSpeed = 5f;
     public bool isRollCoolTime = false;
     public void Enter() // ActionSate에서 호출
     {

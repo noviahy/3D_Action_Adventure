@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     [SerializeField] Roll roll;
     [SerializeField] BoxInteractionState boxInteractionState;
     [SerializeField] RootMotionController rootMotionController;
+    [SerializeField] EdgeCheck edgeCheck;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -239,7 +240,8 @@ public class Player : MonoBehaviour
             interactionIdle,
             roll,
             boxInteractionState,
-            rootMotionController
+            rootMotionController,
+            edgeCheck
         );
         Controller.Animation.SetWeaponType(0);
     }

@@ -6,6 +6,7 @@ public class InputManager : MonoBehaviour
 {
     // 이동 방향
     public Vector3 MoveInput { get; private set; }
+    public float InputAmount { get; private set; }
 
     // 공격
     public bool AttackPressed { get; private set; }
@@ -128,6 +129,10 @@ public class InputManager : MonoBehaviour
         // 떨림 방지
         if (MoveInput.sqrMagnitude < deadZone * deadZone)
             MoveInput = Vector3.zero;
+
+        // 조이콘 입력 정도
+        float inputAmount = new Vector2(side, forward).magnitude;
+        InputAmount = Mathf.Clamp01(inputAmount);
 
         // 공격
         AttackInput();

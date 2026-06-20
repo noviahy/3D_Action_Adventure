@@ -5,7 +5,6 @@ public class RootMotionController : PlayerBehaviour
     public bool UseRootMotion { get; private set; } = false;
     public void OnAnimatorMove()
     {
-        Debug.Log("OnAnimatorMove");
         OnRootMotionMove();
     }
     public void OnRootMotionMove()

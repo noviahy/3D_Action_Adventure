@@ -24,6 +24,7 @@ public class PlayerController
     public Roll Roll { get; }
     public BoxInteractionState BoxInteractionState { get; }
     public RootMotionController RootMotionController { get; }
+    public EdgeCheck EdgeCheck { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -55,7 +56,8 @@ public class PlayerController
         InteractionIdle interactionIdle,
         Roll roll,
         BoxInteractionState boxInteractionState,
-        RootMotionController rootMotionController)
+        RootMotionController rootMotionController,
+        EdgeCheck edgeCheck)
     {
         Input = input;
         Player = player;
@@ -77,6 +79,7 @@ public class PlayerController
         Roll = roll;
         BoxInteractionState = boxInteractionState;
         RootMotionController = rootMotionController;
+        EdgeCheck = edgeCheck;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);

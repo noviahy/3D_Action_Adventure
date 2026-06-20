@@ -1875,17 +1875,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.Rig
---- !u!114 &2021865672 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3303148671234308443, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-  m_PrefabInstance: {fileID: 2095293008430523848}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7c7de4cf3346a44bbdb083af37a265a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EdgeCheck
 --- !u!4 &2102265552 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
@@ -1922,10 +1911,6 @@ PrefabInstance:
       propertyPath: input
       value: 
       objectReference: {fileID: 360286960}
-    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: edgeCheck
-      value: 
-      objectReference: {fileID: 2021865672}
     - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: boxInteractionState
       value: 

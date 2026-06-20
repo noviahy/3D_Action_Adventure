@@ -104,6 +104,10 @@ public class AnimationController
     {
         con.Animator.CrossFadeInFixedTime("Jump", 0.05f);
     }
+    public void PlayLand()
+    {
+        con.Animator.CrossFadeInFixedTime("LandSoft", 0.1f);
+    }
     public void PlayHit() //
     {
         con.Animator.SetTrigger("Hit");

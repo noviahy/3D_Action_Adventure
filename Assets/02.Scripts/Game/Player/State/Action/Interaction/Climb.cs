@@ -154,7 +154,7 @@ public class Climb : PlayerBehaviour
 
         while (!con.cc.isGrounded)
         {
-            con.Movement.Airborne();
+            con.Movement.AirborneClimb();
             yield return null;
         }
 
@@ -176,10 +176,17 @@ public class Climb : PlayerBehaviour
         // RootMotion 사용 코드
         con.RootMotionController.RequestRootMotion(true);
         con.Animation.PlayArrive();
+        yield return null;
+        con.Animation.PlayArrive();
 
         yield return new WaitUntil(() =>
-            con.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.8f);
+    con.Animator.GetCurrentAnimatorStateInfo(1).IsName("Arrive"));
+
+        yield return new WaitUntil(() =>
+            con.Animator.GetCurrentAnimatorStateInfo(1).normalizedTime >= 0.8f);
+
         con.RootMotionController.RequestRootMotion(false);
+
 
         Vector3 startPos = transform.position;
         Vector3 targetPos = TopArrivePoint.position - con.cc.center + Vector3.up * (originHeight * 0.5f);
@@ -197,6 +204,16 @@ public class Climb : PlayerBehaviour
             yield return null;
         }
 
+        con.cc.radius = originRadius;
+        con.cc.height = originHeight;
+
+        while (!con.cc.isGrounded)
+        {
+            con.Movement.Airborne();
+
+            yield return null;
+        }
+
         time = 0;
         while (time < 1)
         {
@@ -205,9 +222,6 @@ public class Climb : PlayerBehaviour
             con.Animation.SetLayerWeight(1, 1 - time);
             yield return null;
         }
-
-        con.cc.radius = originRadius;
-        con.cc.height = originHeight;
 
         Finish();
         con.Animation.SetLayerWeight(1, 0);
@@ -231,7 +245,7 @@ public class Climb : PlayerBehaviour
 
         while (con.cc.isGrounded)
         {
-            con.Movement.Airborne();
+            con.Movement.AirborneClimb();
             yield return null;
         }
 

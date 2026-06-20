@@ -172,6 +172,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9127978430954455101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4656702086756166751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 585114083705736674}
+  - component: {fileID: 3303148671234308443}
+  m_Layer: 9
+  m_Name: EdgeCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &585114083705736674
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656702086756166751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0.278}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9127978430954455101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3303148671234308443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656702086756166751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c7de4cf3346a44bbdb083af37a265a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EdgeCheck
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &5021079849672530196
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,7 +245,7 @@ Transform:
   m_GameObject: {fileID: 5021079849672530196}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1, z: -0.149}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -485,6 +532,7 @@ Transform:
   m_Children:
   - {fileID: 5353299035326556547}
   - {fileID: 4898797592886188194}
+  - {fileID: 585114083705736674}
   - {fileID: 4366242621637294733}
   - {fileID: 8780229674925672591}
   - {fileID: 8806019667399944356}
@@ -520,13 +568,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.25
+  m_Height: 1.9
+  m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &4866177261752308706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,6 +606,7 @@ MonoBehaviour:
   roll: {fileID: 8259582231601849780}
   boxInteractionState: {fileID: 2871298911007411328}
   rootMotionController: {fileID: 0}
+  edgeCheck: {fileID: 0}
   sword: {fileID: 2508213279660673567}
   bow: {fileID: 9003156226288143570}
 --- !u!1 &8487760766027529254
