@@ -8,7 +8,6 @@ public class GroundCheck : PlayerBehaviour
     private void Update()
     {
         IsGrounded = Physics.Raycast(transform.position, Vector3.down, distance, groundLayer);
-        con.Animation.SetGrounded(IsGrounded);
     }
 
 }

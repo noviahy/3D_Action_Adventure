@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class LocomotionState : PlayerBehaviour, IPlayerState
@@ -6,7 +7,16 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     public LocomotionSubState currentSubState { get; private set; }
     public LocomotionSubState preSubState { get; private set; }
     private Coroutine layerCoroutine;
+    private RaycastHit wall;
     private float originRadius;
+
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private Transform HangCheck;
+
+    private float sphereRadius = 0.3f;
+    private float sphereDistance = 0.6f;
+    private bool canClimb = true;
+
     public enum LocomotionSubState
     {
         Idle,
@@ -18,10 +28,14 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     public void ChangeState(LocomotionSubState state)
     {
+        Debug.Log(state);
         if (currentSubState == state)
             return;
+        // if(state == LocomotionSubState.Hang || currentSubState == LocomotionSubState.Hang)
+        // Debug.Log($"{currentSubState} -> {state}");
 
-        if(preSubState == LocomotionSubState.Airborne)
+        if ((preSubState == LocomotionSubState.Airborne && state != LocomotionSubState.Hang)
+            || preSubState == LocomotionSubState.Hang)
         {
             con.cc.radius = originRadius;
         }
@@ -30,35 +44,49 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         {
             con.Movement.SetStartY();
 
-            if (currentSubState == LocomotionState.LocomotionSubState.Run)
+            if (currentSubState == LocomotionSubState.Run)
             {
                 con.Movement.StartJump();
             }
-            if(currentSubState == LocomotionSubState.Walk)
+            if (currentSubState == LocomotionSubState.Walk)
             {
-                if (con.EdgeCheck.EdgeValue > 1f)
+                if (con.EdgeCheck.EdgeValue > 2.5f)
                 {
-                    StartCoroutine(SetJumpLayer());
+                    if (layerCoroutine != null)
+                        StopCoroutine(layerCoroutine);
+                    layerCoroutine = StartCoroutine(SetJumpLayer());
                     con.Animation.PlayFalling();
                 }
             }
+
             originRadius = con.cc.radius;
             con.cc.radius = 0.05f;
         }
+
+        if (state == LocomotionSubState.Hang)
+        {
+            con.Animation.PlayHang();
+            canClimb = true;
+            if (layerCoroutine != null)
+                StopCoroutine(layerCoroutine);
+            con.Animation.SetLayerWeight(1, 1f);
+        }
+
+
         preSubState = currentSubState;
         currentSubState = state;
     }
-    private void Start()
+    private void Awake()
     {
         currentSubState = LocomotionSubState.Idle;
     }
- 
+
     private void Update()
     {
-        Debug.Log(currentSubState);
+        //Debug.Log(currentSubState);
         //Debug.Log(con.ActionState.currentType);
         //Debug.Log(con.StateMachine.currentState);
-        Debug.Log(con.cc.isGrounded);
+        //Debug.Log(con.cc.isGrounded);
         bool locomotion =
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.LocomotionState;
 
@@ -66,6 +94,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         bool climb =
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.InteractionState && con.Climb.currentState == Climb.ClimbState.Climbing;
+
 
         if (currentSubState == LocomotionSubState.Idle)
             con.Animation.SetMove(0);
@@ -95,18 +124,34 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Airborne:
                 if (!con.cc.isGrounded)
                 {
+                    if (preSubState == LocomotionSubState.SlowWalk)
+                    {
+                        if (CheckHang(out RaycastHit hit))
+                        {
+                            ChangeState(LocomotionSubState.Hang);
+                            con.Movement.SetHanging(hit);
+                            wall = hit;
+                            return;
+                        }
+                    }
                     con.Movement.Airborne();
-                    if (!con.Movement.isJumping)
+                    if (preSubState == LocomotionSubState.Walk)
                         con.Movement.Move(con.Input.MoveInput);
                 }
-                if ((con.cc.isGrounded || con.GroundCheck.IsGrounded) && !con.Movement.hasLanded)
+                if (con.cc.isGrounded && !con.Movement.hasLanded)
                 {
                     con.Movement.ResetHasLand();
                     con.Movement.CheckFallDistance();
-                    ChangeState(LocomotionSubState.Idle);
                 }
                 break;
             case LocomotionSubState.Hang:
+                if (con.Input.BackBuffered)
+                    ChangeState(LocomotionSubState.Airborne);
+                if (con.Input.forward >= 0.5f && canClimb)
+                {
+                    canClimb = false;
+                    con.Climb.SetTopPoint(wall);
+                }
                 break;
         }
 
@@ -116,7 +161,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             return;
         }
 
-        if (currentSubState != LocomotionSubState.Airborne)
+        if (con.cc.isGrounded && currentSubState != LocomotionSubState.Hang)
         {
             if (con.Input.MoveInput != Vector3.zero)
             {
@@ -127,7 +172,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                     ChangeState(LocomotionSubState.Run);
                     return;
                 }
-                if (currentSubState != LocomotionSubState.SlowWalk && con.Input.InputAmount <= 0.6f)
+                if (currentSubState != LocomotionSubState.SlowWalk && con.Input.InputAmount <= 0.5f)
                 {
                     ChangeState(LocomotionSubState.SlowWalk);
                     return;
@@ -138,11 +183,23 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                     return;
                 }
             }
-            if (con.Input.MoveInput == Vector3.zero)
+            if (con.Input.MoveInput == Vector3.zero && con.cc.isGrounded)
                 ChangeState(LocomotionSubState.Idle);
         }
     }
+    private bool CheckHang(out RaycastHit hit)
+    {
+        // 플레이어 뒤쪽으로 검사
+        Vector3 dir = -con.Player.transform.forward;
 
+        return Physics.SphereCast(
+            HangCheck.position,
+            sphereRadius,
+            dir,
+            out hit,
+            sphereDistance,
+            wallLayer);
+    }
     public void RequestOnCoroutine()
     {
         if (layerCoroutine != null)
@@ -178,7 +235,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     IEnumerator SetLendLayerOn()
     {
         float time = 0f;
-        if (preSubState != LocomotionSubState.Walk)
+        if (preSubState == LocomotionSubState.Walk)
         {
             while (time < 1f)
             {

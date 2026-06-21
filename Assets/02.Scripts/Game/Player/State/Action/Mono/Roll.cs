@@ -7,7 +7,7 @@ public class Roll : PlayerBehaviour
     private Coroutine coroutine;
     private float timer = 0f;
     private float rollDuration = 0.7f;
-    private float rollSpeed = 5f;
+    private float rollSpeed = 3.5f;
     public bool isRollCoolTime = false;
     public void Enter() // ActionSate에서 호출
     {
@@ -101,6 +101,7 @@ public class Roll : PlayerBehaviour
         // 상태 변경
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
+        con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
     }
     IEnumerator setLayer1()
     {

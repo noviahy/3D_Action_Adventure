@@ -69,11 +69,11 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
-        // Debug.Log(currentWeaponType);
-        // Debug.Log(Controller.Input.IsLockOn);
-
-
         if (stateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
+            return;
+        if (locomotionState.currentSubState == LocomotionState.LocomotionSubState.Airborne
+            &&
+            locomotionState.currentSubState == LocomotionState.LocomotionSubState.Hang)
             return;
 
         if (Controller.Input.BowCharging)

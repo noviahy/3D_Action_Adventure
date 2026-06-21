@@ -15,6 +15,7 @@ public class Climb : PlayerBehaviour
 
     private Transform currentLadder;
     private Transform TopArrivePoint;
+    private Vector3 arriveTargetPos;
     private Transform EnterPoint;
 
     public ClimbState currentState { get; private set; }
@@ -41,7 +42,6 @@ public class Climb : PlayerBehaviour
             case ClimbState.Enter:
                 break;
             case ClimbState.Climbing:
-
                 break;
             case ClimbState.Falling:
                 fallingCoroutine = StartCoroutine(FallingCoroutine());
@@ -123,12 +123,15 @@ public class Climb : PlayerBehaviour
         // Debug.Log(con.GroundCheck.IsGrounded);
         if (con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
             return;
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
+            return;
 
         if (currentState != ClimbState.Climbing)
             return;
 
         if (!con.StateMachine.isLadder)
         {
+            arriveTargetPos = TopArrivePoint.position;
             ChangeClimbState(ClimbState.ArriveTop);
             return;
         }
@@ -177,7 +180,6 @@ public class Climb : PlayerBehaviour
         con.RootMotionController.RequestRootMotion(true);
         con.Animation.PlayArrive();
         yield return null;
-        con.Animation.PlayArrive();
 
         yield return new WaitUntil(() =>
     con.Animator.GetCurrentAnimatorStateInfo(1).IsName("Arrive"));
@@ -189,13 +191,13 @@ public class Climb : PlayerBehaviour
 
 
         Vector3 startPos = transform.position;
-        Vector3 targetPos = TopArrivePoint.position - con.cc.center + Vector3.up * (originHeight * 0.5f);
+        Vector3 targetPos = arriveTargetPos - con.cc.center + Vector3.up * (originHeight * 0.7f);
         Vector3 prevPos = startPos;
 
         float time = 0;
         while (time < 1)
         {
-            time += Time.deltaTime * 4f;
+            time += Time.deltaTime * 3f;
 
             Vector3 nextPos = Vector3.Lerp(startPos, targetPos, time);
             con.cc.Move(nextPos - prevPos);
@@ -207,6 +209,7 @@ public class Climb : PlayerBehaviour
         con.cc.radius = originRadius;
         con.cc.height = originHeight;
 
+
         while (!con.cc.isGrounded)
         {
             con.Movement.Airborne();
@@ -217,7 +220,7 @@ public class Climb : PlayerBehaviour
         time = 0;
         while (time < 1)
         {
-            time += Time.deltaTime * 4f;
+            time += Time.deltaTime * 3f;
 
             con.Animation.SetLayerWeight(1, 1 - time);
             yield return null;
@@ -259,6 +262,12 @@ public class Climb : PlayerBehaviour
         TopArrivePoint = ladder.transform.Find("TopArrivePoint");
         EnterPoint = ladder.transform.Find("EnterPoint");
     }
+    public void SetTopPoint(RaycastHit hangHit)
+    {
+        con.cc.Move(Vector3.up * 1f);
+        arriveTargetPos = hangHit.point + Vector3.up * 0.6f - hangHit.normal * 0.7f;
+        StartCoroutine(ArriveTopCoroutine());
+    }
 
     // µµÂø È¤Àº ¶³¾îÁ® ÂøÁö Àü±îÁö Climb State À¯Áö
     public void Finish()
@@ -266,6 +275,7 @@ public class Climb : PlayerBehaviour
         ChangeClimbState(ClimbState.Idle);
         con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Idle);
         con.StateMachine.TryChangeState(PlayerState.LocomotionState);
+        con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
     }
 
     public void Exit()

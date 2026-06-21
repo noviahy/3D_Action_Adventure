@@ -6,7 +6,8 @@ public class PlayerStateMachine : PlayerBehaviour
     public PlayerState currentState { get; private set; }
     public bool isLadder { get; private set; }
     public bool isBox { get; private set; }
-    public bool JustLand {  get; private set; } = false;
+    public bool JustLand { get; private set; } = false;
+    public bool Climb { get; private set; } = false;
     [SerializeField] private Transform Head;
     [SerializeField] private LayerMask LadderMask;
     [SerializeField] private LayerMask BoxMask;
@@ -49,7 +50,8 @@ public class PlayerStateMachine : PlayerBehaviour
     // Action 빼면 아무것도 안 남음 DeadState는 마지막에 확인하는거고 Knockback도 한번만 바꿔주면 되는거고
     private void Update()
     {
-        Debug.Log(currentState);
+        con.Animation.SetGrounded(con.cc.isGrounded);
+
         if (con.Input.CurrentInputMode == InputManager.InputMode.UI || con.Input.CurrentInputMode == InputManager.InputMode.Dialogue)
             return;
 
@@ -59,6 +61,21 @@ public class PlayerStateMachine : PlayerBehaviour
         con.Animation.SetMoveX(con.Input.forward);
         con.Animation.SetMoveY(con.Input.side);
 
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
+            return;
+
+        if ((!con.Input.IsLockOn && con.Input.RollPressed && !con.Roll.isRollCoolTime && con.cc.isGrounded)|| JustLand)
+        {
+            TryChangeState(PlayerState.ActionState);
+            con.ActionState.TryChangeType(ActionState.ActionType.Roll);
+            JustLand = false;
+            // Debug.Log("!");
+            return;
+        }
+
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
+            return;
+
         // 여기선 다시 Locomotion으로 바꿔주지 않습니다
         // 다른 코드에서 상태가 끝날때 꼭 Locomotion으로 바꿔줘야한다는걸 기억해야해요
         if (con.Input.ActionPressed || (con.Input.AttackPressed && con.Player.currentWeaponType == Player.WeaponType.Sword))
@@ -67,19 +84,11 @@ public class PlayerStateMachine : PlayerBehaviour
                 return;
 
             TryChangeState(PlayerState.ActionState);
+
             if (con.Input.AttackPressed)
                 con.ActionState.TryChangeType(ActionState.ActionType.Attack);
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
-
-        }
-        if (!con.Input.IsLockOn && con.Input.RollPressed && !con.Roll.isRollCoolTime || JustLand)
-        {
-            TryChangeState(PlayerState.ActionState);
-            con.ActionState.TryChangeType(ActionState.ActionType.Roll);
-            JustLand = false;
-            // Debug.Log("!");
-            return;
         }
         // 여기 지금 상태가 Action으로 안 넘어가고 있지 않아/
         // 저 안에 넣지 않은 이유가 분명히 있지만 왜인진 모름, 시간날떄 이유를 찾아야겠음
@@ -96,9 +105,6 @@ public class PlayerStateMachine : PlayerBehaviour
         isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
         isBox = Physics.Raycast(con.Player.transform.position, con.Player.transform.forward, out hit, 0.8f, BoxMask);
 
-        // 조건이 좀 쓰레기 같은데
-        // isInteraction = isLadder || (isBox && con.Input.DodgeBuffered);
-
         if (currentState == PlayerState.LocomotionState && isLadder)
         {
             TryChangeState(PlayerState.InteractionState);
@@ -113,5 +119,9 @@ public class PlayerStateMachine : PlayerBehaviour
     public void RequestRoll()
     {
         JustLand = true;
+    }
+    public void RequestClimb()
+    {
+        Climb = true;
     }
 }

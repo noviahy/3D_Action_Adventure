@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using static LocomotionState;
 
 public class PlayerMovement
 {
@@ -25,7 +26,9 @@ public class PlayerMovement
     private float fastLadderSpeed = 4f;
 
     private Vector3 jumpDir;
-    private float yVelocity;
+    private float yVelocity = 0f;
+
+    private float hangOffset = 0.1f;
 
     public AirbornState currentAirbornState {  get; private set; }
     public enum AirbornState
@@ -128,7 +131,7 @@ public class PlayerMovement
     {
         Vector3 horizontal = jumpDir * jumpForwardPower;
 
-        yVelocity += Physics.gravity.y * Time.deltaTime * 1.5f;
+        yVelocity += Physics.gravity.y * Time.deltaTime;
 
         Vector3 move = new Vector3(
             horizontal.x,
@@ -139,24 +142,40 @@ public class PlayerMovement
     }
     public void CheckFallDistance()
     {
+
         totalFallY = fallStartY - con.Player.transform.position.y;
         yVelocity = -2f;
         isJumping = false;
 
-        if (totalFallY < 1f)
+        if (totalFallY < 2f && con.Locomotion.preSubState != LocomotionSubState.Hang)
         {
+            con.Locomotion.ChangeState(LocomotionSubState.Idle);
         }
-        else if (totalFallY < 2f)
+        else if (totalFallY < 3f || con.Locomotion.preSubState != LocomotionSubState.Run)
         {
             con.Animation.PlayLand();
 
             con.Locomotion.RequestOnCoroutine();
         }
-        else
+        else if(totalFallY >=3f && con.Locomotion.preSubState == LocomotionSubState.Run)
         {
             con.StateMachine.RequestRoll();
-            // Debug.Log("!");
         }
+    }
+    public void SetHanging(RaycastHit hit)
+    {
+        Vector3 pos = con.Player.transform.position;
+
+        pos.x = hit.point.x + hit.normal.x * hangOffset;
+        pos.z = hit.point.z + hit.normal.z * hangOffset;
+
+        con.Player.transform.position = pos;
+
+        Vector3 lookDir = -hit.normal;
+        lookDir.y = 0f;
+
+        con.Player.transform.rotation =
+            Quaternion.LookRotation(lookDir);
     }
     public void ResetHasLand()
     {
@@ -165,8 +184,7 @@ public class PlayerMovement
     public void ResetYVelocity()
     {
         yVelocity = 0;
-    }
-
+    }                                        
     public void FallMove(Vector3 move)
     {
         con.cc.Move(move);
@@ -175,7 +193,6 @@ public class PlayerMovement
     public void Climb(float dir, bool isRun)
     {
         float speed = isRun ? fastLadderSpeed : ladderSpeed;
-
 
         Vector3 move = Vector3.up * dir * speed;
         float climbSpeed = Mathf.Abs(dir * speed);

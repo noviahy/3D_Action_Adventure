@@ -128,4 +128,8 @@ public class AnimationController
     {
         con.Animator.CrossFadeInFixedTime("Arrive", 0.1f);
     }
+    public void PlayHang()
+    {
+        con.Animator.CrossFadeInFixedTime("Hanging", 0.05f);
+    }
 }

@@ -110,6 +110,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1360332399168128021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1968724220497428112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8238203221728410943}
+  m_Layer: 9
+  m_Name: Hang
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8238203221728410943
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968724220497428112}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.485, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9127978430954455101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2284751281118344372
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,6 +385,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 036dea4d5df771546b5b6b85a59d40c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LocomotionState
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  HangCheck: {fileID: 8238203221728410943}
 --- !u!114 &6013803110513568716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -536,6 +571,7 @@ Transform:
   - {fileID: 4366242621637294733}
   - {fileID: 8780229674925672591}
   - {fileID: 8806019667399944356}
+  - {fileID: 8238203221728410943}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8805215732625320224
@@ -568,13 +604,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.9
+  m_Height: 1.7
   m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.01
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.9, z: 0}
+  m_Center: {x: 0, y: 0.85, z: 0}
 --- !u!114 &4866177261752308706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,8 +641,8 @@ MonoBehaviour:
   interactionIdle: {fileID: 6885732768413295120}
   roll: {fileID: 8259582231601849780}
   boxInteractionState: {fileID: 2871298911007411328}
-  rootMotionController: {fileID: 0}
-  edgeCheck: {fileID: 0}
+  rootMotionController: {fileID: 1920328864269422765}
+  edgeCheck: {fileID: 3303148671234308443}
   sword: {fileID: 2508213279660673567}
   bow: {fileID: 9003156226288143570}
 --- !u!1 &8487760766027529254
