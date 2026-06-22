@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class LocomotionState : PlayerBehaviour, IPlayerState
@@ -7,6 +6,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     public LocomotionSubState currentSubState { get; private set; }
     public LocomotionSubState preSubState { get; private set; }
     private Coroutine layerCoroutine;
+    private Coroutine hangCoroutine;
     private RaycastHit wall;
     private float originRadius;
 
@@ -72,7 +72,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             con.Animation.SetLayerWeight(1, 1f);
         }
 
-
         preSubState = currentSubState;
         currentSubState = state;
     }
@@ -87,6 +86,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         //Debug.Log(con.ActionState.currentType);
         //Debug.Log(con.StateMachine.currentState);
         //Debug.Log(con.cc.isGrounded);
+
         bool locomotion =
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.LocomotionState;
 
@@ -96,7 +96,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             con.StateMachine.currentState == PlayerStateMachine.PlayerState.InteractionState && con.Climb.currentState == Climb.ClimbState.Climbing;
 
 
-        if (currentSubState == LocomotionSubState.Idle)
+        if (currentSubState == LocomotionSubState.Idle || currentSubState == LocomotionSubState.Hang)
             con.Animation.SetMove(0);
 
         if (!locomotion && !bow && !climb)
@@ -124,7 +124,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Airborne:
                 if (!con.cc.isGrounded)
                 {
-                    if (preSubState == LocomotionSubState.SlowWalk)
+                    if (preSubState == LocomotionSubState.SlowWalk || con.Input.IsLockOn)
                     {
                         if (CheckHang(out RaycastHit hit))
                         {
@@ -145,12 +145,26 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                 }
                 break;
             case LocomotionSubState.Hang:
-                if (con.Input.BackBuffered)
+                if (con.Input.BackBuffered && hangCoroutine == null)
+                {
                     ChangeState(LocomotionSubState.Airborne);
-                if (con.Input.forward >= 0.5f && canClimb)
+                }
+                if (con.Input.forward >= 0.8f && canClimb)
                 {
                     canClimb = false;
+                    con.cc.Move(-con.Player.transform.forward * 0.1f);
+                    CheckHang(out RaycastHit hit);
+                    wall = hit;
+
                     con.Climb.SetTopPoint(wall);
+                }
+                if (con.Input.side >= 0.5)
+                {
+                    RequestHangMove(1);
+                }
+                if (con.Input.side <= -0.5)
+                {
+                    RequestHangMove(-1);
                 }
                 break;
         }
@@ -189,16 +203,42 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private bool CheckHang(out RaycastHit hit)
     {
-        // 플레이어 뒤쪽으로 검사
-        Vector3 dir = -con.Player.transform.forward;
-
-        return Physics.SphereCast(
+        bool backHit = Physics.SphereCast(
             HangCheck.position,
             sphereRadius,
-            dir,
-            out hit,
+            -con.Player.transform.forward,
+            out RaycastHit back,
             sphereDistance,
             wallLayer);
+
+        bool frontHit = Physics.SphereCast(
+            HangCheck.position,
+            sphereRadius,
+            con.Player.transform.forward,
+            out RaycastHit front,
+            sphereDistance,
+            wallLayer);
+
+        if (backHit && frontHit)
+        {
+            hit = back.distance < front.distance ? back : front;
+            return true;
+        }
+
+        if (backHit)
+        {
+            hit = back;
+            return true;
+        }
+
+        if (frontHit)
+        {
+            hit = front;
+            return true;
+        }
+
+        hit = default;
+        return false;
     }
     public void RequestOnCoroutine()
     {
@@ -218,6 +258,12 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         if (layerCoroutine != null)
             StopCoroutine(layerCoroutine);
         layerCoroutine = StartCoroutine(SetJumpLayer());
+    }
+    public void RequestHangMove(float value)
+    {
+        if (hangCoroutine != null)
+            return;
+        hangCoroutine = StartCoroutine(HangMove(value));
     }
     IEnumerator SetJumpLayer()
     {
@@ -273,5 +319,29 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             yield return null;
         }
         layerCoroutine = null;
+    }
+    IEnumerator HangMove(float value)
+    {
+        yield return new WaitForSeconds(0.2f);
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = startPos + con.Player.transform.right * value * 0.5f;
+
+        float duration = 0.8f;
+        float time = 0f;
+        while (time < 1f)
+        {
+            time += Time.deltaTime;
+
+            float t = time / duration;
+
+            Vector3 nextPos = Vector3.Lerp(startPos, targetPos, t);
+
+            Vector3 move = nextPos - transform.position;
+
+            con.Movement.FallMove(move);
+
+            yield return null;
+        }
+        hangCoroutine = null;
     }
 }

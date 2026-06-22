@@ -1211,6 +1211,7 @@ MonoBehaviour:
   input: {fileID: 360286960}
   bowAttack: {fileID: 1676379803}
   climb: {fileID: 1676379817}
+  locomotionState: {fileID: 1676379828}
   player: {fileID: 2102265552}
   cam: {fileID: 1174007940}
   vcam: {fileID: 1246967571}
@@ -1226,6 +1227,9 @@ MonoBehaviour:
   maxPitch: 40
   switchThreshold: 0.5
   switchCooldown: 0.3
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 4288
 --- !u!1 &1246967567
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,6 +1835,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b97257c19e2c794eaa62ee4e63ec3c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Climb
+--- !u!114 &1676379828 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4196373986859839318, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 036dea4d5df771546b5b6b85a59d40c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocomotionState
 --- !u!1 &1678530591
 GameObject:
   m_ObjectHideFlags: 0

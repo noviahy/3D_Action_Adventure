@@ -132,4 +132,12 @@ public class AnimationController
     {
         con.Animator.CrossFadeInFixedTime("Hanging", 0.05f);
     }
+    public void PlayHangRight()
+    {
+        con.Animator.CrossFadeInFixedTime("Right", 0.05f);
+    }
+    public void PlayHangLeft()
+    {
+        con.Animator.CrossFadeInFixedTime("Left", 0.05f);
+    }
 }

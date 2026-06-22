@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -10,12 +11,12 @@ public class CameraFollow3D : MonoBehaviour
     [SerializeField] private InputManager input;
     [SerializeField] private BowAttack bowAttack;
     [SerializeField] private Climb climb;
+    [SerializeField] private LocomotionState locomotionState;
 
     [Header("Transform")]
     [SerializeField] private Transform player; // 위아래 회전, 거리 조절
     [SerializeField] private Transform cam;
     [SerializeField] private CinemachineCamera vcam;
-    [SerializeField] private Transform lockOnTarget;
     [SerializeField] private Transform pivot;
     [SerializeField] private Transform shoulder;
 
@@ -26,7 +27,6 @@ public class CameraFollow3D : MonoBehaviour
     float pitchDistanceOffset = -1f;
     private CinemachineThirdPersonFollow follow;
     private float normalDistance;
-    // private float turnAccum;
 
     [Header("Camera")]
     [SerializeField] float rotationSpeed = 120f;
@@ -40,10 +40,14 @@ public class CameraFollow3D : MonoBehaviour
     [Header("LockOn")]
     [SerializeField] float switchThreshold = 0.2f; // 마우스 얼마나 움직이면 타겟 전환할지
     [SerializeField] float switchCooldown = 0.3f; // 연속 전환 방지
+    [SerializeField] private LayerMask obstacleMask;
     private float switchTimer;
     private float scanTimer = 0.2f;
     private List<Transform> enemies = new List<Transform>();
     private Transform target;
+    private float invisibleTimer = 0f;
+    private const float invisibleDelay = 0.4f;
+    private Coroutine coroutine;
 
     [Header("Renderer")]
     private List<Material> mats = new List<Material>();
@@ -117,7 +121,7 @@ public class CameraFollow3D : MonoBehaviour
             pivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
         // 록온 상태: 타겟 있음
-        if (target != null && !bowAttack.BowAimed) // Bow 들고 있을땐 록온이 안되긴 하는데 혹시 모르니까
+        if (target != null && coroutine == null && !bowAttack.BowAimed) // Bow 들고 있을땐 록온이 안되긴 하는데 혹시 모르니까
         {
             Vector3 dir = (target.position - pivot.position).normalized;
 
@@ -153,9 +157,6 @@ public class CameraFollow3D : MonoBehaviour
             ScanEnemies();
             scanTimer = 0.2f;
         }
-
-        if (target != null)
-            lockOnTarget.position = (player.position + target.position) * 0.5f + Vector3.up * 0.5f;
 
         // 록온 코드
         HandleLockOn();
@@ -251,15 +252,15 @@ public class CameraFollow3D : MonoBehaviour
                 switchTimer = switchCooldown;
             }
         }
-        vcam.LookAt = lockOnTarget;
-
 
         // 플레이어의 Object의 회전 코드 (여기 있으면 안되는거 아닌가?) Update에 있어야할 것 같은데 
         Vector3 dir = camForward; // 카메라 기준
 
         dir.y = 0;
 
-        if (dir.sqrMagnitude > 0.001f)
+        if (dir.sqrMagnitude > 0.001f && 
+            locomotionState.currentSubState != LocomotionState.LocomotionSubState.Airborne && 
+            locomotionState.currentSubState != LocomotionState.LocomotionSubState.Hang)
         {
             Quaternion lookRot = Quaternion.LookRotation(dir);
 
@@ -299,7 +300,7 @@ public class CameraFollow3D : MonoBehaviour
             // 점수 계산
             float score = dist * 0.5f + screenX * 2f + screenY * 1.5f;
 
-            // 가장 찾은 점수 찾기
+            // 가장 낮은 점수 찾기
             if (score < bestScore)
             {
                 bestScore = score;
@@ -361,24 +362,79 @@ public class CameraFollow3D : MonoBehaviour
     // 유효성 체크
     private void ValidateTarget()
     {
-        // 타겟 없음 or 비활성화
-        if (target != null)
-        {
-            if (!target.gameObject.activeInHierarchy)
-            {
-                input.RequestLockOn(false);
-                target = null;
-                return;
-            }
+        if (target == null)
+            return;
 
-            float dist = Vector3.Distance(player.position, target.position);
-            if (dist > 15f)
+        // 비활성화 체크
+        if (!target.gameObject.activeInHierarchy)
+        {
+            input.RequestLockOn(false);
+            target = null;
+            invisibleTimer = 0f;
+            return;
+        }
+
+        // 거리 체크
+        float dist = Vector3.Distance(player.position, target.position);
+
+        if (dist > 15f)
+        {
+            input.RequestLockOn(false);
+            target = null;
+            invisibleTimer = 0f;
+            return;
+        }
+
+        // 화면 + 가림 체크
+        if (!IsTargetVisible())
+        {
+            invisibleTimer += Time.deltaTime;
+
+            if (invisibleTimer >= invisibleDelay)
             {
                 input.RequestLockOn(false);
                 target = null;
-                return;
+                invisibleTimer = 0f;
             }
         }
+        else
+        {
+            invisibleTimer = 0f;
+        }
+    }
+    private bool IsTargetVisible()
+    {
+        if (target == null)
+            return false;
+
+        // 화면 좌표
+        Vector3 screenPos = MainCam.WorldToViewportPoint(target.position);
+
+        // 카메라 뒤
+        if (screenPos.z <= 0f)
+            return false;
+
+        // 화면 밖
+        if (screenPos.x < -0.1f || screenPos.x > 1.1f ||
+    screenPos.y < -0.1f || screenPos.y > 1.1f)
+            return false;
+
+        // 지형에 가려졌는지 검사
+        Vector3 origin = MainCam.transform.position;
+
+        // 적의 중심 대신 가슴 높이를 향해 검사
+        Vector3 targetPoint = target.position + Vector3.up * 1.2f;
+
+        Vector3 dir = targetPoint - origin;
+        float dist = dir.magnitude;
+
+        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dist, obstacleMask))
+        {
+            Debug.Log(hit.transform.name);
+            return false;
+        }
+
+        return true;
     }
     private void RefreshRenderers()
     {
@@ -394,29 +450,31 @@ public class CameraFollow3D : MonoBehaviour
             }
         }
     }
-}
+    /*
 
-// 제자리 회전 코드
-/*
-if (!attack.BowShoot)
-{
-    turnAccum += input.MouseX * rotationSpeed * Time.deltaTime;
-    if(turnAccum > 60f)
+    public void RequestUnLockCoroutine()
     {
-        animator.CrossFadeInFixedTime($"Lower Body.TurnRight", 0.25f);
-        turnAccum = 0f;
+        coroutine = StartCoroutine(MoveLockOnTargetToPlayer());
     }
-    if (turnAccum < -60f)
+    IEnumerator MoveLockOnTargetToPlayer(float duration = 0.3f)
     {
-        animator.CrossFadeInFixedTime($"Lower Body.TurnLeft", 0.25f);
-        turnAccum = 0f;
-    }
+        Vector3 startPos = lockOnTarget.position;
+
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+
+            float t = time / duration;
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            lockOnTarget.position = Vector3.Lerp(startPos, pivot.position, t);
+
+            yield return null;
+        }
+
+        lockOnTarget.position = pivot.position;
+        coroutine = null;
+    }*/
 }
-귀찮아서 유기함
-뭐랄까 이걸 만지려면 적당한 애니메이션과 60 전까지는 몸통만 돌아가게 또 조건을 만저야하는데
-그렇게 하다간 끝도 안 날 것 같음
-애초에 IK를 안 하는 이유도 이건건데
-애니메이션을 넣으려면 Rig 때문에 또 레이어를 나눠서 발만 작동하게 해줘야하는데 
-그러면 회전 전에 몸통 회전이랑 그 다음 발 회전까지 해줘야하는게 너무너무 큰 일이 되고
-잘 보이지도 않아서 안 하기로 함
-*/

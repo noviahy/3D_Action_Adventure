@@ -259,12 +259,12 @@ public class Climb : PlayerBehaviour
     public void SetLadder(Transform ladder)
     {
         currentLadder = ladder;
-        TopArrivePoint = ladder.transform.Find("TopArrivePoint");
+        TopArrivePoint = ladder.Find("TopArrivePoint");
         EnterPoint = ladder.transform.Find("EnterPoint");
     }
     public void SetTopPoint(RaycastHit hangHit)
     {
-        con.cc.Move(Vector3.up * 1f);
+        // con.cc.Move(Vector3.up * 1f);
         arriveTargetPos = hangHit.point + Vector3.up * 0.6f - hangHit.normal * 0.7f;
         StartCoroutine(ArriveTopCoroutine());
     }

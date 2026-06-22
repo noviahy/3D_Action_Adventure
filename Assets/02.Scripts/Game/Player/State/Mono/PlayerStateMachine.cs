@@ -61,6 +61,27 @@ public class PlayerStateMachine : PlayerBehaviour
         con.Animation.SetMoveX(con.Input.forward);
         con.Animation.SetMoveY(con.Input.side);
 
+        // 레이케스트를 던져서 앞에 사다리가 아직도 있는지 확인
+        RaycastHit hit;
+
+        isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
+        isBox = Physics.Raycast(con.Player.transform.position, con.Player.transform.forward, out hit, 0.8f, BoxMask);
+
+        if (currentState == PlayerState.LocomotionState && isLadder)
+        {
+            TryChangeState(PlayerState.InteractionState);
+
+            if (currentState == PlayerState.InteractionState)
+            {
+                con.Climb.SetLadder(hit.transform);
+                con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Climb);
+            }
+        }
+        if(con.ActionState.currentType == ActionState.ActionType.Roll)
+        {
+            // 내일해 내일....
+        }
+
         if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
             return;
 
@@ -98,23 +119,6 @@ public class PlayerStateMachine : PlayerBehaviour
         // 패링
         if (con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
             con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
-
-        // 레이케스트를 던져서 앞에 사다리가 아직도 있는지 확인
-        RaycastHit hit;
-
-        isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
-        isBox = Physics.Raycast(con.Player.transform.position, con.Player.transform.forward, out hit, 0.8f, BoxMask);
-
-        if (currentState == PlayerState.LocomotionState && isLadder)
-        {
-            TryChangeState(PlayerState.InteractionState);
-
-            if (currentState == PlayerState.InteractionState)
-            {
-                con.Climb.SetLadder(hit.transform);
-                con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Climb);
-            }
-        }
     }
     public void RequestRoll()
     {
