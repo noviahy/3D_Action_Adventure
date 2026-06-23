@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using static LocomotionState;
 
@@ -37,7 +36,6 @@ public class PlayerMovement
         Jump,
         Walk,
         SlowWalk,
-
     }
 
     public PlayerMovement(PlayerController controller)

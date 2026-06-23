@@ -63,7 +63,7 @@ public class InputManager : MonoBehaviour
     private float ItemTime = 0.12f;
     private float ItemTimer;
 
-    private float attackTime = 0.15f;
+    private float attackTime = 0.3f;
     private float attackTImer;
     public InputMode CurrentInputMode { get; private set; }
 

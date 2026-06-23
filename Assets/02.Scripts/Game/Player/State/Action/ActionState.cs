@@ -8,11 +8,11 @@ public class ActionState : IPlayerState
     public enum ActionType
     {
         Idle,
-        Parrying, // Layer 2: 나머지 자유
-        Attack, // Sword-Layer 1(0,1,2고려) Bow-Layer 2 사용(고려하지 않음-우선순위)
+        Parrying,
+        Attack,
         Activity,
-        Dodge, // Layer 1 사용 : 나머지 자유
-        Roll // Layer 1 사용 : 나머지 다 막아야 함
+        Dodge,
+        Roll
     }
 
     public ActionState(PlayerController controller)
@@ -28,22 +28,28 @@ public class ActionState : IPlayerState
 
         if (con.ActionIdle.IdleBlending)
         {
+            // Activity 만들면 정리해줄 예정
+            // 이번에 들어온 상태
             switch (type)
             {
                 case ActionType.Attack:
                     con.ActionIdle.RequestStopAllCoroutine();
                     break;
                 case ActionType.Dodge:
-                    con.ActionIdle.RequestStopDodgeLayer();
-                    con.ActionIdle.RequestStopLayer1();
+                    con.ActionIdle.RequestStopAllCoroutine();
+                    con.Animation.SetLayerWeight(1, 1f);
+                    con.Animation.SetLayerWeight(2, 0f);
                     break;
                 case ActionType.Parrying:
-                    con.ActionIdle.RequestStopDodgeLayer();
-                    con.ActionIdle.RequestStopLayer1();
+                    con.ActionIdle.RequestStopAllCoroutine();
+                    con.Animation.SetLayerWeight(1, 1f);
+                    con.Animation.SetLayerWeight(2, 0f);
                     break;
                 case ActionType.Activity:
                     break;
                 case ActionType.Roll:
+                    con.ActionIdle.StopAllCoroutines();
+                    con.Animation.SetLayerWeight(2, 0f);
                     if (con.BowAttack.Standby)
                     {
                         fromBow = true;

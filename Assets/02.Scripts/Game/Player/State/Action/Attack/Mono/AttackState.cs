@@ -3,7 +3,6 @@ using UnityEngine;
 public class AttackState : PlayerBehaviour
 {
     public AttackStyle currentAttackStyle { get; private set; }
-    public bool isAttacking { get; private set; }
 
     private void Start()
     {
@@ -26,17 +25,16 @@ public class AttackState : PlayerBehaviour
     }
     public void Enter()
     {
-        switch (con.Player.currentWeaponType)
-        {
-            case Player.WeaponType.Sword:
-                con.Animation.SetLayerWeight(1, 1);
-                con.Animation.SetLayerWeight(2, 0);
-                break;
-            case Player.WeaponType.Bow:
-                con.Animation.SetLayerWeight(1, 0);
-                con.Animation.SetLayerWeight(2, 1);
-                break;
-        }
+        /*
+    switch (con.Player.currentWeaponType)
+    {
+         * 레이어값 변경이 있던 자리
+         * 근데 Attack이 끝나자마자 Bow을 사용하니까 Layer가 안 꺼지는 문제가 있었음
+         * 내가 봤을때 여기가 안 들어온 것 같은데 
+         * 그래서 각자 코드 Enter로 넣어줌
+    }
+        */
+
     }
     private void Update()
     {
@@ -45,7 +43,7 @@ public class AttackState : PlayerBehaviour
         // Debug.Log($"PlayerState:{con.StateMachine.currentState}");
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
-
+        //Debug.Log(con.Player.currentWeaponType);
         switch (con.Player.currentWeaponType)
         {
             case Player.WeaponType.Sword:
@@ -65,13 +63,5 @@ public class AttackState : PlayerBehaviour
     {
         // 있었던 코루틴을 빼줬습니다
         // 혹시 모르니 남겨두도록 할게요
-    }
-    public void StartAttacking()
-    {
-        isAttacking = true;
-    }
-    public void FinishAttacking()
-    {
-        isAttacking = false;
     }
 }

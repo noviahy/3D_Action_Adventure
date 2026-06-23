@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-
 public class Player : MonoBehaviour
 {
     // Player에서 사용하는 모든 MonoBehavior를 모아 PlayerController로 보내줌
@@ -69,12 +68,18 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
+        Debug.Log(stateMachine.currentState);
         if (stateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
+        {
+            Controller.Input.AckWeaponInput();
             return;
-        if (locomotionState.currentSubState == LocomotionState.LocomotionSubState.Airborne
+        }
+        /*
+         * if (locomotionState.currentSubState == LocomotionState.LocomotionSubState.Airborne
             &&
             locomotionState.currentSubState == LocomotionState.LocomotionSubState.Hang)
             return;
+        */
 
         if (Controller.Input.BowCharging)
         {
@@ -117,8 +122,8 @@ public class Player : MonoBehaviour
         switch (type)
         {
             case WeaponType.Default:
-                Controller.Animation.SetWeaponType(0);
                 RequestCoroutine();
+                Controller.Animation.SetWeaponType(0);
                 return;
 
             case WeaponType.Sword:
@@ -140,6 +145,16 @@ public class Player : MonoBehaviour
                 return;
         }
     }
+    /*
+    public void ChangeWeaponToDefault()
+    {
+        currentWeaponType = WeaponType.Default;
+        Controller.Animation.SetLayerWeight(2, 0);
+        sword.enabled = false;
+        bow.enabled = false;
+        Controller.Animation.SetWeaponType(0);
+    }
+    */
     public ItemType CurrentItemType { get; private set; }
     public enum ItemType
     {

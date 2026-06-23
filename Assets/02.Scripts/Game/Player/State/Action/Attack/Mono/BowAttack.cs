@@ -1,7 +1,5 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using static AttackState;
 
 public class BowAttack : PlayerBehaviour
 {
@@ -41,7 +39,11 @@ public class BowAttack : PlayerBehaviour
     public void RequestBowAttack() // 외부에서 호출하는 유일한 함수입니다.
     {
         if (currentBowState == bowState.Idle) // 외부에선 꼬임 방지를 위해 Idle에서만 상태를 변경할 수 있게 했어요
+        {
+            con.Animation.SetLayerWeight(1, 0);
+            con.Animation.SetLayerWeight(2, 1);
             ChangeBowState(bowState.Enter);
+        }
     }
 
     private void ChangeBowState(bowState state)
@@ -140,10 +142,10 @@ public class BowAttack : PlayerBehaviour
         }
         BowShoot = true;
 
+        Standby = true;
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
 
-        Standby = true;
         BowAimed = false;
 
         // 연사 방지 대기시간
@@ -162,8 +164,18 @@ public class BowAttack : PlayerBehaviour
         releaseCoroutine = null;
         ChangeBowState(bowState.Exiting);
     }
+    public void FallOnCharging()
+    {
+
+    }
     public void RollOnRelease()
     {
+        if (showCrosshair)
+        {
+            showCrosshair = false;
+            crossHair.RequestCorssHairFO();
+        }
+
         StopCoroutine(releaseCoroutine);
         releaseCoroutine = null;
         BowAimed = false;

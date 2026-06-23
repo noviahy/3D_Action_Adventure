@@ -48,6 +48,7 @@ public class Roll : PlayerBehaviour
 
         timer = 0f;
         // dodge 완료까지 반복
+        // 이동 코드
         while (true)
         {
             timer += Time.deltaTime;
@@ -68,6 +69,7 @@ public class Roll : PlayerBehaviour
             yield return null;
         }
 
+        // 무기 드는 포즈 없음
         if (con.Player.currentWeaponType == Player.WeaponType.Default)
         {
             float timer = 0f;
@@ -79,7 +81,7 @@ public class Roll : PlayerBehaviour
             }
             con.Animation.SetLayerWeight(1, 0f);
         }
-
+        // 무기 드는 포즈 있음
         else
         {
             float timer = 0f;
@@ -102,6 +104,25 @@ public class Roll : PlayerBehaviour
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
         con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
+    }
+    // 공중 상태에서만 호출
+    public void RequestStopRoll()
+    {
+        // 일단 코루틴을 멈춤
+        StopCoroutine(coroutine);
+        coroutine = null;
+        
+        // 모든 레이어를 꺼줌
+        con.Animation.SetLayerWeight(2, 0f);
+        con.Animation.SetLayerWeight(1, 0f);
+
+        // 변수 초기화
+        isRollCoolTime = false;
+
+        // 상태 변경
+        con.ActionState.TryChangeType(ActionState.ActionType.Idle);
+        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
+        con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Airborne);
     }
     IEnumerator setLayer1()
     {

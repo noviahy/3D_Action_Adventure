@@ -7,6 +7,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     public LocomotionSubState preSubState { get; private set; }
     private Coroutine layerCoroutine;
     private Coroutine hangCoroutine;
+    private Coroutine waitHangMove;
     private RaycastHit wall;
     private float originRadius;
 
@@ -28,11 +29,12 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     public void ChangeState(LocomotionSubState state)
     {
-        Debug.Log(state);
-        if (currentSubState == state)
-            return;
+        // Debug.Log(state);
         // if(state == LocomotionSubState.Hang || currentSubState == LocomotionSubState.Hang)
         // Debug.Log($"{currentSubState} -> {state}");
+
+        if (currentSubState == state)
+            return;
 
         if ((preSubState == LocomotionSubState.Airborne && state != LocomotionSubState.Hang)
             || preSubState == LocomotionSubState.Hang)
@@ -66,10 +68,18 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         if (state == LocomotionSubState.Hang)
         {
             con.Animation.PlayHang();
+
+            /*
+            if(con.Player.currentWeaponType != Player.WeaponType.Default)
+                con.Player.ChangeWeaponType(Player.WeaponType.Default);
+            */
+
             canClimb = true;
             if (layerCoroutine != null)
                 StopCoroutine(layerCoroutine);
+            
             con.Animation.SetLayerWeight(1, 1f);
+            waitHangMove = StartCoroutine(WaitHangMove());
         }
 
         preSubState = currentSubState;
@@ -101,6 +111,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (!locomotion && !bow && !climb)
             return;
+        // Debug.Log("!");
 
         // 사다리 코드
         if (con.Climb.currentState == Climb.ClimbState.Climbing)
@@ -124,7 +135,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Airborne:
                 if (!con.cc.isGrounded)
                 {
-                    if (preSubState == LocomotionSubState.SlowWalk || con.Input.IsLockOn)
+                    if (preSubState == LocomotionSubState.SlowWalk || con.Input.IsLockOn || con.ActionState.preType == ActionState.ActionType.Roll)
                     {
                         if (CheckHang(out RaycastHit hit))
                         {
@@ -158,11 +169,11 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
                     con.Climb.SetTopPoint(wall);
                 }
-                if (con.Input.side >= 0.5)
+                if (con.Input.side >= 0.5 && waitHangMove == null)
                 {
                     RequestHangMove(1);
                 }
-                if (con.Input.side <= -0.5)
+                if (con.Input.side <= -0.5 && waitHangMove == null)
                 {
                     RequestHangMove(-1);
                 }
@@ -322,7 +333,12 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     IEnumerator HangMove(float value)
     {
-        yield return new WaitForSeconds(0.2f);
+        if(value == 1)
+            con.Animation.PlayHangRight();
+        else
+            con.Animation.PlayHangLeft();
+
+        yield return new WaitForSeconds(0.3f);
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + con.Player.transform.right * value * 0.5f;
 
@@ -343,5 +359,10 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             yield return null;
         }
         hangCoroutine = null;
+    }
+    IEnumerator WaitHangMove()
+    {
+        yield return new WaitForSeconds(0.4f);
+        waitHangMove = null;
     }
 }
