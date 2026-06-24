@@ -68,18 +68,12 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
-        Debug.Log(stateMachine.currentState);
+        // Debug.Log(stateMachine.currentState);
         if (stateMachine.currentState != PlayerStateMachine.PlayerState.LocomotionState)
         {
             Controller.Input.AckWeaponInput();
             return;
         }
-        /*
-         * if (locomotionState.currentSubState == LocomotionState.LocomotionSubState.Airborne
-            &&
-            locomotionState.currentSubState == LocomotionState.LocomotionSubState.Hang)
-            return;
-        */
 
         if (Controller.Input.BowCharging)
         {
@@ -115,7 +109,7 @@ public class Player : MonoBehaviour
         if (currentWeaponType == type)
             return;
 
-        // Debug.Log($"WaponType:{type}");
+        Debug.Log($"WaponType:{type}");
 
         currentWeaponType = type;
 
@@ -145,16 +139,6 @@ public class Player : MonoBehaviour
                 return;
         }
     }
-    /*
-    public void ChangeWeaponToDefault()
-    {
-        currentWeaponType = WeaponType.Default;
-        Controller.Animation.SetLayerWeight(2, 0);
-        sword.enabled = false;
-        bow.enabled = false;
-        Controller.Animation.SetWeaponType(0);
-    }
-    */
     public ItemType CurrentItemType { get; private set; }
     public enum ItemType
     {
@@ -225,6 +209,19 @@ public class Player : MonoBehaviour
     public void ChangeInvincibility(bool value)
     {
         Invincibility = value;
+    }
+    public void RequestWeaponRendererOff()
+    {
+        sword.enabled = false;
+
+        bow.enabled = false;
+    }
+    public void RequestWeaponRendererOn()
+    {
+        if (currentWeaponType == WeaponType.Sword)
+            sword.enabled = true;
+        if (currentWeaponType == WeaponType.Bow)
+            bow.enabled = true;
     }
     public void NormalGuard(bool value)
     {

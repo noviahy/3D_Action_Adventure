@@ -6,11 +6,18 @@ public class PlayerStateMachine : PlayerBehaviour
     public PlayerState currentState { get; private set; }
     public bool isLadder { get; private set; }
     public bool isBox { get; private set; }
+    public bool isCliff {  get; private set; }
     public bool JustLand { get; private set; } = false;
     public bool Climb { get; private set; } = false;
+
     [SerializeField] private Transform Head;
-    [SerializeField] private LayerMask LadderMask;
-    [SerializeField] private LayerMask BoxMask;
+    [SerializeField] private LayerMask interactableLayer;
+
+
+    private RaycastHit hit;
+    private Vector3 cliffNormal;
+    private float hangTimer;
+    private float hangDelay = 0.5f;
 
     public enum PlayerState
     {
@@ -24,10 +31,13 @@ public class PlayerStateMachine : PlayerBehaviour
     {
         currentState = PlayerState.LocomotionState;
     }
+    // State 변경
     private void ChangePlayerState(PlayerState state)
     {
         if (currentState == state)
             return;
+
+        // Locomotion상태가 아니라면 Idle로 변경 -> 에니메이션이 꺼지도록 함
         if (state != PlayerState.LocomotionState)
             con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
         currentState = state;
@@ -39,52 +49,107 @@ public class PlayerStateMachine : PlayerBehaviour
             return;
         if (currentState == PlayerState.KnockbackState)
             return;
+        // 공중에서는 Locomotion이 아닌 다른 상태로 들어갈 수 없음
         if (!con.cc.isGrounded && state != PlayerState.LocomotionState)
             return;
 
         ChangePlayerState(state);
     }
-    // 주로 여기서 Action State 세부 사항을 변경해주는듯
-    // 물론 여기서 하지 않고 ActionState나 하위 코드에서 해줘도 되겠지만 딱히 이 코드에서 이걸 빼면 하는게 없음
-    // 또한 ActionState은 순수c#이고 다른 하위 코드에선 변경보다 변경값을 가지고 실행을 하는걸 맡고 있기때문에 여기에서 변경해줘도 될 것 같음
-    // Action 빼면 아무것도 안 남음 DeadState는 마지막에 확인하는거고 Knockback도 한번만 바꿔주면 되는거고
     private void Update()
     {
-        con.Animation.SetGrounded(con.cc.isGrounded);
-
-        if (con.Input.CurrentInputMode == InputManager.InputMode.UI || con.Input.CurrentInputMode == InputManager.InputMode.Dialogue)
-            return;
-
         if (currentState == PlayerState.DeadState)
             con.Dead.Dead();
 
+        // 에니메이션 값 설정
+        SetAnimationValue();
+
+        // 사다리 진입
+        EnterClimb();
+
+        // 이 밑으로 Hang이면 들어갈 수 없음
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
+            return;
+
+        // Roll 진입
+        EnterRoll();
+
+        // 이 밑으로 Airborne상태면 들어갈 수 없음
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
+            return;
+
+        // Ray 확인
+        CheckRay();
+
+        // 벽잡기 진입 (Hang 진입)
+        EnterHang();
+
+        // Action 진입
+        EnterAction();
+
+        // 활 진입
+        EnterBow();
+
+        // 패링
+        if (con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
+            con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
+    }
+    private void SetAnimationValue()
+    {
+        con.Animation.SetGrounded(con.cc.isGrounded);
         con.Animation.SetMoveX(con.Input.forward);
         con.Animation.SetMoveY(con.Input.side);
+    }
+    public void RequestRoll()
+    {
+        JustLand = true;
+    }
+    private void CheckRay()
+    {
+        isLadder = false;
+        isBox = false;
+        isCliff = false;
 
-        // 레이케스트를 던져서 앞에 사다리가 아직도 있는지 확인
-        RaycastHit hit;
-
-        isLadder = Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, LadderMask);
-        isBox = Physics.Raycast(con.Player.transform.position, con.Player.transform.forward, out hit, 0.8f, BoxMask);
-
+        if (Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, interactableLayer))
+        {
+            if (hit.transform.CompareTag("CanClimb"))
+                isLadder = true;
+            if (hit.transform.CompareTag("CanMove"))
+                isBox = true;
+            if (hit.transform.CompareTag("CanHang"))
+            {
+                cliffNormal = hit.normal;
+                isCliff = true;
+            }
+        }
+    }
+    private void EnterClimb()
+    {
+        // 기본상태 or 활 대기 상태가 아닌 상태에서 isLadder = true시 진입
         if (currentState == PlayerState.LocomotionState && !con.BowAttack.Standby && isLadder)
         {
             TryChangeState(PlayerState.InteractionState);
 
+            // 2중 if문은 오류를 막기 위해 썼지만 이유가 기억나지 않음 있어도 문제는 아님
             if (currentState == PlayerState.InteractionState)
             {
                 con.Climb.SetLadder(hit.transform);
                 con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Climb);
             }
         }
-        if(con.ActionState.currentType == ActionState.ActionType.Roll && !con.GroundCheck.IsGrounded)
+    }
+    private void EnterRoll()
+    {
+        // Roll상태에서 떨어질때
+        if (con.ActionState.currentType == ActionState.ActionType.Roll && !con.GroundCheck.IsGrounded)
         {
+            // Roll 중지 코드
+            // Airborn -> Hang 가능하게 만들어줌
             con.Roll.RequestStopRoll();
         }
 
-        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
-            return;
-
+        // Roll 실행 코드
+        // 프리룩 + 입력 + 쿨타임이 없을 때 + 땅에 있을때 + 기본 상태 
+        // Airborn에서 구르기 호출할 때만
         if ((!con.Input.IsLockOn && con.Input.RollPressed && !con.Roll.isRollCoolTime && con.cc.isGrounded && currentState == PlayerState.LocomotionState) || JustLand)
         {
             TryChangeState(PlayerState.ActionState);
@@ -93,39 +158,70 @@ public class PlayerStateMachine : PlayerBehaviour
             return;
         }
 
-        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
-            return;
-
-        // 여기선 다시 Locomotion으로 바꿔주지 않습니다
-        // 다른 코드에서 상태가 끝날때 꼭 Locomotion으로 바꿔줘야한다는걸 기억해야해요
+    }
+    private void EnterAction()
+    {
+        // 입력 혹은 칼 공격 시
         if (con.Input.ActionPressed || (con.Input.AttackPressed && con.Player.currentWeaponType == Player.WeaponType.Sword))
         {
+            // 기본 상태가 아니면 불가능
             if (currentState != PlayerState.LocomotionState)
                 return;
 
             TryChangeState(PlayerState.ActionState);
 
+            // 분기
             if (con.Input.AttackPressed)
                 con.ActionState.TryChangeType(ActionState.ActionType.Attack);
             if (con.Input.IsLockOn && con.Input.DodgeBuffered)
                 con.ActionState.TryChangeType(ActionState.ActionType.Dodge);
         }
-        // 저 안에 넣지 않은 이유가 분명히 있지만 왜인진 모름, 시간날떄 이유를 찾아야겠음
-        // 활 공격
-        if (con.Input.BowCharging && currentState != PlayerState.InteractionState)
+    }
+    private void EnterBow()
+    {
+        // 입력 + 기본 상태
+        if (con.Input.BowCharging && currentState == PlayerState.LocomotionState)
         {
             con.ActionState.TryChangeType(ActionState.ActionType.Attack);
-            if(con.Player.currentWeaponType == Player.WeaponType.Bow)
+            // 무기 변경 후 진입
+            if (con.Player.currentWeaponType == Player.WeaponType.Bow)
                 TryChangeState(PlayerState.ActionState);
         }
-        // 패링
-        if (con.Input.ParryingPressed && con.Player.currentWeaponType == Player.WeaponType.Sword)
-            con.ActionState.TryChangeType(ActionState.ActionType.Parrying);
     }
-    public void RequestRoll()
+    private void EnterHang()
     {
-        JustLand = true;
+        if (!isCliff || currentState == PlayerState.LocomotionState)
+        {
+            hangTimer = 0f;
+            return;
+        }
+
+        if(con.Input.MoveInput.sqrMagnitude < 0.01f)
+        {
+            hangTimer = 0f;
+            return;
+        }
+
+        Vector3 move = con.Input.MoveInput.normalized;
+
+        float dot = Vector3.Dot(move, -cliffNormal);
+
+        if (dot > 0.9f)
+        {
+            hangTimer += Time.deltaTime;
+
+            if (hangTimer >= hangDelay)
+            {
+                // 매달리기
+                hangTimer = 0f;
+            }
+        }
+        else
+        {
+            hangTimer = 0f;
+        }
     }
+
     public void RequestClimb()
     {
         Climb = true;

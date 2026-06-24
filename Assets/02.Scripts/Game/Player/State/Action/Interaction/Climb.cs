@@ -217,12 +217,19 @@ public class Climb : PlayerBehaviour
             yield return null;
         }
 
+        if (con.StateMachine.currentState == PlayerState.LocomotionState)
+        {
+            con.Player.RequestWeaponRendererOn();
+        }
+
         time = 0;
         while (time < 1)
         {
             time += Time.deltaTime * 3f;
 
             con.Animation.SetLayerWeight(1, 1 - time);
+            if (con.StateMachine.currentState == PlayerState.LocomotionState)
+                con.Animation.SetLayerWeight(2, time);
             yield return null;
         }
 
@@ -268,7 +275,6 @@ public class Climb : PlayerBehaviour
         arriveTargetPos = hangHit.point + Vector3.up * 0.6f - hangHit.normal * 0.7f;
         StartCoroutine(ArriveTopCoroutine());
     }
-
     // µµÂø È¤Àº ¶³¾îÁ® ÂøÁö Àü±îÁö Climb State À¯Áö
     public void Finish()
     {
@@ -277,7 +283,6 @@ public class Climb : PlayerBehaviour
         con.StateMachine.TryChangeState(PlayerState.LocomotionState);
         con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Idle);
     }
-
     public void Exit()
     {
 

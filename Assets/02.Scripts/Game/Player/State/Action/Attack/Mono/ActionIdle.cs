@@ -50,20 +50,6 @@ public class ActionIdle : PlayerBehaviour
         yield return null;
 
     }
-    IEnumerator OffLayer3()
-    {
-        float t = 0;
-        while (t <= 1)
-        {
-            t += Time.deltaTime * 1.5f;
-
-            con.Animation.SetLayerWeight(1, 1 - t);
-            yield return null;
-        }
-
-        IdleBlending = false;
-        yield return null;
-    }
     public void RequestStopAllCoroutine()
     {
         StopAllCoroutines();

@@ -10,12 +10,13 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     private Coroutine waitHangMove;
     private RaycastHit wall;
     private float originRadius;
+    private float startHeight;
 
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private Transform HangCheck;
 
     private float sphereRadius = 0.3f;
-    private float sphereDistance = 0.6f;
+    private float sphereDistance = 0.3f;
     private bool canClimb = true;
 
     public enum LocomotionSubState
@@ -44,6 +45,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (state == LocomotionSubState.Airborne && con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
         {
+            startHeight = con.EdgeCheck.EdgeValue;
             con.Movement.SetStartY();
 
             if (currentSubState == LocomotionSubState.Run)
@@ -69,16 +71,13 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         {
             con.Animation.PlayHang();
 
-            /*
-            if(con.Player.currentWeaponType != Player.WeaponType.Default)
-                con.Player.ChangeWeaponType(Player.WeaponType.Default);
-            */
-
             canClimb = true;
             if (layerCoroutine != null)
                 StopCoroutine(layerCoroutine);
-            
+
+            con.Player.RequestWeaponRendererOff();
             con.Animation.SetLayerWeight(1, 1f);
+            con.Animation.SetLayerWeight(2, 0f);
             waitHangMove = StartCoroutine(WaitHangMove());
         }
 
@@ -111,7 +110,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         if (!locomotion && !bow && !climb)
             return;
-        // Debug.Log("!");
 
         // 사다리 코드
         if (con.Climb.currentState == Climb.ClimbState.Climbing)
@@ -135,7 +133,8 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Airborne:
                 if (!con.cc.isGrounded)
                 {
-                    if (preSubState == LocomotionSubState.SlowWalk || con.Input.IsLockOn || con.ActionState.preType == ActionState.ActionType.Roll)
+                    if ((preSubState == LocomotionSubState.SlowWalk || con.Input.IsLockOn || con.ActionState.preType == ActionState.ActionType.Roll) && 
+                        startHeight >= 2.49f)
                     {
                         if (CheckHang(out RaycastHit hit))
                         {
@@ -158,6 +157,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             case LocomotionSubState.Hang:
                 if (con.Input.BackBuffered && hangCoroutine == null)
                 {
+                    con.cc.Move(-con.Player.transform.forward * 0.3f);
                     ChangeState(LocomotionSubState.Airborne);
                 }
                 if (con.Input.forward >= 0.8f && canClimb)
@@ -306,11 +306,14 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
         yield return new WaitUntil(() =>
             con.Animator.GetCurrentAnimatorStateInfo(1).normalizedTime >= 0.8f);
 
+        con.Player.RequestWeaponRendererOn();
         time = 0f;
         while (time < 1f)
         {
             time += Time.deltaTime * 3f;
             con.Animation.SetLayerWeight(1, 1 - time);
+            if (con.Player.currentWeaponType != Player.WeaponType.Default)
+                con.Animation.SetLayerWeight(2, time);
             yield return null;
         }
 
@@ -322,6 +325,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     // Climb 종료
     IEnumerator SetClimbLayerOff()
     {
+        con.Player.RequestWeaponRendererOn();
         float time = 0f;
         while (time < 1f)
         {
@@ -333,7 +337,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     IEnumerator HangMove(float value)
     {
-        if(value == 1)
+        if (value == 1)
             con.Animation.PlayHangRight();
         else
             con.Animation.PlayHangLeft();
