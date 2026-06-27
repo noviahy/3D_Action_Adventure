@@ -112,9 +112,22 @@ public class AnimationController
     {
         con.Animator.SetTrigger("Hit");
     }
+    public void PlayPull()
+    {
+
+    }
+    public void PlayPush()
+    {
+
+    }
+    // 터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다
     public void SetLayerWeight(int index, float weight)
     {
         con.Animator.SetLayerWeight(index, weight);
+    }
+    public void PlayMantle()
+    {
+        con.Animator.CrossFadeInFixedTime("Mantle", 0.05f);
     }
     public void PlayClimbing()
     {
@@ -131,6 +144,10 @@ public class AnimationController
     public void PlayHang()
     {
         con.Animator.CrossFadeInFixedTime("Hanging", 0.05f);
+    }
+    public void PlayJumpHang()
+    {
+        con.Animator.CrossFadeInFixedTime("JumpHang", 0.05f);
     }
     public void PlayHangRight()
     {

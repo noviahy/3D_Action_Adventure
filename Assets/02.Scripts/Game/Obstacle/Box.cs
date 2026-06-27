@@ -1,16 +1,25 @@
+using System.Collections;
 using UnityEngine;
 
 public class Box : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public bool IsMoving { get; private set;}
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         
+    }
+    private void FixedUpdate()
+    {
+        
+    }
+
+    IEnumerator MoveBox()
+    {
+        yield return null;
     }
 }

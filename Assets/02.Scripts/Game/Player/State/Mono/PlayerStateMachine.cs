@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // 어느 순간 말 그대로 StateMachine이 되어버린 www
@@ -5,19 +6,19 @@ public class PlayerStateMachine : PlayerBehaviour
 {
     public PlayerState currentState { get; private set; }
     public bool isLadder { get; private set; }
+    public bool isCliff { get; private set; }
+    public bool isMantle { get; private set; } = false;
     public bool isBox { get; private set; }
-    public bool isCliff {  get; private set; }
+    public RaycastHit Box {  get; private set; }
     public bool JustLand { get; private set; } = false;
     public bool Climb { get; private set; } = false;
 
     [SerializeField] private Transform Head;
     [SerializeField] private LayerMask interactableLayer;
-
-
     private RaycastHit hit;
-    private Vector3 cliffNormal;
-    private float hangTimer;
-    private float hangDelay = 0.5f;
+    private Vector3 actionNormal;
+    private float actionTimer;
+    private float actionDelay = 0.2f;
 
     public enum PlayerState
     {
@@ -63,6 +64,9 @@ public class PlayerStateMachine : PlayerBehaviour
         // 에니메이션 값 설정
         SetAnimationValue();
 
+        // Ray 확인
+        CheckRay();
+
         // 사다리 진입
         EnterClimb();
 
@@ -77,11 +81,14 @@ public class PlayerStateMachine : PlayerBehaviour
         if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
             return;
 
-        // Ray 확인
-        CheckRay();
+        // 상자 진입
+        EnterBox();
 
         // 벽잡기 진입 (Hang 진입)
         EnterHang();
+
+        // 턱 진입 (Mantle 진입)
+        EnterMantle();
 
         // Action 진입
         EnterAction();
@@ -108,17 +115,26 @@ public class PlayerStateMachine : PlayerBehaviour
         isLadder = false;
         isBox = false;
         isCliff = false;
+        isMantle = false;
 
         if (Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, interactableLayer))
         {
-            if (hit.transform.CompareTag("CanClimb"))
+            if (hit.transform.CompareTag("Ladder"))
                 isLadder = true;
-            if (hit.transform.CompareTag("CanMove"))
-                isBox = true;
-            if (hit.transform.CompareTag("CanHang"))
+            if (hit.transform.CompareTag("Moveable"))
             {
-                cliffNormal = hit.normal;
+                Box = hit;
+                isBox = true;
+            }
+            if (hit.transform.CompareTag("Climbable"))
+            {
+                actionNormal = hit.normal;
                 isCliff = true;
+            }
+            if (hit.transform.CompareTag("Mantleable"))
+            {
+                actionNormal = hit.normal;
+                isMantle = true;
             }
         }
     }
@@ -190,40 +206,97 @@ public class PlayerStateMachine : PlayerBehaviour
     }
     private void EnterHang()
     {
-        if (!isCliff || currentState == PlayerState.LocomotionState)
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Hang)
+            return;
+
+        if (!isCliff || currentState != PlayerState.LocomotionState)
         {
-            hangTimer = 0f;
+            actionTimer = 0f;
             return;
         }
 
-        if(con.Input.MoveInput.sqrMagnitude < 0.01f)
+        if (con.Input.MoveInput.sqrMagnitude < 0.01f)
         {
-            hangTimer = 0f;
+            actionTimer = 0f;
             return;
         }
 
         Vector3 move = con.Input.MoveInput.normalized;
 
-        float dot = Vector3.Dot(move, -cliffNormal);
+        float dot = Vector3.Dot(move, -actionNormal);
 
         if (dot > 0.9f)
         {
-            hangTimer += Time.deltaTime;
+            actionTimer += Time.deltaTime;
 
-            if (hangTimer >= hangDelay)
+            if (actionTimer >= actionDelay)
             {
-                // 매달리기
-                hangTimer = 0f;
+                con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Hang);
+                actionTimer = 0f;
             }
         }
         else
         {
-            hangTimer = 0f;
+            actionTimer = 0f;
         }
     }
-
-    public void RequestClimb()
+    private void EnterMantle()
     {
-        Climb = true;
+        if (!isMantle || currentState != PlayerState.LocomotionState)
+        {
+            actionTimer = 0f;
+            return;
+        }
+
+        if (con.Input.MoveInput.sqrMagnitude < 0.01f)
+        {
+            actionTimer = 0f;
+            return;
+        }
+
+        Vector3 move = con.Input.MoveInput.normalized;
+
+        float dot = Vector3.Dot(move, -actionNormal);
+
+        if (dot > 0.9f)
+        {
+            actionTimer += Time.deltaTime;
+
+            if (actionTimer >= actionDelay)
+            {
+                ChangePlayerState(PlayerState.LocomotionState);
+
+                con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Mantle);
+                actionTimer = 0f;
+            }
+        }
+        else
+        {
+            actionTimer = 0f;
+        }
+    }
+    private void EnterBox()
+    {
+        if (con.InteractionState.CurrentType == InteractionState.InteractionType.Box)
+            return;
+
+        if (!isBox || currentState != PlayerState.LocomotionState)
+        {
+            actionTimer = 0f;
+            return;
+        }
+
+        Vector3 direction = con.Player.transform.forward;
+
+        float dot = Vector3.Dot(direction, -actionNormal);
+
+        if (dot > 0.8f)
+        {
+            if (con.Input.InteractionPressed)
+            {
+                ChangePlayerState(PlayerState.InteractionState);
+                con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Box);
+            }
+        }
     }
 }

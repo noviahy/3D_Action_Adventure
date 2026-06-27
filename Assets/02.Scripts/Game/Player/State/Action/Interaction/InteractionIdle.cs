@@ -16,9 +16,6 @@ public class InteractionIdle : PlayerBehaviour
             case InteractionState.InteractionType.Box: // Layer1
                 IdleBlending = true;
                 break;
-            case InteractionState.InteractionType.Mantle: // Layer1
-                IdleBlending = true;
-                break;
             case InteractionState.InteractionType.Climb: // Layer1
                 // layer1Coroutine = StartCoroutine(FromLayer1());
                 IdleBlending = true;

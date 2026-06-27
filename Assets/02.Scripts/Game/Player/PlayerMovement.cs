@@ -16,20 +16,20 @@ public class PlayerMovement
 
     public bool isJumping { get; private set; } = false;
     private float jumpForwardPower = 3f;
-    private float jumpUpPower = 6.5f;
+    private float jumpUpPower = 5f;
     public bool hasLanded { get; private set; } = true;
 
     private float rotSpeed = 10f;
 
     private float ladderSpeed = 2f;
-    private float fastLadderSpeed = 4f;
+    private float fastLadderSpeed = 3f;
 
     private Vector3 jumpDir;
     private float yVelocity = 0f;
 
     private float hangOffset = 0.1f;
 
-    public AirbornState currentAirbornState {  get; private set; }
+    public AirbornState currentAirbornState { get; private set; }
     public enum AirbornState
     {
         Idle,
@@ -56,7 +56,7 @@ public class PlayerMovement
             case LocomotionState.LocomotionSubState.SlowWalk:
                 speed = slowWalkSpeed;
                 break;
-            case LocomotionState.LocomotionSubState.Walk: 
+            case LocomotionState.LocomotionSubState.Walk:
                 speed = walkSpeed;
                 break;
             case LocomotionState.LocomotionSubState.Run:
@@ -68,7 +68,7 @@ public class PlayerMovement
             speed = lockOnSpeed;
         if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Airborne)
             speed = fallingSpeed;
-        
+
         horizontal = inputDir.normalized * speed;
         con.Animation.SetMove(speed);
 
@@ -94,7 +94,7 @@ public class PlayerMovement
         yVelocity = jumpUpPower;
 
         con.Animation.PlayJump();
-        con.Locomotion.RequestJumpCoroutine();
+        con.Animation.SetLayerWeight(1, 1f);
     }
     // Climb에서만 사용하는 코드
     // 떨어지기만 함
@@ -140,25 +140,22 @@ public class PlayerMovement
     }
     public void CheckFallDistance()
     {
-
         totalFallY = fallStartY - con.Player.transform.position.y;
         yVelocity = -2f;
         isJumping = false;
 
-        if (totalFallY < 2f && con.Locomotion.preSubState != LocomotionSubState.Hang)
-        {
+        if (totalFallY <= 2.5f && con.Locomotion.preSubState != LocomotionSubState.Hang)
             con.Locomotion.ChangeState(LocomotionSubState.Idle);
-        }
-        else if (totalFallY < 3f || con.Locomotion.preSubState != LocomotionSubState.Run)
+
+        else if (totalFallY > 2.5f && con.Locomotion.preSubState != LocomotionSubState.Run)
         {
             con.Animation.PlayLand();
 
             con.Locomotion.RequestOnCoroutine();
         }
-        else if(totalFallY >=3f && con.Locomotion.preSubState == LocomotionSubState.Run)
-        {
+
+        else if (totalFallY > 2.5f && con.Locomotion.preSubState == LocomotionSubState.Run)
             con.StateMachine.RequestRoll();
-        }
     }
     public void SetHanging(RaycastHit hit)
     {
@@ -182,7 +179,7 @@ public class PlayerMovement
     public void ResetYVelocity()
     {
         yVelocity = 0;
-    }                                        
+    }
     public void FallMove(Vector3 move)
     {
         con.cc.Move(move);

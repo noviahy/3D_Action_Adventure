@@ -8,7 +8,6 @@ public class InteractionState
         Idle,
         UseItem, // Layer4
         Box, // Layer1
-        Mantle, // Layer1
         Climb // Layer1
     }
     public InteractionState(PlayerController controller)
@@ -55,8 +54,7 @@ public class InteractionState
             case InteractionType.UseItem:
                 break;
             case InteractionType.Box:
-                break;
-            case InteractionType.Mantle:
+                con.BoxInteractionState.Enter();
                 break;
             case InteractionType.Climb:
                 con.Climb.Enter();
@@ -74,8 +72,7 @@ public class InteractionState
             case InteractionType.UseItem:
                 break;
             case InteractionType.Box:
-                break;
-            case InteractionType.Mantle:
+                con.BoxInteractionState.Exit();
                 break;
             case InteractionType.Climb:
                 con.Climb.Exit();

@@ -1,16 +1,9 @@
 using UnityEngine;
 
-public class LayerController : MonoBehaviour
+public class LayerController
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public Coroutine CoroutineLayer1 {  get; private set; }
+    public Coroutine CoroutineLayer2 { get; private set; }
+    public float ValueLayer1 { get; private set;}
+    public float ValueLayer2 { get;private set; }
 }

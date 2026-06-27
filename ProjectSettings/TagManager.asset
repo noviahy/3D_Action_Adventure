@@ -5,8 +5,11 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
-  - Ladder
   - Hangable
+  - Climbable
+  - Moveable
+  - Ladder
+  - Mantleable
   layers:
   - Default
   - TransparentFX
