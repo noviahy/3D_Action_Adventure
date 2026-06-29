@@ -21,9 +21,7 @@ public class Dodge : PlayerBehaviour
     {
         con.Player.ChangeInvincibility(true); // 무적
 
-        // 에니메이션 weight 변경
-        // 여기에 문제가 있는것 같음 회피 에니메이션이 씹힘
-        //
+        con.LayerController.RequestLayer1On(0.2f);
 
         // 방향 정규화
         Vector3 inputDir = con.Input.MoveInput;
@@ -51,7 +49,6 @@ public class Dodge : PlayerBehaviour
         {
             dodgeDir = con.Cam.camForward;
         }
-        con.Animation.SetLayerWeight(1, 1f);
 
         if (dodgeDir.x < 0)
             con.Animation.PlayDodge("Left");

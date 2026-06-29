@@ -17,13 +17,15 @@ public class PlayerStateMachine : PlayerBehaviour
     [SerializeField] private LayerMask interactableLayer;
     private RaycastHit hit;
     private Vector3 actionNormal;
-    private float actionTimer;
+    private float hangTimer;
+    private float mantleTimer;
     private float actionDelay = 0.2f;
 
     public enum PlayerState
     {
         LocomotionState,
         ActionState,
+        BowState,
         InteractionState,
         KnockbackState,
         DeadState,
@@ -66,6 +68,10 @@ public class PlayerStateMachine : PlayerBehaviour
 
         // Ray 확인
         CheckRay();
+
+        // 이 밑으로 Mantle이면 들어갈 수 없음
+        if (con.Locomotion.currentSubState == LocomotionState.LocomotionSubState.Mantle)
+            return;
 
         // 사다리 진입
         EnterClimb();
@@ -117,7 +123,7 @@ public class PlayerStateMachine : PlayerBehaviour
         isCliff = false;
         isMantle = false;
 
-        if (Physics.Raycast(Head.position, transform.forward, out hit, 0.4f, interactableLayer))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, 0.3f, interactableLayer))
         {
             if (hit.transform.CompareTag("Ladder"))
                 isLadder = true;
@@ -211,13 +217,13 @@ public class PlayerStateMachine : PlayerBehaviour
 
         if (!isCliff || currentState != PlayerState.LocomotionState)
         {
-            actionTimer = 0f;
+            hangTimer = 0f;
             return;
         }
 
         if (con.Input.MoveInput.sqrMagnitude < 0.01f)
         {
-            actionTimer = 0f;
+            hangTimer = 0f;
             return;
         }
 
@@ -227,30 +233,31 @@ public class PlayerStateMachine : PlayerBehaviour
 
         if (dot > 0.9f)
         {
-            actionTimer += Time.deltaTime;
+            hangTimer += Time.deltaTime;
 
-            if (actionTimer >= actionDelay)
+            if (hangTimer >= actionDelay)
             {
+                con.Movement.SetHanging(hit);
                 con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Hang);
-                actionTimer = 0f;
+                hangTimer = 0f;
             }
         }
         else
         {
-            actionTimer = 0f;
+            hangTimer = 0f;
         }
     }
     private void EnterMantle()
     {
         if (!isMantle || currentState != PlayerState.LocomotionState)
         {
-            actionTimer = 0f;
+            mantleTimer = 0f;
             return;
         }
 
         if (con.Input.MoveInput.sqrMagnitude < 0.01f)
         {
-            actionTimer = 0f;
+            mantleTimer = 0f;
             return;
         }
 
@@ -260,19 +267,19 @@ public class PlayerStateMachine : PlayerBehaviour
 
         if (dot > 0.9f)
         {
-            actionTimer += Time.deltaTime;
+            mantleTimer += Time.deltaTime;
 
-            if (actionTimer >= actionDelay)
+            if (mantleTimer >= actionDelay)
             {
                 ChangePlayerState(PlayerState.LocomotionState);
 
                 con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Mantle);
-                actionTimer = 0f;
+                mantleTimer = 0f;
             }
         }
         else
         {
-            actionTimer = 0f;
+            mantleTimer = 0f;
         }
     }
     private void EnterBox()
@@ -281,10 +288,7 @@ public class PlayerStateMachine : PlayerBehaviour
             return;
 
         if (!isBox || currentState != PlayerState.LocomotionState)
-        {
-            actionTimer = 0f;
             return;
-        }
 
         Vector3 direction = con.Player.transform.forward;
 

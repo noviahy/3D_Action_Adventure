@@ -17,7 +17,7 @@ public class Roll : PlayerBehaviour
         {
             timer = 0f; // 타이머 초기화
             coroutine = StartCoroutine(DoRoll()); // 실행
-            StartCoroutine(setLayer1());
+            con.LayerController.RequestLayer1On(0.3f);
         }
     }
     IEnumerator DoRoll()
@@ -44,7 +44,7 @@ public class Roll : PlayerBehaviour
         con.Animation.PlayRoll();
 
         if (con.Player.currentWeaponType != Player.WeaponType.Default)
-            con.Animation.SetLayerWeight(2, 0f);
+            con.LayerController.RequestLayer2Off(0.2f);
 
         timer = 0f;
         // dodge 완료까지 반복
@@ -72,28 +72,13 @@ public class Roll : PlayerBehaviour
         // 무기 드는 포즈 없음
         if (con.Player.currentWeaponType == Player.WeaponType.Default)
         {
-            float timer = 0f;
-            while (timer <= 1f)
-            {
-                timer += Time.deltaTime * 5f;
-                con.Animation.SetLayerWeight(1, 1 - timer);
-                yield return null;
-            }
-            con.Animation.SetLayerWeight(1, 0f);
+            con.LayerController.RequestLayer1Off(0.2f);
         }
         // 무기 드는 포즈 있음
         else
         {
-            float timer = 0f;
-            while (timer <= 1f)
-            {
-                timer += Time.deltaTime * 5f;
-                con.Animation.SetLayerWeight(2, timer);
-                con.Animation.SetLayerWeight(1, 1 - timer);
-                yield return null;
-            }
-            con.Animation.SetLayerWeight(2, 1f);
-            con.Animation.SetLayerWeight(1, 0f);
+            con.LayerController.RequestLayer1Off(0.2f);
+            con.LayerController.RequestLayer2On(0.2f);
         }
 
         con.Input.AckRollFinish();
@@ -111,10 +96,10 @@ public class Roll : PlayerBehaviour
         // 일단 코루틴을 멈춤
         StopCoroutine(coroutine);
         coroutine = null;
-        
+
         // 모든 레이어를 꺼줌
-        con.Animation.SetLayerWeight(2, 0f);
-        con.Animation.SetLayerWeight(1, 0f);
+        con.LayerController.RequestLayer1Off(0.2f);
+        con.LayerController.RequestLayer2Off(0.2f);
 
         // 변수 초기화
         isRollCoolTime = false;
@@ -123,17 +108,6 @@ public class Roll : PlayerBehaviour
         con.ActionState.TryChangeType(ActionState.ActionType.Idle);
         con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
         con.Locomotion.ChangeState(LocomotionState.LocomotionSubState.Airborne);
-    }
-    IEnumerator setLayer1()
-    {
-        float t = 0f;
-        while (t <= 1f)
-        {
-            t += Time.deltaTime * 3f;
-            con.Animation.SetLayerWeight(1, t);
-            yield return null;
-        }
-        con.Animation.SetLayerWeight(1, 1f);
     }
     public void Exit()
     {

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks.Sources;
 using UnityEngine;
 
 public class LocomotionState : PlayerBehaviour, IPlayerState
@@ -8,9 +9,11 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     private Coroutine layerCoroutine;
     private Coroutine hangCoroutine;
     private Coroutine waitHangMove;
+    private Coroutine mantleCoroutine;
     private RaycastHit wall;
     private Transform preWall;
     private float originRadius;
+    private float originHeight;
     private float startHeight;
 
     [SerializeField] private LayerMask wallLayer;
@@ -46,7 +49,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             || preSubState == LocomotionSubState.Hang)
         {
             con.cc.radius = originRadius;
-        }
+        }   
 
         if (state == LocomotionSubState.Airborne && con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
         {
@@ -54,17 +57,16 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             startHeight = con.EdgeCheck.EdgeValue;
             con.Movement.SetStartY();
 
-            if (currentSubState == LocomotionSubState.Run)
+            if (currentSubState == LocomotionSubState.Run && startHeight >= 2.5)
             {
                 con.Movement.StartJump();
             }
-            if (currentSubState == LocomotionSubState.Walk)
+            if (currentSubState == LocomotionSubState.Walk || (currentSubState == LocomotionSubState.Run && startHeight <= 2.5))
             {
                 if (startHeight > 3f)
                 {
-                    if (layerCoroutine != null)
-                        StopCoroutine(layerCoroutine);
-                    layerCoroutine = StartCoroutine(SetLayer1());
+                    con.LayerController.RequestLayer1On(0.3f);
+
                     con.Animation.PlayFalling();
                 }
             }
@@ -81,8 +83,6 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                 StopCoroutine(layerCoroutine);
 
             con.Player.RequestWeaponRendererOff();
-            con.Animation.SetLayerWeight(1, 1f);
-            con.Animation.SetLayerWeight(2, 0f);
 
             if (!con.cc.isGrounded)
             {
@@ -93,10 +93,21 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             }
             if (con.cc.isGrounded)
             {
+                canClimb = true;
                 originRadius = con.cc.radius;
                 con.cc.radius = 0.05f;
                 waitHangMove = StartCoroutine(EnterJumpHang());
             }
+            con.LayerController.RequestLayer1On(0.2f);
+            con.LayerController.RequestLayer2Off(0.2f);
+        }
+        if (state == LocomotionSubState.Mantle && mantleCoroutine == null)
+        {
+            originRadius = con.cc.radius;
+            con.cc.radius = 0.05f;
+            con.cc.height = 0.05f;
+            con.Animation.PlayMantle();
+            mantleCoroutine = StartCoroutine(EnterMantle());
         }
 
         preSubState = currentSubState;
@@ -177,7 +188,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                         }
                     }
                     con.Movement.Airborne();
-                    if (preSubState == LocomotionSubState.Walk)
+                    if (preSubState == LocomotionSubState.Walk || preSubState == LocomotionSubState.Run)
                         con.Movement.Move(con.Input.MoveInput);
                 }
                 if (con.cc.isGrounded && !con.Movement.hasLanded)
@@ -198,19 +209,18 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
                     {
                         canClimb = false;
                         con.cc.Move(-con.Player.transform.forward * 0.05f);
+
                         CheckHang(out RaycastHit hit);
                         wall = hit;
+
+                        con.cc.Move(con.Player.transform.up * 0.4f);
 
                         con.Climb.SetTopPoint(wall);
                     }
                     if (con.Input.side >= 0.5)
-                    {
                         RequestHangMove(1);
-                    }
                     if (con.Input.side <= -0.5)
-                    {
                         RequestHangMove(-1);
-                    }
                 }
                 break;
         }
@@ -218,9 +228,16 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     private void ChangeStateCode()
     {
-        if (!con.cc.isGrounded && currentSubState != LocomotionSubState.Hang && con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
+        if (!con.cc.isGrounded && currentSubState != LocomotionSubState.Hang &&
+            currentSubState != LocomotionSubState.Mantle &&
+            con.InteractionState.CurrentType != InteractionState.InteractionType.Climb)
         {
             ChangeState(LocomotionSubState.Airborne);
+            return;
+        }
+        if (con.BowAttack.BowAimed || con.BowAttack.Standby)
+        {
+            ChangeState(LocomotionSubState.Walk);
             return;
         }
 
@@ -296,77 +313,32 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
             StopCoroutine(layerCoroutine);
         layerCoroutine = StartCoroutine(SetLendLayerOn());
     }
-    public void RequestOffCoroutine()
-    {
-        if (layerCoroutine != null)
-            StopCoroutine(layerCoroutine);
-
-        layerCoroutine = StartCoroutine(SetClimbLayerOff());
-    }
     public void RequestHangMove(float value)
     {
         if (hangCoroutine != null)
             return;
         hangCoroutine = StartCoroutine(HangMove(value));
     }
-    IEnumerator SetLayer1()
-    {
-        float time = 0f;
-        while (time < 1f)
-        {
-            time += Time.deltaTime * 3f;
-            con.Animation.SetLayerWeight(1, time);
-            yield return null;
-        }
-    }
     // 절벽에서 떨어질때 사용하는 코드
     // Climb과 작동 방식은 비슷하지만
     // 에니메이션과 상태가 달라 따로 작성
     IEnumerator SetLendLayerOn()
     {
-        float time = 0f;
-        if (preSubState == LocomotionSubState.Walk)
-        {
-            while (time < 1f)
-            {
-                time += Time.deltaTime * 3f;
-                con.Animation.SetLayerWeight(1, time);
-                yield return null;
-            }
-        }
+        con.LayerController.RequestLayer1On(0.3f);
 
+        yield return new WaitUntil(() =>
+    con.Animator.GetCurrentAnimatorStateInfo(1).IsName("LandSoft"));
         // 에니메이션은 CheckFallDistance함수에서 설정
         yield return new WaitUntil(() =>
             con.Animator.GetCurrentAnimatorStateInfo(1).normalizedTime >= 0.8f);
 
         con.Player.RequestWeaponRendererOn();
-        time = 0f;
-        while (time < 1f)
-        {
-            time += Time.deltaTime * 3f;
-            con.Animation.SetLayerWeight(1, 1 - time);
-            if (con.Player.currentWeaponType != Player.WeaponType.Default)
-                con.Animation.SetLayerWeight(2, time);
-            yield return null;
-        }
+        con.LayerController.RequestLayer1Off(0.2f);
+        if (con.Player.currentWeaponType != Player.WeaponType.Default)
+            con.LayerController.RequestLayer2On(0.3f);
 
         layerCoroutine = null;
         ChangeState(LocomotionSubState.Idle);
-    }
-    // Climb에서만 호출하는 코드
-    // 착지 후 레이어를 끔
-    // Climb 종료
-    IEnumerator SetClimbLayerOff()
-    {
-        con.Player.RequestWeaponRendererOn();
-        float time = 0f;
-        while (time < 1f)
-        {
-            time += Time.deltaTime * 3f;
-            con.Animation.SetLayerWeight(1, 1 - time);
-            yield return null;
-        }
-        layerCoroutine = null;
     }
     IEnumerator HangMove(float value)
     {
@@ -404,7 +376,7 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
     }
     IEnumerator EnterJumpHang()
     {
-        con.cc.Move(con.Player.transform.up * 0.2f);
+        con.cc.Move(con.Player.transform.up * 0.3f);
         con.RootMotionController.RequestRootMotion(true);
         con.Animation.PlayJumpHang();
 
@@ -416,17 +388,27 @@ public class LocomotionState : PlayerBehaviour, IPlayerState
 
         waitHangMove = null;
     }
-    IEnumerator EnterMatle()
+    IEnumerator EnterMantle()
     {
+        con.LayerController.RequestLayer1On(0.2f);
+        con.LayerController.RequestLayer2Off(0.2f);
         con.RootMotionController.RequestRootMotion(true);
-        con.Animation.PlayJumpHang();
+        con.Animation.PlayMantle();
 
         yield return new WaitUntil(() =>
-    con.Animator.GetCurrentAnimatorStateInfo(1).IsName("JumpHang"));
+    con.Animator.GetCurrentAnimatorStateInfo(1).IsName("PlayMantle"));
         yield return new WaitUntil(() =>
             con.Animator.GetCurrentAnimatorStateInfo(1).normalizedTime >= 0.8f);
         con.RootMotionController.RequestRootMotion(false);
 
-        waitHangMove = null;
+        con.LayerController.RequestLayer1Off(0.2f);
+        if (con.Player.currentWeaponType != Player.WeaponType.Default)
+            con.LayerController.RequestLayer2On(0.2f);
+
+        con.cc.radius = originRadius;
+        con.cc.height = originHeight;
+        ChangeState(LocomotionSubState.Idle);
+
+        mantleCoroutine = null;
     }
 }

@@ -135,7 +135,7 @@ Transform:
   m_GameObject: {fileID: 1968724220497428112}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.485, z: 0}
+  m_LocalPosition: {x: 0, y: 2.151, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -351,6 +351,7 @@ GameObject:
   - component: {fileID: 6885732768413295120}
   - component: {fileID: 8259582231601849780}
   - component: {fileID: 2871298911007411328}
+  - component: {fileID: 2275230058456010773}
   m_Layer: 9
   m_Name: PlayerMovement
   m_TagString: Untagged
@@ -387,7 +388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LocomotionState
   wallLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 2176
   HangCheck: {fileID: 8238203221728410943}
 --- !u!114 &6013803110513568716
 MonoBehaviour:
@@ -490,10 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
   Head: {fileID: 8806019667399944356}
-  LadderMask:
-    serializedVersion: 2
-    m_Bits: 6144
-  BoxMask:
+  interactableLayer:
     serializedVersion: 2
     m_Bits: 2048
 --- !u!114 &6885732768413295120
@@ -533,6 +531,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1bedd8ab02b6c842a53a4e4545cb10c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoxInteractionState
+  currentState: 0
+--- !u!114 &2275230058456010773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356631373245446715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fac99b298bc2824faff686d965b289e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LayerController
 --- !u!1 &8125920071323429513
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +654,7 @@ MonoBehaviour:
   boxInteractionState: {fileID: 2871298911007411328}
   rootMotionController: {fileID: 1920328864269422765}
   edgeCheck: {fileID: 3303148671234308443}
+  layerController: {fileID: 2275230058456010773}
   sword: {fileID: 2508213279660673567}
   bow: {fileID: 9003156226288143570}
 --- !u!1 &8487760766027529254

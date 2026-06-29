@@ -97,13 +97,12 @@ public class Climb : PlayerBehaviour
             yield return null;
         }
 
+        con.LayerController.RequestLayer1On(0.2f);
         time = 0;
         while (time <= 1)
         {
             float delta = Time.deltaTime * 6.5f;
             time += delta;
-
-            con.Animation.SetLayerWeight(1, time);
 
             // 총 0.15 이동하도록 분배
             Vector3 move = Vector3.up * 0.15f * delta;
@@ -191,7 +190,7 @@ public class Climb : PlayerBehaviour
 
 
         Vector3 startPos = transform.position;
-        Vector3 targetPos = arriveTargetPos - con.cc.center + Vector3.up * (originHeight * 0.7f);
+        Vector3 targetPos = arriveTargetPos - con.cc.center + Vector3.up * (originHeight * 0.5f);
         Vector3 prevPos = startPos;
 
         float time = 0;
@@ -213,42 +212,31 @@ public class Climb : PlayerBehaviour
         while (!con.cc.isGrounded)
         {
             con.Movement.Airborne();
-
             yield return null;
         }
 
         if (con.StateMachine.currentState == PlayerState.LocomotionState)
-        {
             con.Player.RequestWeaponRendererOn();
-        }
 
-        time = 0;
-        while (time < 1)
-        {
-            time += Time.deltaTime * 3f;
-
-            con.Animation.SetLayerWeight(1, 1 - time);
-            if (con.StateMachine.currentState == PlayerState.LocomotionState)
-                con.Animation.SetLayerWeight(2, time);
-            yield return null;
-        }
+        con.LayerController.RequestLayer1Off(0.3f);
+        if (con.StateMachine.currentState == PlayerState.LocomotionState)
+            con.LayerController.RequestLayer2On(0.3f);
 
         Finish();
-        con.Animation.SetLayerWeight(1, 0);
         arriveCoroutine = null;
     }
     IEnumerator ArriveBottomCoroutine()
     {
+        con.LayerController.RequestLayer1Off(0.5f);
+
         float time = 0;
         while (time <= 1)
         {
             float delta = Time.deltaTime * 2f;
             time += delta;
 
-            Vector3 move = -con.Player.transform.forward * 0.2f * delta;
+            Vector3 move = -con.Player.transform.forward * 0.4f * delta;
             con.Movement.FallMove(move);
-
-            con.Animation.SetLayerWeight(1, 1 - time);
 
             yield return null;
         }
@@ -260,7 +248,6 @@ public class Climb : PlayerBehaviour
         }
 
         Finish();
-        con.Animation.SetLayerWeight(1, 0);
         arriveCoroutine = null;
     }
     public void SetLadder(Transform ladder)

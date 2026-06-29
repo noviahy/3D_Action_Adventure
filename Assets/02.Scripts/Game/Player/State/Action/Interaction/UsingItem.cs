@@ -17,7 +17,7 @@ public class UsingItem : PlayerBehaviour
         {
             // 여기서 Item 수 차감
             // 근데 아직 구현 안 해서 나중에 할듯
-            enterCoroutine = StartCoroutine(EnterItem());
+            
         }
     }
 
@@ -26,16 +26,5 @@ public class UsingItem : PlayerBehaviour
         con.InteractionState.TryChangeInteractionType(InteractionState.InteractionType.Idle);
         // 이름 확인 
         con.StateMachine.TryChangeState(PlayerState.LocomotionState);
-    }
-
-    IEnumerator EnterItem()
-    {
-        float time = 0;
-        while (time >= 1)
-        {
-            time += Time.deltaTime * 3;
-            con.Animation.SetLayerWeight(4, time);
-            yield return null;
-        }
     }
 }

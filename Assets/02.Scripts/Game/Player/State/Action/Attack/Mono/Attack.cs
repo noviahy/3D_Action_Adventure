@@ -16,8 +16,8 @@ public class Attack : PlayerBehaviour
     {
         if (coroutine == null)
         {
-            con.Animation.SetLayerWeight(1, 1);
-            con.Animation.SetLayerWeight(2, 0);
+            con.LayerController.RequestLayer1On(0.2f);
+            con.LayerController.RequestLayer2Off(0.2f);
             coroutine = StartCoroutine(SwordAttack());
         }
     }

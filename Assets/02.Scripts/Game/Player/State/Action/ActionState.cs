@@ -26,37 +26,31 @@ public class ActionState : IPlayerState
         if (currentType == type)
             return;
 
-        if (con.ActionIdle.IdleBlending)
+        // Activity 만들면 정리해줄 예정
+        // 이번에 들어온 상태
+        switch (type)
         {
-            // Activity 만들면 정리해줄 예정
-            // 이번에 들어온 상태
-            switch (type)
-            {
-                case ActionType.Attack:
-                    con.ActionIdle.RequestStopAllCoroutine();
-                    break;
-                case ActionType.Dodge:
-                    con.ActionIdle.RequestStopAllCoroutine();
-                    con.Animation.SetLayerWeight(1, 1f);
-                    con.Animation.SetLayerWeight(2, 0f);
-                    break;
-                case ActionType.Parrying:
-                    con.ActionIdle.RequestStopAllCoroutine();
-                    con.Animation.SetLayerWeight(1, 1f);
-                    con.Animation.SetLayerWeight(2, 0f);
-                    break;
-                case ActionType.Activity:
-                    break;
-                case ActionType.Roll:
-                    con.ActionIdle.StopAllCoroutines();
-                    con.Animation.SetLayerWeight(2, 0f);
-                    if (con.BowAttack.Standby)
-                    {
-                        fromBow = true;
-                        con.BowAttack.RollOnRelease();
-                    }
-                    break;
-            }
+            case ActionType.Attack:
+                break;
+            case ActionType.Dodge:
+                con.LayerController.RequestLayer1On(0.2f);
+                con.LayerController.RequestLayer2Off(0.2f);
+                break;
+            case ActionType.Parrying:
+                con.LayerController.RequestLayer1On(0.2f);
+                con.LayerController.RequestLayer2Off(0.2f);
+                break;
+            case ActionType.Activity:
+                break;
+            case ActionType.Roll:
+                con.LayerController.RequestLayer1On(0.2f);
+                con.LayerController.RequestLayer2Off(0.2f);
+                if (con.BowAttack.Standby)
+                {
+                    fromBow = true;
+                    con.BowAttack.RollOnRelease();
+                }
+                break;
         }
         // 이거 왜 이렇게 하나하나 다 써놨는지 모르겠음
         // 그래도 나중에 혹시 쓸일이 있을까 일단 남겨둠

@@ -120,7 +120,6 @@ public class AnimationController
     {
 
     }
-    // 터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다터진다
     public void SetLayerWeight(int index, float weight)
     {
         con.Animator.SetLayerWeight(index, weight);

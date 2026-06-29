@@ -8,7 +8,7 @@ public class PlayerMovement
     private float slowWalkSpeed = 1.5f;
     private float walkSpeed = 3.5f;
     private float runSpeed = 7f;
-    private float fallingSpeed = 1f;
+    private float fallingSpeed = 2f;
 
     private float lockOnSpeed = 1.5f;
     private float fallStartY;
@@ -16,7 +16,7 @@ public class PlayerMovement
 
     public bool isJumping { get; private set; } = false;
     private float jumpForwardPower = 3f;
-    private float jumpUpPower = 5f;
+    private float jumpUpPower = 4f;
     public bool hasLanded { get; private set; } = true;
 
     private float rotSpeed = 10f;
@@ -42,7 +42,6 @@ public class PlayerMovement
     {
         con = controller;
     }
-    // 보통 여기에 진짜 천천히 움직이는걸 하나 더 만들어야 하지만 그건 다음 게임에 추가
     public void Move(Vector3 inputDir)
     {
         if (con.cc.isGrounded && yVelocity < 0)
@@ -83,7 +82,7 @@ public class PlayerMovement
         Vector3 move = new Vector3(horizontal.x, yVelocity, horizontal.z);
         con.cc.Move(move * Time.deltaTime);
     }
-    // 트리거시 호출하는 코드
+    // 트리거 시 호출하는 코드
     public void StartJump()
     {
         isJumping = true;
@@ -94,7 +93,7 @@ public class PlayerMovement
         yVelocity = jumpUpPower;
 
         con.Animation.PlayJump();
-        con.Animation.SetLayerWeight(1, 1f);
+        con.LayerController.RequestLayer1On(0.2f);
     }
     // Climb에서만 사용하는 코드
     // 떨어지기만 함
@@ -110,7 +109,11 @@ public class PlayerMovement
         if (con.cc.isGrounded && yVelocity < 0)
         {
             yVelocity = -2.5f;
-            con.Locomotion.RequestOffCoroutine();
+            // Climb에서만 호출하는 코드
+            // 착지 후 레이어를 끔
+            // Climb 종료
+            con.Player.RequestWeaponRendererOn();
+            con.LayerController.RequestLayer1Off(0.3f);
         }
     }
     // Locomotion Airborne에서 사용하는 코드
@@ -145,7 +148,10 @@ public class PlayerMovement
         isJumping = false;
 
         if (totalFallY <= 2.5f && con.Locomotion.preSubState != LocomotionSubState.Hang)
+        {
+            con.LayerController.RequestLayer1Off(0.3f);
             con.Locomotion.ChangeState(LocomotionSubState.Idle);
+        }
 
         else if (totalFallY > 2.5f && con.Locomotion.preSubState != LocomotionSubState.Run)
         {

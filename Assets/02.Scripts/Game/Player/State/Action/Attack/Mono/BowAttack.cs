@@ -40,8 +40,8 @@ public class BowAttack : PlayerBehaviour
     {
         if (currentBowState == bowState.Idle) // 외부에선 꼬임 방지를 위해 Idle에서만 상태를 변경할 수 있게 했어요
         {
-            con.Animation.SetLayerWeight(1, 0);
-            con.Animation.SetLayerWeight(2, 1);
+            con.LayerController.RequestLayer1Off(0.2f);
+            con.LayerController.RequestLayer2On(0.2f);
             ChangeBowState(bowState.Enter);
         }
     }
@@ -65,12 +65,14 @@ public class BowAttack : PlayerBehaviour
                 {
                     StopCoroutine(exitCoroutine);
                     exitCoroutine = null;
-                    con.Animation.SetLayerWeight(3, 1);
+                    con.LayerController.RequestLayer3On(0.2f);
                 }
                 releaseCoroutine = StartCoroutine(BowRelease());
                 break;
             case bowState.Exiting:
-                exitCoroutine = StartCoroutine(BowExit());
+                Standby = false;
+                con.LayerController.RequestLayer3Off(0.3f);
+                ChangeBowState(bowState.Idle);
                 break;
         }
     }
@@ -84,16 +86,7 @@ public class BowAttack : PlayerBehaviour
         con.Animation.PlayLoadBow();
 
         // 레이어 활성화
-        float t = 0;
-
-        while (t <= 1)
-        {
-            t += Time.deltaTime * 4;
-            con.Animation.SetLayerWeight(3, t);
-
-            yield return null;
-        }
-        con.Animation.SetLayerWeight(3, 1);
+        con.LayerController.RequestLayer3On(0.2f);
 
         // 애니메이션 대기
         yield return new WaitForSeconds(0.5f);
@@ -164,10 +157,6 @@ public class BowAttack : PlayerBehaviour
         releaseCoroutine = null;
         ChangeBowState(bowState.Exiting);
     }
-    public void FallOnCharging()
-    {
-
-    }
     public void RollOnRelease()
     {
         if (showCrosshair)
@@ -180,30 +169,7 @@ public class BowAttack : PlayerBehaviour
         releaseCoroutine = null;
         BowAimed = false;
         Standby = false;
-        con.Animation.SetLayerWeight(3, 0);
-        ChangeBowState(bowState.Idle);
-    }
-    // 이건 왜 Idle로 안 뺐는가?
-    // 그 이윤 Layer3번과 상호작용 하는게 없어서 그냥 여기서 0으로 가던 1으로 가던 상관 없음
-    IEnumerator BowExit()
-    {
-        Standby = false;
-        float t = 0;
-
-        while (t <= 1)
-        {
-            if (con.Input.BowCharging)
-            {
-                ChangeBowState(bowState.Released);
-                yield break;
-            }
-            t += Time.deltaTime * 3;
-            con.Animation.SetLayerWeight(3, 1 - t);
-
-            yield return null;
-        }
-        con.Animation.SetLayerWeight(3, 0);
-        exitCoroutine = null;
+        con.LayerController.RequestLayer3Off(0.2f);
         ChangeBowState(bowState.Idle);
     }
     Vector3 GetShootDirection()
