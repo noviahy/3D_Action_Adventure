@@ -68,13 +68,15 @@ public class CrossHair : MonoBehaviour
     public void RequestCorssHairFO()
     {
         if (coroutine != null)
-            coroutine = StartCoroutine(CrossHairFO());
+            StopCoroutine(coroutine);
+        StartCoroutine(CrossHairFO());
+
     }
     IEnumerator CrossHairFO()
     {
         float duration = 0.45f;
 
-        yield return new WaitForSeconds(1f);
+        //yield return new WaitForSeconds(1f);
 
         float t = 0;
         while (t < duration)

@@ -1146,7 +1146,7 @@ GameObject:
   - component: {fileID: 941782812}
   m_Layer: 11
   m_Name: Cube (9)
-  m_TagString: Mantleable
+  m_TagString: Moveable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -2176,6 +2176,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 036dea4d5df771546b5b6b85a59d40c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LocomotionState
+--- !u!114 &1676379840 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1642855954461820999, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 882b2d34dd773f74bab7673dacadafdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HangController
 --- !u!1 &1678530591
 GameObject:
   m_ObjectHideFlags: 0
@@ -2583,16 +2594,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1174007945}
     - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: hang
+      value: 
+      objectReference: {fileID: 1676379840}
+    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: input
       value: 
       objectReference: {fileID: 360286960}
+    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: mantle
+      value: 
+      objectReference: {fileID: 2095293008430523851}
+    - target: {fileID: 4866177261752308706, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+      propertyPath: airborn
+      value: 
+      objectReference: {fileID: 2095293008430523850}
     - target: {fileID: 8125920071323429513, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 8238203221728410943, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.151
       objectReference: {fileID: 0}
     - target: {fileID: 8387046485649861652, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform
@@ -2600,15 +2619,15 @@ PrefabInstance:
       objectReference: {fileID: 35111644}
     - target: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -5.711
       objectReference: {fileID: 0}
     - target: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.24
+      value: 0.393
       objectReference: {fileID: 0}
     - target: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.689
+      value: 2.3
       objectReference: {fileID: 0}
     - target: {fileID: 9127978430954455101, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2648,6 +2667,28 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8780229674925672591, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
   m_PrefabInstance: {fileID: 2095293008430523848}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2095293008430523850 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 22450751261378150, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dabc68ef94840442907b9588f8507d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Airborn
+--- !u!114 &2095293008430523851 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 804295425473882451, guid: b6c0b3345f9db4c4ab8c8d608046e99b, type: 3}
+  m_PrefabInstance: {fileID: 2095293008430523848}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17e16ccf2064f05439a33357b6da507f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mantle
 --- !u!1001 &6610828529485966877
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -73,7 +73,7 @@ public class Climb : PlayerBehaviour
         Vector3 startPos = transform.position;
         Vector3 targetPos = EnterPoint.position;
 
-        Vector3 dir = -currentLadder.forward;
+        Vector3 dir = -con.StateMachine.Ladder.normal;
         dir.y = 0;
 
         float time = 0;

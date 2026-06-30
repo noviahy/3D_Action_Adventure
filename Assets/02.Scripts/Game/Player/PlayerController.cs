@@ -26,6 +26,9 @@ public class PlayerController
     public RootMotionController RootMotionController { get; }
     public EdgeCheck EdgeCheck { get; }
     public LayerController LayerController { get; }
+    public Hang Hang { get; }
+    public Mantle Mantle { get; }
+    public Airborn Airborn { get; }
 
     // System (순수 C#)
     public DeadState Dead { get; }
@@ -59,7 +62,10 @@ public class PlayerController
         BoxInteractionState boxInteractionState,
         RootMotionController rootMotionController,
         EdgeCheck edgeCheck,
-        LayerController layerController)
+        LayerController layerController,
+        Hang hang,
+        Mantle mantle,
+        Airborn airborn)
     {
         Input = input;
         Player = player;
@@ -83,6 +89,9 @@ public class PlayerController
         RootMotionController = rootMotionController;
         EdgeCheck = edgeCheck;
         LayerController = layerController;
+        Hang = hang;
+        Mantle = mantle;
+        Airborn = airborn;
 
         // 순수 C# 코드 생성
         Dead = new DeadState(this);

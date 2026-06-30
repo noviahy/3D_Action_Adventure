@@ -10,6 +10,7 @@ public class BowAttack : PlayerBehaviour
     public bool BowAimed { get; private set; }
     public bool BowShoot { get; private set; }
     public bool Standby { get; private set; } // 활 쏜 후 시점 고정 시간
+    public bool BowDraw { get; private set; } = false; // 시위를 당기고 있는 시간
 
     private Coroutine exitCoroutine;
     private Coroutine releaseCoroutine;
@@ -45,7 +46,6 @@ public class BowAttack : PlayerBehaviour
             ChangeBowState(bowState.Enter);
         }
     }
-
     private void ChangeBowState(bowState state)
     {
         preBowState = currentBowState;
@@ -76,7 +76,6 @@ public class BowAttack : PlayerBehaviour
                 break;
         }
     }
-
     IEnumerator BowEnter()
     {
         showCrosshair = true;
@@ -106,6 +105,7 @@ public class BowAttack : PlayerBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
+        BowDraw = true;
         float force = 0;
         while (con.Input.BowCharging)
         {
@@ -113,6 +113,7 @@ public class BowAttack : PlayerBehaviour
             force = Mathf.Clamp01(force);
             yield return null;
         }
+        BowDraw = false;
         if (force < 0.2f)
             force = 0.2f;
 
@@ -121,7 +122,6 @@ public class BowAttack : PlayerBehaviour
         arrowPool.GetArrow(dir, firePoint, force);
         arrowRenderer.enabled = false;
         showCrosshair = false;
-        crossHair.RequestCorssHairFO();
 
         con.Animation.PlayUpperBody("Release");
         con.Animation.PlayLowerBody("BowIdle");
@@ -142,10 +142,10 @@ public class BowAttack : PlayerBehaviour
         BowAimed = false;
 
         // 연사 방지 대기시간
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
 
         t = 0;
-        while (t <= 0.3f)
+        while (t <= 0.2f)
         {
             t += Time.deltaTime;
 
@@ -154,6 +154,8 @@ public class BowAttack : PlayerBehaviour
                 ChangeBowState(bowState.Released);
             yield return null;
         }
+        crossHair.RequestCorssHairFO();
+
         releaseCoroutine = null;
         ChangeBowState(bowState.Exiting);
     }
@@ -171,6 +173,26 @@ public class BowAttack : PlayerBehaviour
         Standby = false;
         con.LayerController.RequestLayer3Off(0.2f);
         ChangeBowState(bowState.Idle);
+    }
+    public void CancelBow()
+    {
+        StopCoroutine(releaseCoroutine);
+        releaseCoroutine = null;
+
+        if (showCrosshair)
+        {
+            showCrosshair = false;
+            crossHair.RequestCorssHairFO();
+        }
+
+        BowAimed = false;
+        Standby = false;
+        BowDraw = false;
+        con.LayerController.RequestLayer3Off(0.2f);
+        con.Animation.PlayUpperBody("Bow");
+        ChangeBowState(bowState.Idle);
+        con.ActionState.TryChangeType(ActionState.ActionType.Idle);
+        con.StateMachine.TryChangeState(PlayerStateMachine.PlayerState.LocomotionState);
     }
     Vector3 GetShootDirection()
     {

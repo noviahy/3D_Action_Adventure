@@ -9,9 +9,10 @@ public class PlayerStateMachine : PlayerBehaviour
     public bool isCliff { get; private set; }
     public bool isMantle { get; private set; } = false;
     public bool isBox { get; private set; }
-    public RaycastHit Box {  get; private set; }
+    public RaycastHit Box { get; private set; }
+    public RaycastHit Ladder {  get; private set; }
+    public RaycastHit Mantle { get; private set; }
     public bool JustLand { get; private set; } = false;
-    public bool Climb { get; private set; } = false;
 
     [SerializeField] private Transform Head;
     [SerializeField] private LayerMask interactableLayer;
@@ -125,8 +126,6 @@ public class PlayerStateMachine : PlayerBehaviour
 
         if (Physics.Raycast(transform.position, transform.forward, out hit, 0.3f, interactableLayer))
         {
-            if (hit.transform.CompareTag("Ladder"))
-                isLadder = true;
             if (hit.transform.CompareTag("Moveable"))
             {
                 Box = hit;
@@ -140,9 +139,16 @@ public class PlayerStateMachine : PlayerBehaviour
             if (hit.transform.CompareTag("Mantleable"))
             {
                 actionNormal = hit.normal;
+                Mantle = hit;
                 isMantle = true;
             }
         }
+        if (Physics.Raycast(Head.transform.position, transform.forward, out hit, 0.3f, interactableLayer))
+            if (hit.transform.CompareTag("Ladder"))
+            {
+                Ladder = hit;
+                isLadder = true;
+            }
     }
     private void EnterClimb()
     {
@@ -202,8 +208,9 @@ public class PlayerStateMachine : PlayerBehaviour
     private void EnterBow()
     {
         // 입력 + 기본 상태
-        if (con.Input.BowCharging && currentState == PlayerState.LocomotionState)
+        if (con.Input.BowCharging && currentState == PlayerState.LocomotionState && !con.AttackState.IgnoreBowInput)
         {
+            Debug.Log("!");
             con.ActionState.TryChangeType(ActionState.ActionType.Attack);
             // 무기 변경 후 진입
             if (con.Player.currentWeaponType == Player.WeaponType.Bow)

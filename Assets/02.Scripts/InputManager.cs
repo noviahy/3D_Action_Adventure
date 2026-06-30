@@ -63,6 +63,9 @@ public class InputManager : MonoBehaviour
     private float ItemTime = 0.12f;
     private float ItemTimer;
 
+    private float interactionTime = 0.12f;
+    private float interactionTimer;
+
     private float attackTime = 0.3f;
     private float attackTImer;
     public InputMode CurrentInputMode { get; private set; }
@@ -146,7 +149,7 @@ public class InputManager : MonoBehaviour
         WeaponChangeInput();
 
         // 상호작용키
-        InteractionPressed = inputAction.Player.Interaction.WasPressedThisFrame();
+        InteractionInput();
 
         // 달리기와 회피
         dodgeInput();
@@ -270,6 +273,21 @@ public class InputManager : MonoBehaviour
         if (ItemTimer < 0)
         {
             ItemBuffered = false;
+            BackBuffered = false;
+        }
+    }
+    private void InteractionInput()
+    {
+        bool interactionPressed = inputAction.Player.Interaction.WasPressedThisFrame();
+
+        interactionTimer -= Time.deltaTime;
+        if (interactionPressed)
+        {
+            BackBuffered = true;
+            interactionTimer = interactionTime;
+        }
+        if (interactionTimer < 0)
+        {
             BackBuffered = false;
         }
     }

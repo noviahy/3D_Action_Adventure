@@ -1,8 +1,9 @@
 using UnityEngine;
-
 public class AttackState : PlayerBehaviour
 {
     public AttackStyle currentAttackStyle { get; private set; }
+    public bool IgnoreBowInput { get; private set; } = false;
+
 
     private void Start()
     {
@@ -25,24 +26,26 @@ public class AttackState : PlayerBehaviour
     }
     public void Enter()
     {
-        /*
-    switch (con.Player.currentWeaponType)
-    {
-         * 레이어값 변경이 있던 자리
-         * 근데 Attack이 끝나자마자 Bow을 사용하니까 Layer가 안 꺼지는 문제가 있었음
-         * 내가 봤을때 여기가 안 들어온 것 같은데 
-         * 그래서 각자 코드 Enter로 넣어줌
-    }
-        */
-
+        if (con.Player.currentWeaponType == Player.WeaponType.Sword)
+        {
+            con.LayerController.RequestLayer1On(0.2f);
+            con.LayerController.RequestLayer2Off(0.2f);
+        }
     }
     private void Update()
     {
-        // Debug.Log($"AttackStyle:{currentAttackStyle}");
-        // Debug.Log($"ActionState:{con.ActionState.currentType}");
-        // Debug.Log($"PlayerState:{con.StateMachine.currentState}");
+        Debug.Log(IgnoreBowInput);
         if (con.ActionState.currentType != ActionState.ActionType.Attack)
             return;
+        if (con.BowAttack.BowAimed && con.Input.BackBuffered)
+        {
+            IgnoreBowInput = true;
+            con.BowAttack.CancelBow();
+        }
+
+        if(IgnoreBowInput && !con.Input.BowCharging)
+            IgnoreBowInput = false;
+
         //Debug.Log(con.Player.currentWeaponType);
         switch (con.Player.currentWeaponType)
         {
@@ -58,10 +61,7 @@ public class AttackState : PlayerBehaviour
                 break;
         }
     }
-
     public void Exit()
     {
-        // 있었던 코루틴을 빼줬습니다
-        // 혹시 모르니 남겨두도록 할게요
     }
 }

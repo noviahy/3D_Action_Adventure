@@ -29,15 +29,6 @@ public class PlayerMovement
 
     private float hangOffset = 0.1f;
 
-    public AirbornState currentAirbornState { get; private set; }
-    public enum AirbornState
-    {
-        Idle,
-        Jump,
-        Walk,
-        SlowWalk,
-    }
-
     public PlayerMovement(PlayerController controller)
     {
         con = controller;
@@ -153,7 +144,8 @@ public class PlayerMovement
             con.Locomotion.ChangeState(LocomotionSubState.Idle);
         }
 
-        else if (totalFallY > 2.5f && con.Locomotion.preSubState != LocomotionSubState.Run)
+        else if ((totalFallY > 2.5f && con.Locomotion.preSubState != LocomotionSubState.Run) ||
+            con.Locomotion.preSubState == LocomotionSubState.Hang)
         {
             con.Animation.PlayLand();
 
@@ -200,9 +192,5 @@ public class PlayerMovement
         con.Animation.SetMove(climbSpeed);
 
         con.cc.Move(move * Time.deltaTime);
-    }
-    public void MoveBox()
-    {
-
     }
 }

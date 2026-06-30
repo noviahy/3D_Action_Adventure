@@ -25,6 +25,9 @@ public class Player : MonoBehaviour
     [SerializeField] RootMotionController rootMotionController;
     [SerializeField] EdgeCheck edgeCheck;
     [SerializeField] LayerController layerController;
+    [SerializeField] Hang hang;
+    [SerializeField] Mantle mantle;
+    [SerializeField] Airborn airborn;
 
     [Header("Weapon")]
     [SerializeField] Renderer sword;
@@ -245,7 +248,10 @@ public class Player : MonoBehaviour
             boxInteractionState,
             rootMotionController,
             edgeCheck,
-            layerController
+            layerController,
+            hang,
+            mantle,
+            airborn
         );
         Controller.Animation.SetWeaponType(0);
     }

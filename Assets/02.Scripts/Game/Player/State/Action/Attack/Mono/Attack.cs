@@ -15,11 +15,7 @@ public class Attack : PlayerBehaviour
     public void RequestSwordAttack()
     {
         if (coroutine == null)
-        {
-            con.LayerController.RequestLayer1On(0.2f);
-            con.LayerController.RequestLayer2Off(0.2f);
             coroutine = StartCoroutine(SwordAttack());
-        }
     }
 
     IEnumerator SwordAttack()
